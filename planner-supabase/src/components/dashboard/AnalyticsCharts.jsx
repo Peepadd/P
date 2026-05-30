@@ -2,8 +2,6 @@ import { useRef } from 'react'
 import { Bar, Doughnut } from 'react-chartjs-2'
 import { BarChart3, PieChart } from 'lucide-react'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend)
-
 function formatCurrency(amount) {
   return Number(amount).toLocaleString('th-TH', {
     minimumFractionDigits: 2,
