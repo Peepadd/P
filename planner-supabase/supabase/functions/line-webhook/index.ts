@@ -84,7 +84,6 @@ serve(async (req: Request) => {
       const { data: transactions, error: txError } = await supabase
         .from('transactions')
         .select('type, amount')
-        .eq('user_id', userProfile.id)
         .gte('date', startOfMonth)
         .lte('date', endOfMonth)
 
@@ -144,7 +143,6 @@ serve(async (req: Request) => {
       .from('transactions')
       .insert({
         id: transactionId,
-        user_id: userProfile.id,
         type: type,
         category: category,
         amount: amount,
