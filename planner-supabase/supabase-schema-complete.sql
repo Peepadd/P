@@ -2,6 +2,9 @@
 -- Supabase Complete Schema — ทุกตารางสำหรับ Planner Supabase
 -- รัน SQL นี้ครั้งเดียวใน Supabase SQL Editor
 -- ============================================================
+-- หมายเหตุ: CREATE POLICY ไม่รองรับ IF NOT EXISTS ในบางเวอร์ชัน
+-- จึงใช้ DO block เพื่อให้รันซ้ำได้โดยไม่มี error
+-- ============================================================
 
 -- ============================================================
 -- 1. ตารางธุรกรรมการเงิน (transactions)
@@ -27,8 +30,12 @@ CREATE INDEX IF NOT EXISTS idx_transactions_date_type ON transactions(date, type
 
 ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Shared access for transactions"
-  ON transactions FOR ALL USING (auth.role() = 'authenticated');
+DO $$ BEGIN
+  CREATE POLICY "Shared access for transactions"
+    ON transactions FOR ALL USING (auth.role() = 'authenticated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 2. ตารางรายการ checklist (checklist_items)
@@ -53,8 +60,12 @@ CREATE INDEX IF NOT EXISTS idx_checklist_items_due_date ON checklist_items(due_d
 
 ALTER TABLE checklist_items ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Shared access for checklist_items"
-  ON checklist_items FOR ALL USING (auth.role() = 'authenticated');
+DO $$ BEGIN
+  CREATE POLICY "Shared access for checklist_items"
+    ON checklist_items FOR ALL USING (auth.role() = 'authenticated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 3. ตารางงานย่อย (sub_tasks)
@@ -73,8 +84,12 @@ CREATE INDEX IF NOT EXISTS idx_sub_tasks_parent ON sub_tasks(parent_id);
 
 ALTER TABLE sub_tasks ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Shared access for sub_tasks"
-  ON sub_tasks FOR ALL USING (auth.role() = 'authenticated');
+DO $$ BEGIN
+  CREATE POLICY "Shared access for sub_tasks"
+    ON sub_tasks FOR ALL USING (auth.role() = 'authenticated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 4. ตารางรายการวิชาการ (academic_items)
@@ -100,8 +115,12 @@ CREATE INDEX IF NOT EXISTS idx_academic_items_archived ON academic_items(archive
 
 ALTER TABLE academic_items ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Shared access for academic_items"
-  ON academic_items FOR ALL USING (auth.role() = 'authenticated');
+DO $$ BEGIN
+  CREATE POLICY "Shared access for academic_items"
+    ON academic_items FOR ALL USING (auth.role() = 'authenticated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 5. ตารางรายการอัตโนมัติ (recurring_transactions)
@@ -125,8 +144,12 @@ CREATE INDEX IF NOT EXISTS idx_recurring_active ON recurring_transactions(active
 
 ALTER TABLE recurring_transactions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Shared access for recurring_transactions"
-  ON recurring_transactions FOR ALL USING (auth.role() = 'authenticated');
+DO $$ BEGIN
+  CREATE POLICY "Shared access for recurring_transactions"
+    ON recurring_transactions FOR ALL USING (auth.role() = 'authenticated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 6. ตารางตารางเรียน (timetables)
@@ -144,8 +167,12 @@ CREATE TABLE IF NOT EXISTS timetables (
 
 ALTER TABLE timetables ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Shared access for timetables"
-  ON timetables FOR ALL USING (auth.role() = 'authenticated');
+DO $$ BEGIN
+  CREATE POLICY "Shared access for timetables"
+    ON timetables FOR ALL USING (auth.role() = 'authenticated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 7. ตารางนิสัย (habits)
@@ -161,8 +188,12 @@ CREATE TABLE IF NOT EXISTS habits (
 
 ALTER TABLE habits ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Shared access for habits"
-  ON habits FOR ALL USING (auth.role() = 'authenticated');
+DO $$ BEGIN
+  CREATE POLICY "Shared access for habits"
+    ON habits FOR ALL USING (auth.role() = 'authenticated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 8. ตารางบันทึกการทำนิสัยรายวัน (habit_logs)
@@ -183,8 +214,12 @@ CREATE INDEX IF NOT EXISTS idx_habit_logs_habit_date ON habit_logs(habit_id, dat
 
 ALTER TABLE habit_logs ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Shared access for habit_logs"
-  ON habit_logs FOR ALL USING (auth.role() = 'authenticated');
+DO $$ BEGIN
+  CREATE POLICY "Shared access for habit_logs"
+    ON habit_logs FOR ALL USING (auth.role() = 'authenticated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 9. ตารางตั้งค่าระบบ (system_settings)
@@ -198,8 +233,12 @@ CREATE TABLE IF NOT EXISTS system_settings (
 
 ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Shared access for system_settings"
-  ON system_settings FOR ALL USING (auth.role() = 'authenticated');
+DO $$ BEGIN
+  CREATE POLICY "Shared access for system_settings"
+    ON system_settings FOR ALL USING (auth.role() = 'authenticated');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 10. ตารางโปรไฟล์ผู้ใช้ (user_profiles)
@@ -214,17 +253,33 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can view own profile"
-  ON user_profiles FOR SELECT USING (auth.uid() = id);
+DO $$ BEGIN
+  CREATE POLICY "Users can view own profile"
+    ON user_profiles FOR SELECT USING (auth.uid() = id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
-CREATE POLICY IF NOT EXISTS "Users can update own profile"
-  ON user_profiles FOR UPDATE USING (auth.uid() = id);
+DO $$ BEGIN
+  CREATE POLICY "Users can update own profile"
+    ON user_profiles FOR UPDATE USING (auth.uid() = id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
-CREATE POLICY IF NOT EXISTS "Users can insert own profile"
-  ON user_profiles FOR INSERT WITH CHECK (auth.uid() = id);
+DO $$ BEGIN
+  CREATE POLICY "Users can insert own profile"
+    ON user_profiles FOR INSERT WITH CHECK (auth.uid() = id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
-CREATE POLICY IF NOT EXISTS "Service can manage all profiles"
-  ON user_profiles FOR ALL USING (auth.role() = 'service_role');
+DO $$ BEGIN
+  CREATE POLICY "Service can manage all profiles"
+    ON user_profiles FOR ALL USING (auth.role() = 'service_role');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- 11. ตารางบันทึกการแจ้งเตือน LINE (line_notification_log)
@@ -244,8 +299,12 @@ CREATE INDEX IF NOT EXISTS idx_notification_log_sent_at
 
 ALTER TABLE line_notification_log ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Service can manage notification log"
-  ON line_notification_log FOR ALL USING (auth.role() = 'service_role');
+DO $$ BEGIN
+  CREATE POLICY "Service can manage notification log"
+    ON line_notification_log FOR ALL USING (auth.role() = 'service_role');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END;
+$$;
 
 -- ============================================================
 -- ✅ เสร็จสมบูรณ์ — ทุกตารางและนโยบายความปลอดภัยพร้อมใช้งาน
