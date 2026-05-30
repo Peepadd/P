@@ -30,89 +30,104 @@ async function pushMessageToLine(lineUserId: string, text: string) {
 serve(async () => {
   try {
     const now = new Date()
-    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
-    
-    const nowStr = now.toISOString()
-    const tomorrowStr = tomorrow.toISOString()
+    const future24 = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    const future72 = new Date(now.getTime() + 72 * 60 * 60 * 1000)
 
-    // 1. ดึงข้อมูลงานที่ใกล้หมดเวลา (อีก 24 ชั่วโมง)
-    const [checklistResult, academicResult] = await Promise.all([
+    // ดึงงานที่ยังไม่เสร็จ และมีกำหนดเวลา
+    const [checklistResult, academicResult, usersResult] = await Promise.all([
       supabase.from('checklist_items')
-        .select('id, title, due_date, user_id')
+        .select('id, text, due_date')
         .eq('checked', false)
-        .gte('due_date', nowStr)
-        .lte('due_date', tomorrowStr),
+        .not('due_date', 'is', null),
         
       supabase.from('academic_items')
-        .select('id, title, deadline, user_id')
+        .select('id, subject, topic, deadline')
         .neq('status', 'ส่งแล้ว')
-        .gte('deadline', nowStr)
-        .lte('deadline', tomorrowStr)
+        .neq('status', 'เสร็จ')
+        .neq('status', 'Done')
+        .not('deadline', 'is', null),
+
+      // ดึงผู้ใช้ทั้งหมดที่มีบัญชี LINE เนื่องจากแอปเป็นแบบแชร์
+      supabase.from('user_profiles')
+        .select('id, line_user_id')
+        .not('line_user_id', 'is', null)
     ])
 
-    const notifications: any[] = [] // เตรียมงานที่จะแจ้งเตือน
+    const notifications: any[] = [] 
+    const profiles = usersResult.data || []
+
+    function getLevel(dateStr: string) {
+      const d = new Date(dateStr)
+      if (d < now) return { suffix: 'overdue', prefix: '🚨 [เลยกำหนด]' }
+      if (d <= future24) return { suffix: '1day', prefix: '⏰ [พรุ่งนี้]' }
+      if (d <= future72) return { suffix: '3days', prefix: '⚠️ [อีก 3 วัน]' }
+      return null
+    }
 
     if (checklistResult.data) {
       checklistResult.data.forEach((item: any) => {
-        notifications.push({
-          type: 'checklist',
-          item_id: item.id,
-          user_id: item.user_id,
-          title: item.title,
-          notif_key: `checklist_${item.id}_24h`, // Unique Key กันแจ้งซ้ำ
-        })
+        const level = getLevel(item.due_date)
+        if (level) {
+          notifications.push({
+            type: 'checklist',
+            item_id: item.id,
+            title: `Checklist: ${item.text}`,
+            notif_key: `checklist_${item.id}_${level.suffix}`,
+            prefix: level.prefix
+          })
+        }
       })
     }
 
     if (academicResult.data) {
       academicResult.data.forEach((item: any) => {
-        notifications.push({
-          type: 'academic',
-          item_id: item.id,
-          user_id: item.user_id,
-          title: item.title,
-          notif_key: `academic_${item.id}_24h`,
-        })
+        const level = getLevel(item.deadline)
+        if (level) {
+          notifications.push({
+            type: 'academic',
+            item_id: item.id,
+            title: `วิชา ${item.subject} (${item.topic})`,
+            notif_key: `academic_${item.id}_${level.suffix}`,
+            prefix: level.prefix
+          })
+        }
       })
     }
 
-    let sentCount = 0;
+    let sentCount = 0
 
-    // 2. ลูปยิงแจ้งเตือนทีละงาน
+    // ลูปยิงแจ้งเตือนทีละงานไปยังผู้ใช้ทุกคนที่มี LINE
     for (const notif of notifications) {
-      // ตรวจสอบว่าเคยแจ้งเตือน Key นี้ไปหรือยัง
-      const { data: existingLog } = await supabase
-        .from('line_notification_log')
-        .select('id')
-        .eq('notif_key', notif.notif_key)
-        .maybeSingle()
-
-      if (existingLog) continue; // เคยส่งไปแล้ว ข้ามไป
-
-      // ค้นหา line_user_id ของเจ้าของงานนี้
-      const { data: userProfile } = await supabase
-        .from('user_profiles')
-        .select('line_user_id')
-        .eq('id', notif.user_id)
-        .single()
-
-      if (userProfile && userProfile.line_user_id) {
-        // ยิง Push Notification เข้า LINE
-        await pushMessageToLine(
-          userProfile.line_user_id,
-          `⏰ แจ้งเตือน: คุณมีงาน "${notif.title}" ที่ต้องทำภายในวันพรุ่งนี้!`
-        )
-
-        // บันทึก Log การส่งลงฐานข้อมูลเพื่อป้องกันการส่งซ้ำ
-        await supabase.from('line_notification_log').insert({
-          notif_key: notif.notif_key,
-          user_id: notif.user_id,
-          type: notif.type,
-          item_id: notif.item_id,
-          sent_at: new Date().toISOString()
-        })
+      for (const profile of profiles) {
+        const notifLogKey = `${notif.notif_key}_${profile.id}`
         
-        sentCount++;
+        // ตรวจสอบว่าเคยแจ้งเตือน Key นี้ให้ User คนนี้ไปหรือยัง
+        const { data: existingLog } = await supabase
+          .from('line_notification_log')
+          .select('id')
+          .eq('notif_key', notifLogKey)
+          .maybeSingle()
+
+        if (existingLog) continue; // เคยส่งไประดับเวลานี้ให้คนนี้แล้ว ข้ามไป
+
+        if (profile.line_user_id) {
+          // ยิง Push Notification เข้า LINE
+          await pushMessageToLine(
+            profile.line_user_id,
+            `${notif.prefix} คุณมีงานค้าง: "${notif.title}" รีบจัดการด้วยนะครับ! 💪`
+          )
+
+          // บันทึก Log การส่งลงฐานข้อมูล
+          await supabase.from('line_notification_log').insert({
+            notif_key: notifLogKey, // ใช้คีย์ที่รวม user_id ด้วย
+            user_id: profile.id,    // เพื่อให้ตารางบันทึก user_id ได้ถูกต้อง
+            type: notif.type,
+            item_id: notif.item_id,
+            sent_at: new Date().toISOString()
+          })
+          
+          sentCount++;
+        }
       }
     }
 
