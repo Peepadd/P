@@ -70,17 +70,53 @@ serve(async (req: Request) => {
       return new Response('OK', { status: 200 })
     }
 
-    // 2. Parser อย่างง่าย: "[คำสั่ง] [จำนวนเงิน] [ชื่อรายการ]"
+    // 2. Parser อย่างง่าย: "[คำสั่ง] [จำนวนเงิน] [ชื่อรายการ]" หรือ "สรุป"
     const parts = userMessage.split(/\s+/)
-    if (parts.length < 3) {
+    const command = parts[0]
+
+    if (command === 'สรุป') {
+      const date = new Date()
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const startOfMonth = `${year}-${month}-01`
+      const endOfMonth = new Date(year, date.getMonth() + 1, 0).toISOString().split('T')[0]
+
+      const { data: transactions, error: txError } = await supabase
+        .from('transactions')
+        .select('type, amount')
+        .eq('user_id', userProfile.id)
+        .gte('date', startOfMonth)
+        .lte('date', endOfMonth)
+
+      if (txError) {
+        await replyMessage(replyToken, '❌ ไม่สามารถดึงข้อมูลสรุปได้ในขณะนี้')
+        return new Response('OK', { status: 200 })
+      }
+
+      let totalIncome = 0
+      let totalExpense = 0
+      
+      transactions?.forEach((tx: any) => {
+        if (tx.type === 'Income') totalIncome += tx.amount
+        else if (tx.type === 'Expense') totalExpense += tx.amount
+      })
+
+      const balance = totalIncome - totalExpense
+
       await replyMessage(
         replyToken,
-        '❌ รูปแบบคำสั่งไม่ถูกต้อง\n\n📌 วิธีพิมพ์:\nจ่าย [จำนวนเงิน] [ชื่อรายการ]\nรับ [จำนวนเงิน] [ชื่อรายการ]\n\n👉 ตัวอย่าง: จ่าย 50 ข้าวแกง'
+        `📊 สรุปยอดเดือนนี้ (${month}/${year})\n\n💰 รายรับ: ${totalIncome} บาท\n💸 รายจ่าย: ${totalExpense} บาท\n\n💵 คงเหลือ: ${balance} บาท`
       )
       return new Response('OK', { status: 200 })
     }
 
-    const command = parts[0]
+    if (parts.length < 3) {
+      await replyMessage(
+        replyToken,
+        '❌ รูปแบบคำสั่งไม่ถูกต้อง\n\n📌 วิธีพิมพ์:\nจ่าย [จำนวนเงิน] [ชื่อรายการ]\nรับ [จำนวนเงิน] [ชื่อรายการ]\nพิมพ์ "สรุป" เพื่อดูยอดเดือนนี้\n\n👉 ตัวอย่าง: จ่าย 50 ข้าวแกง'
+      )
+      return new Response('OK', { status: 200 })
+    }
     const amountStr = parts[1]
     const category = parts.slice(2).join(' ') // รองรับชื่อรายการยาวๆ ที่อาจมีเว้นวรรค
     const amount = parseFloat(amountStr)
