@@ -1,340 +1,133 @@
-// =============================================
-// LINE Webhook — Supabase Edge Function (Deno)
-// =============================================
-//
-// Deploy: supabase functions deploy line-webhook --no-verify-jwt
-// Set secrets:
-//   supabase secrets set LINE_CHANNEL_ACCESS_TOKEN=your_token
-//   supabase secrets set LINE_CHANNEL_SECRET=your_secret
-//
-// LINE Console Webhook URL:
-//   https://<PROJECT_REF>.supabase.co/functions/v1/line-webhook
-// =============================================
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 
-import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
+const LINE_MESSAGING_API = "https://api.line.me/v2/bot/message/reply";
+const LINE_CHANNEL_ACCESS_TOKEN = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN");
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
-const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-const LINE_CHANNEL_ACCESS_TOKEN = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN') || ''
-const LINE_CHANNEL_SECRET = Deno.env.get('LINE_CHANNEL_SECRET') || ''
+const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-interface LineEvent {
-  type: string
-  replyToken?: string
-  source?: {
-    userId?: string
-    type: string
+serve(async (req) => {
+  try {
+    const body = await req.json();
+    const events = body.events;
+
+    if (!events || events.length === 0) {
+      return new Response("OK", { status: 200 });
+    }
+
+    const event = events[0];
+    const replyToken = event.replyToken;
+    const lineUserId = event.source?.userId;
+    const text = event.message?.text?.trim();
+
+    // เช็คข้อความและประเภทอีเวนต์
+    if (event.type !== "message" || event.message.type !== "text" || !lineUserId || !replyToken) {
+      return new Response("OK", { status: 200 });
+    }
+
+    // 2. ตรวจสอบในตาราง user_profiles
+    const { data: userProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("id")
+      .eq("line_user_id", lineUserId)
+      .single();
+
+    if (profileError || !userProfile) {
+      await replyToLine(replyToken, "คุณยังไม่ได้ผูกบัญชี กรุณาเข้าสู่ระบบผ่านเว็บ");
+      return new Response("OK", { status: 200 });
+    }
+
+    // 3. วิเคราะห์ข้อความ (Text Parsing)
+    // คาดหวังรูปแบบ: "จ่าย 50 ข้าวแกง" หรือ "รับ 1000 ค่าขนม"
+    const parts = text.split(/\s+/);
+    if (parts.length < 3) {
+      await replyToLine(replyToken, "รูปแบบไม่ถูกต้อง กรุณาพิมพ์: [รับ/จ่าย] [จำนวนเงิน] [รายการ]");
+      return new Response("OK", { status: 200 });
+    }
+
+    const command = parts[0];
+    const amountText = parts[1];
+    const category = parts.slice(2).join(" ");
+    const amount = parseFloat(amountText);
+
+    if (isNaN(amount)) {
+      await replyToLine(replyToken, "จำนวนเงินไม่ถูกต้อง กรุณาระบุเป็นตัวเลข");
+      return new Response("OK", { status: 200 });
+    }
+
+    let type = "";
+    let typeName = "";
+    if (command === "จ่าย") {
+      type = "Expense";
+      typeName = "รายจ่าย";
+    } else if (command === "รับ") {
+      type = "Income";
+      typeName = "รายรับ";
+    } else {
+      await replyToLine(replyToken, "คำสั่งต้องขึ้นต้นด้วย 'รับ' หรือ 'จ่าย'");
+      return new Response("OK", { status: 200 });
+    }
+
+    // 4. บันทึกข้อมูลลงตาราง transactions
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    
+    // ตาราง transactions ใช้ id เป็น TEXT และไม่มีคอลัมน์ user_id (ใช้เป็นระบบ Shared access หรือดึงสิทธิ์จาก RLS)
+    const { error: insertError } = await supabase
+      .from("transactions")
+      .insert({
+        id: crypto.randomUUID(),
+        type: type,
+        category: category,
+        amount: amount,
+        date: today,
+        note: "บันทึกผ่าน LINE",
+      });
+
+    if (insertError) {
+      console.error(insertError);
+      await replyToLine(replyToken, "เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง");
+      return new Response("OK", { status: 200 });
+    }
+
+    // 5. ส่งข้อความ Reply กลับไปหาผู้ใช้ว่าบันทึกสำเร็จ
+    await replyToLine(replyToken, `✅ บันทึก${typeName} ${amount} บาท (${category}) เรียบร้อยแล้ว!`);
+
+    return new Response("OK", { status: 200 });
+  } catch (error) {
+    console.error("Error:", error);
+    return new Response("Internal Server Error", { status: 500 });
   }
-  message?: {
-    type: string
-    text?: string
+});
+
+async function replyToLine(replyToken: string, message: string) {
+  if (!LINE_CHANNEL_ACCESS_TOKEN) {
+    console.error("LINE_CHANNEL_ACCESS_TOKEN is not set.");
+    return;
   }
-}
 
-interface LineWebhookBody {
-  events: LineEvent[]
-  destination: string
-}
-
-// ── Send reply message to LINE ──
-async function replyMessage(replyToken: string, messages: any[]) {
-  const res = await fetch('https://api.line.me/v2/bot/message/reply', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
-    },
-    body: JSON.stringify({ replyToken, messages }),
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    console.error('LINE reply error:', res.status, text)
-  }
-}
-
-// ── Send push message to LINE ──
-export async function pushLineMessage(userId: string, messages: any[]) {
-  const res = await fetch('https://api.line.me/v2/bot/message/push', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
-    },
-    body: JSON.stringify({ to: userId, messages }),
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    console.error('LINE push error:', res.status, text)
-    throw new Error(`LINE push failed: ${text}`)
-  }
-}
-
-// ── Build Flex Message for summary ──
-function buildSummaryFlex(incomeTotal: number, expenseTotal: number, transactions: any[]) {
-  const balance = incomeTotal - expenseTotal
-  const recentItems = transactions.slice(0, 5).map((t: any) => ({
-    type: 'box',
-    layout: 'horizontal',
-    contents: [
+  const payload = {
+    replyToken: replyToken,
+    messages: [
       {
-        type: 'text',
-        text: t.description || t.category || '-',
-        size: 'sm',
-        color: '#555555',
-        flex: 3,
-        wrap: true,
-      },
-      {
-        type: 'text',
-        text: `${t.type === 'Income' ? '+' : '-'}${Number(t.amount).toLocaleString()}`,
-        size: 'sm',
-        color: t.type === 'Income' ? '#dc2626' : '#16a34a',
-        flex: 1,
-        align: 'end',
+        type: "text",
+        text: message,
       },
     ],
-  }))
+  };
 
-  return {
-    type: 'flex',
-    altText: `💰 สรุปรายรับ-รายจ่าย: รายรับ ${incomeTotal.toLocaleString()} | รายจ่าย ${expenseTotal.toLocaleString()}`,
-    contents: {
-      type: 'bubble',
-      header: {
-        type: 'box',
-        layout: 'vertical',
-        contents: [
-          {
-            type: 'text',
-            text: '📊 สรุปรายรับ-รายจ่าย',
-            weight: 'bold',
-            size: 'xl',
-            color: '#1a1a2e',
-          },
-          {
-            type: 'text',
-            text: `คงเหลือ ${balance.toLocaleString()} บาท`,
-            size: 'sm',
-            color: balance >= 0 ? '#16a34a' : '#dc2626',
-            margin: 'md',
-          },
-        ],
-      },
-      body: {
-        type: 'box',
-        layout: 'vertical',
-        contents: [
-          {
-            type: 'box',
-            layout: 'horizontal',
-            contents: [
-              {
-                type: 'text',
-                text: `💰 รายรับ`,
-                size: 'sm',
-                color: '#dc2626',
-                flex: 1,
-              },
-              {
-                type: 'text',
-                text: `${incomeTotal.toLocaleString()} บาท`,
-                size: 'sm',
-                color: '#dc2626',
-                align: 'end',
-              },
-            ],
-          },
-          {
-            type: 'box',
-            layout: 'horizontal',
-            contents: [
-              {
-                type: 'text',
-                text: `💸 รายจ่าย`,
-                size: 'sm',
-                color: '#16a34a',
-                flex: 1,
-              },
-              {
-                type: 'text',
-                text: `${expenseTotal.toLocaleString()} บาท`,
-                size: 'sm',
-                color: '#16a34a',
-                align: 'end',
-              },
-            ],
-            margin: 'md',
-          },
-          {
-            type: 'separator',
-            margin: 'lg',
-          },
-          {
-            type: 'text',
-            text: 'รายการล่าสุด',
-            weight: 'bold',
-            size: 'sm',
-            margin: 'lg',
-            color: '#1a1a2e',
-          },
-          ...recentItems,
-          {
-            type: 'separator',
-            margin: 'lg',
-          },
-          {
-            type: 'text',
-            text: 'พิมพ์ "รายเดือน" เพื่อดูรายละเอียดเพิ่มเติม',
-            size: 'xxs',
-            color: '#aaaaaa',
-            margin: 'md',
-            align: 'end',
-          },
-        ],
-      },
+  const response = await fetch(LINE_MESSAGING_API, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
     },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    console.error("LINE API Error:", await response.text());
   }
 }
-
-// ── Parse transaction from text ──
-// Pattern: "จ่าย 50 ข้าวแกง" or "รับ 5000 เงินเดือน"
-function parseTransaction(text: string): { type: string; amount: number; description: string } | null {
-  const payMatch = text.match(/^(จ่าย|ใช้|ซื้อ)\s+(\d+[\d,]*)\s*(.+)?$/)
-  const incomeMatch = text.match(/^(รับ|ได้)\s+(\d+[\d,]*)\s*(.+)?$/)
-
-  if (payMatch) {
-    return {
-      type: 'Expense',
-      amount: parseInt(payMatch[2].replace(/,/g, '')),
-      description: payMatch[3]?.trim() || 'ค่าใช้จ่าย',
-    }
-  }
-
-  if (incomeMatch) {
-    return {
-      type: 'Income',
-      amount: parseInt(incomeMatch[2].replace(/,/g, '')),
-      description: incomeMatch[3]?.trim() || 'รายรับ',
-    }
-  }
-
-  return null
-}
-
-// ── Main handler ──
-serve(async (req) => {
-  // Verify signature (optional but recommended)
-  // const signature = req.headers.get('x-line-signature')
-  // if (!verifySignature(await req.clone().text(), signature)) {
-  //   return new Response('Invalid signature', { status: 401 })
-  // }
-
-  const body: LineWebhookBody = await req.json()
-
-  for (const event of body.events) {
-    // Only handle text messages
-    if (event.type !== 'message' || event.message?.type !== 'text') {
-      continue
-    }
-
-    const lineUserId = event.source?.userId
-    const text = event.message.text.trim()
-    const replyToken = event.replyToken
-
-    if (!lineUserId || !replyToken) continue
-
-    // Find user by line_user_id
-    const { data: profiles, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('line_user_id', lineUserId)
-      .limit(1)
-
-    if (profileError || !profiles || profiles.length === 0) {
-      await replyMessage(replyToken, [
-        { type: 'text', text: '⚠️ ไม่พบผู้ใช้ที่เชื่อมต่อ กรุณาเข้าสู่ระบบและเชื่อมต่อ LINE จากหน้า Settings ก่อนใช้งาน' },
-      ])
-      continue
-    }
-
-    const userId = profiles[0].id
-
-    // ── Command: Summary ──
-    if (text === 'สรุป' || text === 'summary' || text === 'รายเดือน') {
-      const now = new Date()
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
-
-      const { data: transactions, error: txError } = await supabase
-        .from('transactions')
-        .select('amount, type, description, category')
-        .gte('date', startOfMonth)
-        .lte('date', endOfMonth)
-        .order('date', { ascending: false })
-
-      if (txError) {
-        await replyMessage(replyToken, [{ type: 'text', text: `❌ เกิดข้อผิดพลาด: ${txError.message}` }])
-        continue
-      }
-
-      const incomeTotal = (transactions || [])
-        .filter((t: any) => t.type === 'Income')
-        .reduce((sum: number, t: any) => sum + Number(t.amount), 0)
-
-      const expenseTotal = (transactions || [])
-        .filter((t: any) => t.type === 'Expense')
-        .reduce((sum: number, t: any) => sum + Number(t.amount), 0)
-
-      const flexMessage = buildSummaryFlex(incomeTotal, expenseTotal, transactions || [])
-      await replyMessage(replyToken, [flexMessage])
-      continue
-    }
-
-    // ── Command: Record transaction ──
-    const parsed = parseTransaction(text)
-    if (parsed) {
-      const today = new Date().toISOString().split('T')[0]
-      const id = crypto.randomUUID()
-
-      const { error: insertError } = await supabase
-        .from('transactions')
-        .insert({
-          id,
-          type: parsed.type,
-          amount: parsed.amount,
-          description: parsed.description,
-          date: today,
-          category: parsed.type === 'Income' ? 'รายรับอื่นๆ' : 'อื่นๆ',
-        })
-
-      if (insertError) {
-        await replyMessage(replyToken, [
-          { type: 'text', text: `❌ บันทึกล้มเหลว: ${insertError.message}` },
-        ])
-        continue
-      }
-
-      const emoji = parsed.type === 'Income' ? '💰' : '💸'
-      await replyMessage(replyToken, [
-        {
-          type: 'text',
-          text: `${emoji} บันทึกเรียบร้อย!\n${parsed.type === 'Income' ? 'รายรับ' : 'รายจ่าย'}: ${parsed.amount.toLocaleString()} บาท\nรายละเอียด: ${parsed.description}`,
-        },
-      ])
-      continue
-    }
-
-    // ── Unknown command ──
-    await replyMessage(replyToken, [
-      {
-        type: 'text',
-        text: `👋 สวัสดี! คำสั่งที่ใช้งานได้:\n\n💰 บันทึกรายการ:\n  "จ่าย 50 ข้าวแกง"\n  "รับ 5000 เงินเดือน"\n\n📊 สรุป:\n  "สรุป" หรือ "รายเดือน"\n\n🔗 ไปที่ Planner → Settings เพื่อเชื่อมต่อบัญชี`,
-      },
-    ])
-  }
-
-  return new Response('OK', { status: 200 })
-})
