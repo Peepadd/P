@@ -1,5 +1,9 @@
+// @ts-ignore
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+// @ts-ignore
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0'
+
+declare const Deno: any;
 
 const LINE_API_URL = 'https://api.line.me/v2/bot/message/reply'
 const LINE_ACCESS_TOKEN = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN') || ''
