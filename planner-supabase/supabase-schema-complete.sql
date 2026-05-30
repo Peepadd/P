@@ -2,8 +2,11 @@
 -- Supabase Complete Schema — ทุกตารางสำหรับ Planner Supabase
 -- รัน SQL นี้ครั้งเดียวใน Supabase SQL Editor
 -- ============================================================
--- หมายเหตุ: CREATE POLICY ไม่รองรับ IF NOT EXISTS ในบางเวอร์ชัน
--- จึงใช้ DO block เพื่อให้รันซ้ำได้โดยไม่มี error
+-- หมายเหตุ: 
+--   - CREATE POLICY ไม่รองรับ IF NOT EXISTS ในบางเวอร์ชัน
+--     จึงใช้ DO block เพื่อให้รันซ้ำได้โดยไม่มี error
+--   - ALTER TABLE ... ADD COLUMN IF NOT EXISTS ใช้เผื่อกรณีที่
+--     ตารางถูกสร้างไว้แล้วจากรอบก่อนโดยไม่มี column นั้น
 -- ============================================================
 
 -- ============================================================
@@ -19,7 +22,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   description TEXT,
   date DATE NOT NULL,
   transaction_time TEXT,
-  recurring_id TEXT REFERENCES recurring_transactions(id) ON DELETE SET NULL,
+  recurring_id TEXT,  -- FK will be added after recurring_transactions is created
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -109,6 +112,9 @@ CREATE TABLE IF NOT EXISTS academic_items (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- เพิ่ม column เผื่อตารางถูกสร้างไว้แล้วจากรอบก่อนโดยไม่มี column นี้
+ALTER TABLE academic_items ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE;
+
 CREATE INDEX IF NOT EXISTS idx_academic_items_deadline ON academic_items(deadline);
 CREATE INDEX IF NOT EXISTS idx_academic_items_subject ON academic_items(subject);
 CREATE INDEX IF NOT EXISTS idx_academic_items_archived ON academic_items(archived);
@@ -143,6 +149,19 @@ CREATE INDEX IF NOT EXISTS idx_recurring_next_date ON recurring_transactions(nex
 CREATE INDEX IF NOT EXISTS idx_recurring_active ON recurring_transactions(active);
 
 ALTER TABLE recurring_transactions ENABLE ROW LEVEL SECURITY;
+
+-- Add FK constraint on transactions.recurring_id if it doesn't exist yet
+-- (ต้องทำหลังจาก recurring_transactions ถูกสร้างแล้ว ไม่งั้น forward reference error)
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE table_name = 'transactions' AND constraint_name = 'transactions_recurring_id_fkey'
+  ) THEN
+    ALTER TABLE transactions
+      ADD CONSTRAINT transactions_recurring_id_fkey
+      FOREIGN KEY (recurring_id) REFERENCES recurring_transactions(id) ON DELETE SET NULL;
+  END IF;
+END $$;
 
 DO $$ BEGIN
   CREATE POLICY "Shared access for recurring_transactions"
