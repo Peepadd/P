@@ -247,7 +247,36 @@ serve(async (req: Request) => {
       return new Response('OK', { status: 200 })
     }
 
-    // 3. Parser อย่างง่าย: "[คำสั่ง] [จำนวนเงิน] [ชื่อรายการ]"
+    // 3. ถ้าผู้ใช้พิมพ์ "ยกเลิก" หรือ "ลบ" เพื่อลบรายการล่าสุด
+    if (command === 'ยกเลิก' || command === 'ลบ') {
+      const { data: latestTx, error: fetchError } = await supabase
+        .from('transactions')
+        .select('*')
+        // ไม่ได้ filter ด้วย user_id เนื่องจากตาราง transactions ตาม Schema ไม่มีคอลัมน์ user_id
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (fetchError || !latestTx) {
+        await replyText(replyToken, '❌ ไม่พบรายการล่าสุดที่สามารถยกเลิกได้')
+        return new Response('OK', { status: 200 })
+      }
+
+      const { error: deleteError } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', latestTx.id)
+
+      if (deleteError) {
+        await replyText(replyToken, '❌ ไม่สามารถลบรายการได้ในขณะนี้')
+        return new Response('OK', { status: 200 })
+      }
+
+      await replyText(replyToken, `🗑️ ยกเลิกรายการเรียบร้อยแล้ว!\nรายการที่ลบ: ${latestTx.category} (${latestTx.amount} บาท)`)
+      return new Response('OK', { status: 200 })
+    }
+
+    // 4. Parser อย่างง่าย: "[คำสั่ง] [จำนวนเงิน] [ชื่อรายการ]"
     if (parts.length < 3) {
       await replyText(
         replyToken,
@@ -275,7 +304,7 @@ serve(async (req: Request) => {
       return new Response('OK', { status: 200 })
     }
 
-    // 4. บันทึกลงตาราง transactions
+    // 5. บันทึกลงตาราง transactions
     const transactionId = crypto.randomUUID()
     const today = new Date().toISOString().split('T')[0] // ได้ค่าเป็น YYYY-MM-DD
 
@@ -295,7 +324,7 @@ serve(async (req: Request) => {
       return new Response('OK', { status: 200 })
     }
 
-    // 5. ส่ง Flex Message กลับไปยืนยัน
+    // 6. ส่ง Flex Message กลับไปยืนยัน
     const { balance } = await getMonthlyBalance()
     const flexMsg = buildAccountingFlex(type, category, amount, 'ทั่วไป', today, transactionId, balance)
     
