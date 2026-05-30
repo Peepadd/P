@@ -1,178 +1,126 @@
-// =============================================
-// LINE Notifier — Scheduled Edge Function
-// =============================================
-//
-// Deploy as scheduled function:
-//   supabase functions deploy line-notifier --no-verify-jwt
-//   supabase functions schedule create --schedule "*/30 * * * *" line-notifier
-//
-// This function checks for approaching deadlines every 30 minutes
-// and sends LINE push notifications to connected users.
-// =============================================
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0'
 
-import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
-
+const LINE_PUSH_API_URL = 'https://api.line.me/v2/bot/message/push'
+const LINE_ACCESS_TOKEN = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN') || ''
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || ''
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-const LINE_CHANNEL_ACCESS_TOKEN = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN') || ''
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
-const LEAD_TIMES = [
-  { label: '3 ชั่วโมง', ms: 3 * 60 * 60 * 1000 },
-  { label: '1 ชั่วโมง', ms: 1 * 60 * 60 * 1000 },
-  { label: '30 นาที', ms: 30 * 60 * 1000 },
-]
-
-// ── Send push message ──
-async function pushMessage(userId: string, messages: any[]) {
-  const res = await fetch('https://api.line.me/v2/bot/message/push', {
+async function pushMessageToLine(lineUserId: string, text: string) {
+  const response = await fetch(LINE_PUSH_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
+      'Authorization': `Bearer ${LINE_ACCESS_TOKEN}`,
     },
-    body: JSON.stringify({ to: userId, messages }),
+    body: JSON.stringify({
+      to: lineUserId,
+      messages: [{ type: 'text', text }],
+    }),
   })
-
-  if (!res.ok) {
-    const text = await res.text()
-    console.error(`LINE push error for ${userId}:`, res.status, text)
-  }
-}
-
-// ── Helper: check if notification was already sent ──
-async function wasNotified(notifKey: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from('line_notification_log')
-    .select('id')
-    .eq('notif_key', notifKey)
-    .single()
-
-  if (error && error.code !== 'PGRST116') {
-    console.error('Check notification log error:', error.message)
-  }
-  return !!data
-}
-
-// ── Helper: mark notification as sent ──
-async function markNotified(notifKey: string, userId: string, type: string, itemId: string) {
-  const { error } = await supabase
-    .from('line_notification_log')
-    .insert({
-      notif_key: notifKey,
-      user_id: userId,
-      type,
-      item_id: itemId,
-    })
-
-  if (error) console.error('Mark notified error:', error.message)
+  if (!response.ok) console.error(`Failed to push to ${lineUserId}:`, await response.text())
 }
 
 serve(async () => {
-  const now = Date.now()
-  const todayStr = new Date().toISOString().split('T')[0]
+  try {
+    const now = new Date()
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    
+    const nowStr = now.toISOString()
+    const tomorrowStr = tomorrow.toISOString()
 
-  // ── Get all users with LINE connected ──
-  const { data: profiles, error: profileError } = await supabase
-    .from('user_profiles')
-    .select('id, line_user_id')
-    .not('line_user_id', 'is', null)
+    // 1. ดึงข้อมูลงานที่ใกล้หมดเวลา (อีก 24 ชั่วโมง)
+    const [checklistResult, academicResult] = await Promise.all([
+      supabase.from('checklist_items')
+        .select('id, title, due_date, user_id')
+        .eq('checked', false)
+        .gte('due_date', nowStr)
+        .lte('due_date', tomorrowStr),
+        
+      supabase.from('academic_items')
+        .select('id, title, deadline, user_id')
+        .neq('status', 'ส่งแล้ว')
+        .gte('deadline', nowStr)
+        .lte('deadline', tomorrowStr)
+    ])
 
-  if (profileError) {
-    console.error('Fetch profiles error:', profileError.message)
-    return new Response('Error', { status: 500 })
-  }
+    const notifications = [] // เตรียมงานที่จะแจ้งเตือน
 
-  if (!profiles || profiles.length === 0) {
-    console.log('No LINE connected users found')
-    return new Response('No users', { status: 200 })
-  }
+    if (checklistResult.data) {
+      checklistResult.data.forEach(item => {
+        notifications.push({
+          type: 'checklist',
+          item_id: item.id,
+          user_id: item.user_id,
+          title: item.title,
+          notif_key: `checklist_${item.id}_24h`, // Unique Key กันแจ้งซ้ำ
+        })
+      })
+    }
 
-  // Build a map of user_id -> line_user_id
-  const userLineMap = new Map(profiles.map((p: any) => [p.id, p.line_user_id]))
+    if (academicResult.data) {
+      academicResult.data.forEach(item => {
+        notifications.push({
+          type: 'academic',
+          item_id: item.id,
+          user_id: item.user_id,
+          title: item.title,
+          notif_key: `academic_${item.id}_24h`,
+        })
+      })
+    }
 
-  // ── Fetch due checklist items (not checked, has due_date, not past) ──
-  const { data: checklistItems, error: checkErr } = await supabase
-    .from('checklist_items')
-    .select('id, text, due_date, type')
-    .eq('checked', false)
-    .not('due_date', 'is', null)
+    let sentCount = 0;
 
-  if (checkErr) console.error('Fetch checklist error:', checkErr.message)
+    // 2. ลูปยิงแจ้งเตือนทีละงาน
+    for (const notif of notifications) {
+      // ตรวจสอบว่าเคยแจ้งเตือน Key นี้ไปหรือยัง
+      const { data: existingLog } = await supabase
+        .from('line_notification_log')
+        .select('id')
+        .eq('notif_key', notif.notif_key)
+        .maybeSingle()
 
-  // ── Fetch due academic items (not completed, has deadline) ──
-  const { data: academicItems, error: acadErr } = await supabase
-    .from('academic_items')
-    .select('id, subject, topic, type, deadline, priority')
-    .in('status', ['กำลังทำ', 'รอตรวจ'])
-    .not('deadline', 'is', null)
+      if (existingLog) continue; // เคยส่งไปแล้ว ข้ามไป
 
-  if (acadErr) console.error('Fetch academic error:', acadErr.message)
+      // ค้นหา line_user_id ของเจ้าของงานนี้
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('line_user_id')
+        .eq('id', notif.user_id)
+        .single()
 
-  let notifiedCount = 0
+      if (userProfile && userProfile.line_user_id) {
+        // ยิง Push Notification เข้า LINE
+        await pushMessageToLine(
+          userProfile.line_user_id,
+          `⏰ แจ้งเตือน: คุณมีงาน "${notif.title}" ที่ต้องทำภายในวันพรุ่งนี้!`
+        )
 
-  // ── Check checklist items ──
-  for (const item of (checklistItems || [])) {
-    const dueTime = new Date(item.due_date).getTime()
-    if (isNaN(dueTime)) continue
-
-    const timeUntil = dueTime - now
-    if (timeUntil <= 0) continue // Skip past-due (handled elsewhere)
-
-    for (const lead of LEAD_TIMES) {
-      if (timeUntil <= lead.ms) {
-        const notifKey = `checklist-${lead.label}-${item.id}`
-        if (await wasNotified(notifKey)) continue
-
-        // Send to all LINE-connected users
-        for (const [userId, lineUserId] of userLineMap) {
-          await pushMessage(lineUserId, [
-            {
-              type: 'text',
-              text: `✅ เตือน To-do!\n\n"${item.text}"\nอีก ${lead.label}\n\nไปที่ Planner → Checklist เพื่อดำเนินการ`,
-            },
-          ])
-        }
-
-        await markNotified(notifKey, 'system', 'checklist', item.id)
-        notifiedCount++
+        // บันทึก Log การส่งลงฐานข้อมูลเพื่อป้องกันการส่งซ้ำ
+        await supabase.from('line_notification_log').insert({
+          notif_key: notif.notif_key,
+          user_id: notif.user_id,
+          type: notif.type,
+          item_id: notif.item_id,
+          sent_at: new Date().toISOString()
+        })
+        
+        sentCount++;
       }
     }
+
+    return new Response(JSON.stringify({ success: true, sent: sentCount }), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 200,
+    })
+  } catch (error) {
+    console.error('Cron Notifier Error:', error)
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 500,
+    })
   }
-
-  // ── Check academic items ──
-  for (const item of (academicItems || [])) {
-    const dueTime = new Date(item.deadline).getTime()
-    if (isNaN(dueTime)) continue
-
-    const timeUntil = dueTime - now
-    if (timeUntil <= 0) continue
-
-    for (const lead of LEAD_TIMES) {
-      if (timeUntil <= lead.ms) {
-        const notifKey = `academic-${lead.label}-${item.id}`
-        if (await wasNotified(notifKey)) continue
-
-        const prefix = item.type === 'สอบ' ? '📝' : '📚'
-        const priorityEmoji = item.priority === 'สูง' ? ' 🔴' : ''
-
-        for (const [, lineUserId] of userLineMap) {
-          await pushMessage(lineUserId, [
-            {
-              type: 'text',
-              text: `${prefix} เตือน${item.type}!${priorityEmoji}\n\n${item.subject}: ${item.topic}\nอีก ${lead.label}\n\nไปที่ Planner → งาน/สอบ เพื่อดำเนินการ`,
-            },
-          ])
-        }
-
-        await markNotified(notifKey, 'system', 'academic', item.id)
-        notifiedCount++
-      }
-    }
-  }
-
-  console.log(`LINE notifier: ${notifiedCount} notifications sent to ${userLineMap.size} users`)
-  return new Response(`Sent ${notifiedCount} notifications`, { status: 200 })
 })
