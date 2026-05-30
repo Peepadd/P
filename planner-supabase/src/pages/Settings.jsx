@@ -1,5 +1,6 @@
 import NotifyPanel from '../components/settings/NotifyPanel'
-import { Settings as SettingsIcon, Info } from 'lucide-react'
+import LineBinding from '../components/line/LineBinding'
+import { Info } from 'lucide-react'
 
 export default function Settings() {
   return (
@@ -7,11 +8,14 @@ export default function Settings() {
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">⚙️ ตั้งค่า</h2>
-        <p className="text-gray-500 mt-1">จัดการงบประมาณและการแจ้งเตือน</p>
+        <p className="text-gray-500 mt-1">จัดการงบประมาณ การแจ้งเตือน และเชื่อมต่อ LINE</p>
       </div>
 
       {/* Notify Panel */}
       <NotifyPanel />
+
+      {/* LINE Binding */}
+      <LineBinding />
 
       {/* System info */}
       <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200 p-4">
@@ -21,12 +25,14 @@ export default function Settings() {
             <p className="text-sm font-medium text-gray-700">เกี่ยวกับระบบ</p>
             <p className="text-xs text-gray-400 mt-1 leading-relaxed">
               Planner Supabase — เว็บแอปพลิเคชันสำหรับวางแผนการเงิน การศึกษา และพัฒนาตนเอง
-              ใช้ React + Vite + Tailwind CSS + Supabase
+              ใช้ React + Vite + Tailwind CSS + Supabase + LINE Messaging API
             </p>
             <div className="flex items-center gap-2 mt-2 text-[10px] text-gray-300">
-              <span>เวอร์ชัน 3.0</span>
+              <span>เวอร์ชัน 4.0</span>
               <span>•</span>
               <span>ฐานข้อมูล Supabase</span>
+              <span>•</span>
+              <span>LINE Integration</span>
             </div>
           </div>
         </div>
