@@ -46,10 +46,10 @@ serve(async () => {
         .lte('deadline', tomorrowStr)
     ])
 
-    const notifications = [] // เตรียมงานที่จะแจ้งเตือน
+    const notifications: any[] = [] // เตรียมงานที่จะแจ้งเตือน
 
     if (checklistResult.data) {
-      checklistResult.data.forEach(item => {
+      checklistResult.data.forEach((item: any) => {
         notifications.push({
           type: 'checklist',
           item_id: item.id,
@@ -61,7 +61,7 @@ serve(async () => {
     }
 
     if (academicResult.data) {
-      academicResult.data.forEach(item => {
+      academicResult.data.forEach((item: any) => {
         notifications.push({
           type: 'academic',
           item_id: item.id,

@@ -26,7 +26,7 @@ async function replyMessage(replyToken: string, text: string) {
   }
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   // ตอบ 200 ทันที หากไม่ได้ส่งมาเป็น POST หรือการ Verify Webhook จาก LINE
   if (req.method !== 'POST') {
     return new Response('OK', { status: 200 })
