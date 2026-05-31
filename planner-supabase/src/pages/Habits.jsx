@@ -38,28 +38,12 @@ export default function Habits() {
       setIsSubmitting(true)
       const newHabit = {
         id: crypto.randomUUID(),
-        title: newTitle.trim()
+        name: newTitle.trim(),
+        frequency: 'Daily'
       }
 
-      // Check schema if it uses `title` or `name`
-      // We'll insert both just to be safe if the DB complains, but usually it's `title`
-      const { error } = await supabase.from('habits').insert([{
-        id: newHabit.id,
-        title: newHabit.title
-      }])
-
-      if (error) {
-        // Fallback if the column is actually named `name`
-        if (error.message.includes("column \"title\" of relation \"habits\" does not exist")) {
-           const { error: fallbackError } = await supabase.from('habits').insert([{
-             id: newHabit.id,
-             name: newHabit.title
-           }])
-           if (fallbackError) throw fallbackError
-        } else {
-          throw error
-        }
-      }
+      const { error } = await supabase.from('habits').insert([newHabit])
+      if (error) throw error
 
       setHabits([...habits, newHabit])
       setNewTitle('')
