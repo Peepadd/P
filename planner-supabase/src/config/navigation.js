@@ -1,0 +1,31 @@
+import {
+  LayoutDashboard,
+  ArrowRightLeft,
+  Repeat,
+  Upload,
+  Printer,
+  ClipboardList,
+  BookOpen,
+  CalendarDays,
+  Table2,
+  CheckSquare,
+  Timer,
+  Scale,
+  Settings,
+} from 'lucide-react'
+
+export const navItems = [
+  { to: '/', label: 'แดชบอร์ด', icon: LayoutDashboard },
+  { to: '/accounting', label: 'บันทึกรายการ', icon: ArrowRightLeft },
+  { to: '/checklist', label: 'Checklist', icon: ClipboardList },
+  { to: '/academic', label: 'งาน/สอบ', icon: BookOpen },
+  { to: '/calendar', label: 'ปฏิทิน', icon: CalendarDays },
+  { to: '/timetable', label: 'ตารางเรียน', icon: Table2 },
+  { to: '/habits', label: 'สร้างนิสัย', icon: CheckSquare },
+  { to: '/pomodoro', label: 'Pomodoro', icon: Timer },
+  { to: '/price-compare', label: 'เปรียบเทียบราคา', icon: Scale },
+  { to: '/recurring', label: 'รายการอัตโนมัติ', icon: Repeat },
+  { to: '/csv-import', label: 'นำเข้า CSV', icon: Upload },
+  { to: '/print-report', label: 'พิมพ์รายงาน', icon: Printer },
+  { to: '/settings', label: 'ตั้งค่า', icon: Settings, divider: true },
+]

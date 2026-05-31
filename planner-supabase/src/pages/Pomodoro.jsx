@@ -1,25 +1,15 @@
-import PomodoroTimer from '../components/pomodoro/PomodoroTimer'
-import TimerControls from '../components/pomodoro/TimerControls'
+import { Timer } from 'lucide-react'
 
 export default function Pomodoro() {
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">🍅 Pomodoro Timer</h2>
-        <p className="text-gray-500 mt-1">จับเวลาโฟกัสงานด้วยเทคนิค Pomodoro</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Timer */}
-        <div className="lg:col-span-2">
-          <PomodoroTimer />
-        </div>
-
-        {/* Controls & tips */}
-        <div className="space-y-4">
-          <TimerControls />
-        </div>
+    <div className="max-w-3xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
+      <header>
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Pomodoro</h1>
+        <p className="text-gray-500 text-lg mt-1">Focus Timer</p>
+      </header>
+      <div className="text-center py-20 bg-white rounded-xl border border-gray-200">
+        <Timer size={32} className="mx-auto text-gray-300 mb-4" />
+        <p className="text-gray-500">จับเวลาโฟกัสของคุณ</p>
       </div>
     </div>
   )
