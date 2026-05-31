@@ -2,7 +2,7 @@
 CREATE TABLE attendance_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    timetable_id UUID REFERENCES timetables(id) ON DELETE CASCADE,
+    timetable_id TEXT REFERENCES timetables(id) ON DELETE CASCADE,
     date DATE NOT NULL,
     day_idx SMALLINT NOT NULL,
     period_idx SMALLINT NOT NULL,
