@@ -43,7 +43,7 @@ export default function Checklist() {
       setIsSubmitting(true)
       const newItem = {
         id: crypto.randomUUID(),
-        type: 'general', // Default type
+        type: 'todo', // Match DB constraint
         text: formData.text.trim(),
         due_date: formData.due_date || null,
         checked: false

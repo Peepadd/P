@@ -11,9 +11,9 @@ export default function Academic() {
   const [formData, setFormData] = useState({
     subject: '',
     topic: '',
-    type: 'Task',
+    type: 'การบ้าน',
     deadline: '',
-    priority: 'Normal'
+    priority: 'กลาง'
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -58,7 +58,7 @@ export default function Academic() {
       if (error) throw error
 
       setItems((prev) => [...prev, newItem].sort((a, b) => new Date(a.deadline) - new Date(b.deadline)))
-      setFormData({ subject: '', topic: '', type: 'Task', deadline: '', priority: 'Normal' })
+      setFormData({ subject: '', topic: '', type: 'การบ้าน', deadline: '', priority: 'กลาง' })
       setIsAdding(false)
     } catch (err) {
       console.error('Error adding academic item:', err)
@@ -158,9 +158,12 @@ export default function Academic() {
                 onChange={(e) => setFormData({...formData, type: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               >
-                <option value="Task">งาน (Task)</option>
-                <option value="Exam">สอบ (Exam)</option>
-                <option value="Project">โปรเจกต์ (Project)</option>
+                <option value="การบ้าน">งาน / การบ้าน (Task)</option>
+                <option value="สอบ">สอบ (Exam)</option>
+                <option value="โปรเจกต์">โปรเจกต์ (Project)</option>
+                <option value="งานกลุ่ม">งานกลุ่ม</option>
+                <option value="นำเสนอ">นำเสนอ (Presentation)</option>
+                <option value="อื่นๆ">อื่นๆ (Others)</option>
               </select>
             </div>
             <div>
@@ -170,9 +173,9 @@ export default function Academic() {
                 onChange={(e) => setFormData({...formData, priority: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               >
-                <option value="Low">ต่ำ (Low)</option>
-                <option value="Normal">ปานกลาง (Normal)</option>
-                <option value="High">สูง (High)</option>
+                <option value="ต่ำ">ต่ำ (Low)</option>
+                <option value="กลาง">ปานกลาง (Normal)</option>
+                <option value="สูง">สูง (High)</option>
               </select>
             </div>
             <div>
@@ -237,11 +240,11 @@ export default function Academic() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase
-                        ${item.type === 'Exam' ? 'bg-red-50 text-red-600' : item.type === 'Project' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}
+                        ${item.type === 'สอบ' ? 'bg-red-50 text-red-600' : item.type === 'โปรเจกต์' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}
                       `}>
                         {item.type}
                       </span>
-                      {item.priority === 'High' && (
+                      {item.priority === 'สูง' && (
                         <span className="text-[10px] font-bold text-red-500 uppercase">ด่วน</span>
                       )}
                     </div>
