@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Check, Calendar as CalendarIcon, CheckCircle2, Clock, AlertCircle, Wallet, ArrowDownRight, ArrowUpRight } from 'lucide-react'
 import { supabase } from '../supabase/supabaseClient'
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts'
+
+const PIE_COLORS = ['#818CF8', '#A78BFA', '#F472B6', '#38BDF8', '#4ADE80', '#FBBF24']
 
 export default function Dashboard() {
   const [schedule, setSchedule] = useState([])
   const [tasks, setTasks] = useState([])
   const [habits, setHabits] = useState([])
   const [finance, setFinance] = useState({ balance: 0, income: 0, expense: 0 })
+  const [expenseByCategory, setExpenseByCategory] = useState([])
+  const [incomeVsExpense, setIncomeVsExpense] = useState([])
   
   const [greeting, setGreeting] = useState('สวัสดี')
   const [currentDate, setCurrentDate] = useState('')
@@ -46,16 +51,35 @@ export default function Dashboard() {
       let income = 0
       let expense = 0
 
+      const expensesByCategoryMap = {}
+      const monthlyData = {}
+
       ;(transactionsData || []).forEach(t => {
         if (t.type === 'Income') balance += t.amount
         else balance -= t.amount
 
         if (t.date && t.date.startsWith(currentMonth)) {
           if (t.type === 'Income') income += t.amount
-          else expense += t.amount
+          else {
+            expense += t.amount
+            expensesByCategoryMap[t.category] = (expensesByCategoryMap[t.category] || 0) + t.amount
+          }
+        }
+
+        if (t.date) {
+          const month = t.date.substring(0, 7)
+          if (!monthlyData[month]) monthlyData[month] = { name: month, Income: 0, Expense: 0 }
+          if (t.type === 'Income') monthlyData[month].Income += t.amount
+          else monthlyData[month].Expense += t.amount
         }
       })
+      
       setFinance({ balance, income, expense })
+      setExpenseByCategory(Object.keys(expensesByCategoryMap).map(key => ({
+        name: key,
+        value: expensesByCategoryMap[key]
+      })))
+      setIncomeVsExpense(Object.values(monthlyData).sort((a, b) => a.name.localeCompare(b.name)).slice(-6))
 
       // Format Schedule
       const formattedSchedule = (scheduleData || []).map(item => {
@@ -207,6 +231,63 @@ export default function Dashboard() {
               <p className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-gray-900">
                 ฿{finance.expense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
+            </div>
+          </section>
+
+          {/* Analytics Charts Section */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
+              <h2 className="text-sm font-semibold text-gray-900 mb-4">รายจ่ายตามหมวดหมู่ (เดือนนี้)</h2>
+              <div className="h-64">
+                {expenseByCategory.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={expenseByCategory}
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        {expenseByCategory.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip 
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        itemStyle={{ color: '#374151', fontSize: '14px' }}
+                      />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-sm text-gray-500">ไม่มีข้อมูลรายจ่าย</div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
+              <h2 className="text-sm font-semibold text-gray-900 mb-4">รายรับ - รายจ่าย (6 เดือนล่าสุด)</h2>
+              <div className="h-64">
+                {incomeVsExpense.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={incomeVsExpense} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9CA3AF' }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9CA3AF' }} />
+                      <RechartsTooltip
+                        cursor={{ fill: '#F3F4F6' }}
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                      <Bar dataKey="Income" name="รายรับ" fill="#818CF8" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                      <Bar dataKey="Expense" name="รายจ่าย" fill="#FCA5A5" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-sm text-gray-500">ไม่มีข้อมูล</div>
+                )}
+              </div>
             </div>
           </section>
 
