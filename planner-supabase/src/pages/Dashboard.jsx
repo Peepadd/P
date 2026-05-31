@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Check, Calendar as CalendarIcon, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
+import { Check, Calendar as CalendarIcon, CheckCircle2, Clock, AlertCircle, Wallet, ArrowDownRight, ArrowUpRight } from 'lucide-react'
 import { supabase } from '../supabase/supabaseClient'
 
 export default function Dashboard() {
   const [schedule, setSchedule] = useState([])
   const [tasks, setTasks] = useState([])
   const [habits, setHabits] = useState([])
+  const [finance, setFinance] = useState({ balance: 0, income: 0, expense: 0 })
   
   const [greeting, setGreeting] = useState('สวัสดี')
   const [currentDate, setCurrentDate] = useState('')
@@ -36,6 +37,25 @@ export default function Dashboard() {
         .from('habit_logs')
         .select('*')
         .eq('log_date', todayDateStr)
+
+      // 4. Fetch Transactions for Financial Overview
+      const { data: transactionsData } = await supabase.from('transactions').select('*')
+      const currentMonth = todayDateStr.substring(0, 7) // YYYY-MM
+      
+      let balance = 0
+      let income = 0
+      let expense = 0
+
+      ;(transactionsData || []).forEach(t => {
+        if (t.type === 'Income') balance += t.amount
+        else balance -= t.amount
+
+        if (t.date && t.date.startsWith(currentMonth)) {
+          if (t.type === 'Income') income += t.amount
+          else expense += t.amount
+        }
+      })
+      setFinance({ balance, income, expense })
 
       // Format Schedule
       const formattedSchedule = (scheduleData || []).map(item => {
@@ -153,22 +173,55 @@ export default function Dashboard() {
       {loading ? (
         // Soft Skeleton Loader
         <div className="space-y-6">
+          <div className="h-24 bg-gray-100 rounded-xl animate-pulse" />
           <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
           <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
-          <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
-        </div>
-      ) : isAllClear ? (
-        <div className="text-center py-20 bg-white rounded-xl border border-gray-200">
-          <div className="w-16 h-16 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8" />
-          </div>
-          <h3 className="text-xl font-medium text-gray-900 mb-1">วันนี้ว่างเปล่า</h3>
-          <p className="text-gray-500">คุณไม่มีตารางงานหรือสิ่งที่ต้องทำในวันนี้ พักผ่อนให้เต็มที่!</p>
         </div>
       ) : (
-        <div className="space-y-6 md:space-y-8">
-          
-          {/* Schedule Section */}
+        <>
+          {/* Financial Overview Section */}
+          <section className="grid grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
+            <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+              <div className="flex items-center gap-1.5 text-gray-500 mb-1.5">
+                <Wallet size={16} />
+                <span className="text-xs sm:text-sm font-medium">ยอดคงเหลือ</span>
+              </div>
+              <p className={`text-lg sm:text-xl md:text-2xl font-bold tracking-tight ${finance.balance < 0 ? 'text-red-500' : 'text-gray-900'}`}>
+                ฿{finance.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+              <div className="flex items-center gap-1.5 text-green-600 mb-1.5">
+                <ArrowDownRight size={16} />
+                <span className="text-xs sm:text-sm font-medium">รายรับเดือนนี้</span>
+              </div>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-gray-900">
+                ฿{finance.income.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+              <div className="flex items-center gap-1.5 text-red-500 mb-1.5">
+                <ArrowUpRight size={16} />
+                <span className="text-xs sm:text-sm font-medium">รายจ่ายเดือนนี้</span>
+              </div>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-gray-900">
+                ฿{finance.expense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+          </section>
+
+          {isAllClear ? (
+            <div className="text-center py-20 bg-white rounded-xl border border-gray-200">
+              <div className="w-16 h-16 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-900 mb-1">วันนี้ว่างเปล่า</h3>
+              <p className="text-gray-500">คุณไม่มีตารางงานหรือสิ่งที่ต้องทำในวันนี้ พักผ่อนให้เต็มที่!</p>
+            </div>
+          ) : (
+            <div className="space-y-6 md:space-y-8">
+              
+              {/* Schedule Section */}
           <section>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -281,7 +334,9 @@ export default function Dashboard() {
             </div>
           </section>
 
-        </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
