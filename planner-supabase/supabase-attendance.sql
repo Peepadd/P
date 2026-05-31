@@ -1,3 +1,6 @@
+-- Drop existing table if any to ensure clean schema update
+DROP TABLE IF EXISTS attendance_logs CASCADE;
+
 -- Create attendance_logs table
 CREATE TABLE attendance_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
