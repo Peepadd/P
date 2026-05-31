@@ -57,7 +57,7 @@ export default function Checklist() {
       setIsAdding(false)
     } catch (err) {
       console.error('Error adding checklist item:', err)
-      alert('Failed to add item')
+      alert(`Failed to add item: ${err.message || JSON.stringify(err)}`)
     } finally {
       setIsSubmitting(false)
     }

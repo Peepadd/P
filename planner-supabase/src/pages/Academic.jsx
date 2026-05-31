@@ -62,7 +62,7 @@ export default function Academic() {
       setIsAdding(false)
     } catch (err) {
       console.error('Error adding academic item:', err)
-      alert('Failed to add item')
+      alert(`Failed to add item: ${err.message || JSON.stringify(err)}`)
     } finally {
       setIsSubmitting(false)
     }
