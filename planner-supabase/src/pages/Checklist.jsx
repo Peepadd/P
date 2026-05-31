@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react'
 import { ClipboardList, Plus, Trash2, Check, Calendar } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase/supabaseClient'
 
 export default function Checklist() {
+  const [searchParams] = useSearchParams()
+  const dateParam = searchParams.get('date')
+
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   
   // Inline Form State
-  const [isAdding, setIsAdding] = useState(false)
+  const [isAdding, setIsAdding] = useState(!!dateParam)
   const [formData, setFormData] = useState({
     text: '',
-    due_date: new Date().toISOString().split('T')[0]
+    due_date: dateParam || new Date().toISOString().split('T')[0]
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 

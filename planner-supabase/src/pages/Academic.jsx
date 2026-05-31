@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react'
 import { BookOpen, Plus, Check, Trash2 } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase/supabaseClient'
 
 export default function Academic() {
+  const [searchParams] = useSearchParams()
+  const dateParam = searchParams.get('date')
+
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   
   // Inline Form State
-  const [isAdding, setIsAdding] = useState(false)
+  const [isAdding, setIsAdding] = useState(!!dateParam)
   const [formData, setFormData] = useState({
     subject: '',
     topic: '',
     type: 'การบ้าน',
-    deadline: '',
+    deadline: dateParam || '',
     priority: 'กลาง'
   })
   const [isSubmitting, setIsSubmitting] = useState(false)

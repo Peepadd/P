@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import { X, Calendar } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 function formatCurrency(amount) {
   return Math.abs(Number(amount)).toLocaleString('th-TH', {
@@ -37,6 +38,8 @@ function getSourceLabel(source) {
 }
 
 export default function CalendarDayPreview({ selectedDate, eventsByDate, onClose }) {
+  const navigate = useNavigate()
+
   if (!selectedDate) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
@@ -128,6 +131,24 @@ export default function CalendarDayPreview({ selectedDate, eventsByDate, onClose
           })
         )}
       </div>
+      
+      {/* Quick Add Actions */}
+      {selectedDate && (
+        <div className="p-3 border-t border-gray-100 bg-gray-50/50 flex gap-2 justify-end">
+          <button
+            onClick={() => navigate(`/academic?date=${dateKey}`)}
+            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            เพิ่มงาน/สอบ
+          </button>
+          <button
+            onClick={() => navigate(`/checklist?date=${dateKey}`)}
+            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            เพิ่ม Checklist
+          </button>
+        </div>
+      )}
     </div>
   )
 }
