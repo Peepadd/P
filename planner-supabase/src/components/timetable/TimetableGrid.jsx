@@ -181,220 +181,224 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
         .tt-now-cell { animation: nowPulse 2s ease-in-out infinite; border-radius: 6px; }
       `}</style>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[600px]">
-          {/* Header: Days */}
+        <table className="w-full min-w-[800px] border-collapse">
+          {/* Header: Periods */}
           <thead>
             <tr>
-              <th className="w-16 px-2 py-3 text-xs font-medium text-gray-400 text-center bg-gray-50 border-b border-r border-gray-200">
-                #
+              <th className="w-20 px-2 py-3 text-xs font-medium text-gray-400 text-center bg-gray-50 border-b border-r border-gray-200">
+                วัน / เวลา
               </th>
-              <th className="w-12 px-2 py-3 text-xs font-medium text-gray-400 text-center bg-gray-50 border-b border-r border-gray-200">
-                เวลา
-              </th>
-              {DAYS.map((day, i) => {
-                const isToday = i === todayDayIdx
-                return (
+              {timeSlots.map((slot) => (
+                <th
+                  key={slot.period}
+                  className="px-2 py-2 text-center border-b border-r border-gray-200 bg-gray-50 min-w-[120px]"
+                >
+                  <div className="text-xs font-medium text-gray-700">คาบ {slot.label}</div>
+                  <div className="text-[10px] text-gray-400 font-normal mt-0.5">
+                    {slot.start} - {slot.end}
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {DAYS.map((day, dayIdx) => {
+              const isToday = dayIdx === todayDayIdx
+              return (
+                <tr key={dayIdx}>
+                  {/* Day Label Header */}
                   <th
-                    key={day}
-                    className={`px-2 py-3 text-xs font-semibold text-center border-b border-r border-gray-200 ${
+                    className={`px-3 py-4 text-sm font-medium text-center border-b border-r border-gray-200 align-middle ${
                       isToday
                         ? 'text-indigo-700 bg-indigo-50'
-                        : i === 4
+                        : dayIdx === 4
                         ? 'text-red-500 bg-red-50/50'
                         : 'text-gray-700 bg-gray-50'
                     }`}
                   >
                     {day}
                     {isToday && (
-                      <span className="ml-1 inline-block w-1.5 h-1.5 bg-indigo-500 rounded-full align-middle" />
+                      <div className="mt-1.5">
+                        <span className="inline-block w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+                      </div>
                     )}
                   </th>
-                )
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {timeSlots.map((slot) => (
-              <tr key={slot.period}>
-                {/* Period number */}
-                <td className="px-2 py-1 text-xs font-medium text-gray-400 text-center border-b border-r border-gray-100 bg-gray-50/50 align-top pt-3">
-                  {slot.label}
-                </td>
-                {/* Time */}
-                <td className="px-2 py-1 text-[10px] text-gray-400 text-center border-b border-r border-gray-100 bg-gray-50/50 align-top pt-3 whitespace-nowrap">
-                  {slot.start}
-                </td>
-                {/* Day cells */}
-                {DAYS.map((_, dayIdx) => {
-                  const cellKey = `${dayIdx}_${slot.period}`
-                  const spanInfo = spanMatrix[cellKey]
-                  if (spanInfo?.skip) return null
 
-                  const cell = getCell(dayIdx, slot.period)
-                  const isEditing = editCell?.dayIdx === dayIdx && editCell?.periodIdx === slot.period
-                  const isToday = dayIdx === todayDayIdx
-                  const isNow = isToday && slot.period === currentPeriodIdx
-                  const span = spanInfo?.span || 1
+                  {/* Period cells */}
+                  {timeSlots.map((slot) => {
+                    const cellKey = `${dayIdx}_${slot.period}`
+                    const spanInfo = spanMatrix[cellKey]
+                    if (spanInfo?.skip) return null
 
-                  return (
-                    <td
-                      key={dayIdx}
-                      rowSpan={span}
-                      className={`relative border-b border-r border-gray-100 min-h-[60px] align-top transition-colors ${
-                        isEditing
-                          ? 'bg-indigo-50'
-                          : isNow
-                          ? 'bg-indigo-50/60'
-                          : isToday
-                          ? 'bg-indigo-50/20'
-                          : cell
-                          ? 'hover:bg-gray-50'
-                          : 'hover:bg-indigo-50/30'
-                      } ${isNow ? 'tt-now-cell' : ''}`}
-                      style={{ height: `${60 * span}px` }}
-                    >
-                      {isNow && (
-                        <span className="absolute top-0.5 right-0.5 text-[8px] font-bold text-indigo-500 bg-indigo-100 px-1 rounded z-10 leading-tight">
-                          ▶ NOW
-                        </span>
-                      )}
-                      {isEditing ? (
-                        /* Inline edit form */
-                        <div className="p-1.5 space-y-1" onKeyDown={handleKeyDown}>
-                          <select
-                            value={form.subject}
-                            onChange={(e) => setForm((p) => ({ ...p, subject: e.target.value }))}
-                            autoFocus
-                            className="w-full px-1.5 py-1 text-[11px] border border-indigo-300 rounded focus:ring-1 focus:ring-indigo-500 outline-none bg-white"
-                          >
-                            <option value="">เลือกวิชา</option>
-                            {subjects.map((s) => (
-                              <option key={s.name} value={s.name}>{s.name}</option>
-                            ))}
-                          </select>
-                          <div className="flex gap-1">
+                    const cell = getCell(dayIdx, slot.period)
+                    const isEditing = editCell?.dayIdx === dayIdx && editCell?.periodIdx === slot.period
+                    const isNow = isToday && slot.period === currentPeriodIdx
+                    const span = spanInfo?.span || 1
+
+                    return (
+                      <td
+                        key={slot.period}
+                        colSpan={span}
+                        className={`relative border-b border-r border-gray-200 h-[110px] align-top transition-colors ${
+                          isEditing
+                            ? 'bg-indigo-50'
+                            : isNow
+                            ? 'bg-indigo-50/60 ring-2 ring-indigo-400 ring-inset z-10 tt-now-cell'
+                            : isToday
+                            ? 'bg-indigo-50/20'
+                            : cell
+                            ? 'hover:bg-gray-50'
+                            : 'hover:bg-indigo-50/30'
+                        }`}
+                        style={{ minWidth: `${120 * span}px` }}
+                      >
+                        {isNow && (
+                          <span className="absolute top-1.5 left-1.5 text-[9px] font-bold text-indigo-500 bg-indigo-100 px-1.5 py-0.5 rounded z-20 leading-tight shadow-sm">
+                            ▶ NOW
+                          </span>
+                        )}
+                        {isEditing ? (
+                          /* Inline edit form */
+                          <div className="p-2 space-y-1.5" onKeyDown={handleKeyDown}>
+                            <select
+                              value={form.subject}
+                              onChange={(e) => setForm((p) => ({ ...p, subject: e.target.value }))}
+                              autoFocus
+                              className="w-full px-2 py-1.5 text-xs border border-indigo-300 rounded focus:ring-1 focus:ring-indigo-500 outline-none bg-white shadow-sm"
+                            >
+                              <option value="">เลือกวิชา</option>
+                              {subjects.map((s) => (
+                                <option key={s.name} value={s.name}>{s.name}</option>
+                              ))}
+                            </select>
+                            <div className="flex gap-1.5">
+                              <input
+                                type="text"
+                                value={form.teacher}
+                                onChange={(e) => setForm((p) => ({ ...p, teacher: e.target.value }))}
+                                placeholder="ผู้สอน"
+                                className="w-1/2 px-2 py-1 text-[11px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                              />
+                              <input
+                                type="text"
+                                value={form.room}
+                                onChange={(e) => setForm((p) => ({ ...p, room: e.target.value }))}
+                                placeholder="ห้อง"
+                                className="w-1/2 px-2 py-1 text-[11px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                              />
+                            </div>
                             <input
                               type="text"
-                              value={form.teacher}
-                              onChange={(e) => setForm((p) => ({ ...p, teacher: e.target.value }))}
-                              placeholder="ผู้สอน"
-                              className="w-1/2 px-1.5 py-1 text-[10px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                              value={form.note}
+                              onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
+                              placeholder="หมายเหตุ"
+                              className="w-full px-2 py-1 text-[11px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
                             />
                             <input
-                              type="text"
-                              value={form.room}
-                              onChange={(e) => setForm((p) => ({ ...p, room: e.target.value }))}
-                              placeholder="ห้อง"
-                              className="w-1/2 px-1.5 py-1 text-[10px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                              type="url"
+                              value={form.url}
+                              onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
+                              placeholder="ลิงก์เรียนออนไลน์"
+                              className="w-full px-2 py-1 text-[11px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
                             />
-                          </div>
-                          <input
-                            type="text"
-                            value={form.note}
-                            onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
-                            placeholder="หมายเหตุ"
-                            className="w-full px-1.5 py-1 text-[10px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
-                          />
-                          <input
-                            type="url"
-                            value={form.url}
-                            onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
-                            placeholder="ลิงก์เรียนออนไลน์ (Zoom/Meet)"
-                            className="w-full px-1.5 py-1 text-[10px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
-                          />
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={handleSaveCell}
-                              className="p-0.5 text-green-600 hover:bg-green-50 rounded transition-colors"
-                              title="บันทึก"
-                            >
-                              <Save size={14} />
-                            </button>
-                            <button
-                              onClick={() => setEditCell(null)}
-                              className="p-0.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
-                              title="ยกเลิก"
-                            >
-                              <X size={14} />
-                            </button>
-                            {cell && (
+                            <div className="flex items-center gap-1 pt-1">
                               <button
-                                onClick={handleDeleteCell}
-                                className="p-0.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors ml-auto"
-                                title="ลบ"
+                                onClick={handleSaveCell}
+                                className="p-1.5 text-green-600 hover:bg-green-100 rounded transition-colors"
+                                title="บันทึก"
                               >
-                                <Trash2 size={14} />
+                                <Save size={14} />
                               </button>
-                            )}
-                          </div>
-                        </div>
-                      ) : cell ? (
-                        /* Cell with content */
-                        <button
-                          onClick={() => handleOpenEdit(dayIdx, slot.period)}
-                          className="w-full h-full p-1.5 text-left group hover:ring-1 hover:ring-indigo-300 rounded transition-all"
-                        >
-                          {/* Subject color bar */}
-                          <div
-                            className="absolute left-0 top-0 bottom-0 w-1 rounded-l"
-                            style={{ backgroundColor: getSubjectColor(cell.subject) }}
-                          />
-                          <div className="pl-2">
-                            <p
-                              className="text-xs font-semibold leading-tight truncate"
-                              style={{ color: getSubjectColor(cell.subject) }}
-                            >
-                              {cell.subject}
-                            </p>
-                            {cell.teacher && (
-                              <p className="text-[10px] text-gray-500 leading-tight truncate">
-                                👨‍🏫 {cell.teacher}
-                              </p>
-                            )}
-                            {cell.room && (
-                              <p className="text-[10px] text-gray-400 leading-tight truncate">
-                                🚪 {cell.room}
-                              </p>
-                            )}
-                            {cell.note && (
-                              <p className="text-[10px] text-amber-500 leading-tight truncate flex items-center gap-0.5">
-                                <StickyNote size={8} className="shrink-0" />
-                                {cell.note}
-                              </p>
-                            )}
-                            {academicItems && academicItems.filter(item => item.subject === cell.subject && item.status !== 'เสร็จแล้ว').length > 0 && (
-                              <p className="mt-0.5 text-[9px] font-medium text-white bg-indigo-500 px-1 py-0.5 rounded inline-block truncate max-w-full">
-                                📝 {academicItems.filter(item => item.subject === cell.subject && item.status !== 'เสร็จแล้ว').length} งาน
-                              </p>
-                            )}
-                            {cell.url && (
-                              <a
-                                href={cell.url.startsWith('http') ? cell.url : `https://${cell.url}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="mt-1 flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-1.5 py-0.5 rounded transition-colors truncate max-w-full"
-                                title={cell.url}
+                              <button
+                                onClick={() => setEditCell(null)}
+                                className="p-1.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                                title="ยกเลิก"
                               >
-                                <Link size={10} className="shrink-0" /> เข้าเรียน
-                              </a>
-                            )}
+                                <X size={14} />
+                              </button>
+                              {cell && (
+                                <button
+                                  onClick={handleDeleteCell}
+                                  className="p-1.5 text-red-500 hover:bg-red-100 rounded transition-colors ml-auto"
+                                  title="ลบ"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                            </div>
                           </div>
-                        </button>
-                      ) : (
-                        /* Empty cell - click to add */
-                        <button
-                          onClick={() => handleOpenEdit(dayIdx, slot.period)}
-                          className="w-full h-full p-1 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
-                        >
-                          <span className="text-[10px] text-indigo-400 font-medium">+</span>
-                        </button>
-                      )}
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
+                        ) : cell ? (
+                          /* Cell with content */
+                          <button
+                            onClick={() => handleOpenEdit(dayIdx, slot.period)}
+                            className="w-full h-full p-2 text-center group hover:ring-2 hover:ring-indigo-300 rounded transition-all flex flex-col items-center justify-center relative"
+                          >
+                            {/* Top subject color border */}
+                            <div
+                              className="absolute top-0 left-0 right-0 h-1.5"
+                              style={{ backgroundColor: getSubjectColor(cell.subject) }}
+                            />
+                            <div className="pt-2 flex flex-col items-center justify-center w-full">
+                              <p
+                                className="text-sm font-bold leading-tight truncate px-2 w-full"
+                                style={{ color: getSubjectColor(cell.subject) }}
+                              >
+                                {cell.subject}
+                              </p>
+                              {cell.teacher && (
+                                <p className="text-xs text-gray-600 leading-tight mt-1.5 truncate w-full">
+                                  👨‍🏫 {cell.teacher}
+                                </p>
+                              )}
+                              {cell.room && (
+                                <p className="text-xs text-gray-500 leading-tight mt-0.5 truncate w-full">
+                                  🚪 {cell.room}
+                                </p>
+                              )}
+                              {cell.note && (
+                                <p className="text-[11px] text-amber-500 leading-tight mt-1 flex items-center justify-center gap-1 w-full">
+                                  <StickyNote size={12} className="shrink-0" />
+                                  <span className="truncate">{cell.note}</span>
+                                </p>
+                              )}
+                              <div className="flex flex-wrap gap-1.5 items-center justify-center mt-2.5 w-full">
+                                {academicItems && academicItems.filter(item => item.subject === cell.subject && item.status !== 'เสร็จแล้ว').length > 0 && (
+                                  <span className="text-[10px] font-medium text-white bg-indigo-500 px-2 py-0.5 rounded shadow-sm">
+                                    📝 {academicItems.filter(item => item.subject === cell.subject && item.status !== 'เสร็จแล้ว').length} งาน
+                                  </span>
+                                )}
+                                {cell.url && (
+                                  <a
+                                    href={cell.url.startsWith('http') ? cell.url : `https://${cell.url}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded shadow-sm transition-colors"
+                                    title={cell.url}
+                                  >
+                                    <Link size={12} className="shrink-0" /> เข้าเรียน
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        ) : (
+                          /* Empty cell - click to add */
+                          <button
+                            onClick={() => handleOpenEdit(dayIdx, slot.period)}
+                            className="w-full h-full p-2 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-400 flex items-center justify-center">
+                              <span className="text-xl font-medium leading-none mb-0.5">+</span>
+                            </div>
+                          </button>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
