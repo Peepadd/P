@@ -23,18 +23,15 @@ export default function Dashboard() {
     try {
       setLoading(true)
       
-      // 1. Fetch Schedule (academic_items due today)
-      // Note: We use like for the date part if deadline includes timestamp
-      const { data: scheduleData } = await supabase
-        .from('academic_items')
-        .select('*')
-        .like('deadline', `${todayDateStr}%`)
+      // 1. Fetch all items and filter in JS to avoid Postgres LIKE operator errors on timestamps
+      const { data: allScheduleData, error: err1 } = await supabase.from('academic_items').select('*')
+      if (err1) console.error('Schedule fetch error:', err1)
+      const scheduleData = (allScheduleData || []).filter(item => item.deadline && item.deadline.startsWith(todayDateStr))
 
-      // 2. Fetch Urgent Tasks (checklist_items due today)
-      const { data: tasksData } = await supabase
-        .from('checklist_items')
-        .select('*')
-        .like('due_date', `${todayDateStr}%`)
+      // 2. Fetch all checklist items and filter
+      const { data: allTasksData, error: err2 } = await supabase.from('checklist_items').select('*')
+      if (err2) console.error('Tasks fetch error:', err2)
+      const tasksData = (allTasksData || []).filter(item => item.due_date && item.due_date.startsWith(todayDateStr))
 
       // 3. Fetch Habits and today's logs
       const { data: habitsData } = await supabase.from('habits').select('*')
