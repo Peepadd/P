@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Check, Calendar as CalendarIcon, CheckCircle2, Clock, AlertCircle, Wallet, ArrowDownRight, ArrowUpRight } from 'lucide-react'
+import { Check, Calendar as CalendarIcon, CheckCircle2, Clock, AlertCircle, Wallet, ArrowDownRight, ArrowUpRight, BookOpen } from 'lucide-react'
 import { supabase } from '../supabase/supabaseClient'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts'
 
@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [finance, setFinance] = useState({ balance: 0, income: 0, expense: 0 })
   const [expenseByCategory, setExpenseByCategory] = useState([])
   const [incomeVsExpense, setIncomeVsExpense] = useState([])
+  const [todayClasses, setTodayClasses] = useState([])
   
   const [greeting, setGreeting] = useState('สวัสดี')
   const [currentDate, setCurrentDate] = useState('')
@@ -112,6 +113,64 @@ export default function Dashboard() {
       setSchedule(formattedSchedule)
       setTasks(formattedTasks)
       setHabits(formattedHabits)
+
+      // 5. Fetch timetable for today's classes
+      try {
+        const { data: ttData } = await supabase
+          .from('timetables')
+          .select('*')
+          .order('updated_at', { ascending: false })
+          .limit(1)
+
+        if (ttData && ttData.length > 0) {
+          const tt = ttData[0]
+          const jsDay = new Date().getDay() // 0=Sun, 1=Mon, ..., 6=Sat
+          const dayIdx = (jsDay === 0 || jsDay === 6) ? -1 : jsDay - 1
+
+          if (dayIdx >= 0 && tt.config && tt.cells) {
+            const cfg = tt.config
+            const startParts = cfg.tStart.split(':').map(Number)
+            let currentMin = startParts[0] * 60 + startParts[1]
+            const nowDate = new Date()
+            const nowMin = nowDate.getHours() * 60 + nowDate.getMinutes()
+            const classes = []
+
+            for (let i = 0; i < cfg.periods; i++) {
+              const startH = Math.floor(currentMin / 60)
+              const startM = currentMin % 60
+              const endTotalMin = currentMin + cfg.pMin
+              const endH = Math.floor(endTotalMin / 60)
+              const endM = endTotalMin % 60
+
+              const cellKey = `${dayIdx}_${i}`
+              const cell = tt.cells[cellKey]
+              const timeStart = `${String(startH).padStart(2, '0')}:${String(startM).padStart(2, '0')}`
+              const timeEnd = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
+              const isNow = nowMin >= currentMin && nowMin < endTotalMin
+
+              if (cell && cell.subject) {
+                const subj = (tt.subjects || []).find(s => s.name === cell.subject)
+                classes.push({
+                  period: i + 1,
+                  time: `${timeStart} - ${timeEnd}`,
+                  subject: cell.subject,
+                  teacher: cell.teacher || '',
+                  room: cell.room || '',
+                  note: cell.note || '',
+                  color: subj?.color || '#6366f1',
+                  isNow,
+                })
+              }
+              currentMin = endTotalMin + cfg.bMin
+            }
+            setTodayClasses(classes)
+          } else {
+            setTodayClasses([])
+          }
+        }
+      } catch (ttErr) {
+        console.error('Timetable fetch error:', ttErr)
+      }
     } catch (err) {
       console.error('Error fetching dashboard data:', err)
     } finally {
@@ -177,7 +236,7 @@ export default function Dashboard() {
   // Calculate completion
   const allTasksCompleted = tasks.length > 0 && tasks.every(t => t.completed)
   const allHabitsCompleted = habits.length > 0 && habits.every(h => h.completed)
-  const isAllClear = schedule.length === 0 && tasks.length === 0 && habits.length === 0
+  const isAllClear = schedule.length === 0 && tasks.length === 0 && habits.length === 0 && todayClasses.length === 0
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
@@ -298,6 +357,72 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="space-y-6 md:space-y-8">
+              
+              {/* Today's Classes Section */}
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-indigo-500" />
+                    ตารางเรียนวันนี้
+                  </h2>
+                  {todayClasses.length > 0 && (
+                    <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
+                      {todayClasses.length} คาบ
+                    </span>
+                  )}
+                </div>
+
+                {new Date().getDay() === 0 || new Date().getDay() === 6 ? (
+                  <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
+                    <p className="text-gray-400 text-sm">🎉 วันหยุด — ไม่มีคาบเรียน</p>
+                  </div>
+                ) : todayClasses.length > 0 ? (
+                  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div className="divide-y divide-gray-100">
+                      {todayClasses.map((cls) => (
+                        <div
+                          key={cls.period}
+                          className={`flex items-start p-3 sm:p-4 transition-colors ${
+                            cls.isNow
+                              ? 'bg-indigo-50/70 border-l-4 border-l-indigo-500'
+                              : 'hover:bg-gray-50 border-l-4'
+                          }`}
+                          style={!cls.isNow ? { borderLeftColor: cls.color } : undefined}
+                        >
+                          <div className="w-20 shrink-0 text-sm font-medium text-gray-500 pt-0.5">
+                            {cls.time.split(' - ')[0]}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-gray-900 truncate">{cls.subject}</p>
+                              {cls.isNow && (
+                                <span className="shrink-0 text-[10px] font-bold text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded animate-pulse">
+                                  ▶ NOW
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-400">
+                              {cls.teacher && <span>👨‍🏫 {cls.teacher}</span>}
+                              {cls.room && <span>🚪 {cls.room}</span>}
+                            </div>
+                            {cls.note && (
+                              <p className="text-xs text-amber-500 mt-0.5 truncate">📝 {cls.note}</p>
+                            )}
+                          </div>
+                          <div className="shrink-0 ml-3">
+                            <div
+                              className="w-2.5 h-2.5 rounded-full mt-1.5"
+                              style={{ backgroundColor: cls.color }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-sm">ยังไม่มีตารางเรียน</p>
+                )}
+              </section>
               
               {/* Schedule Section */}
           <section>

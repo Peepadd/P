@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { X, Trash2, Save } from 'lucide-react'
+import { X, Trash2, Save, StickyNote } from 'lucide-react'
 
 const DAYS = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์']
 
@@ -33,6 +33,28 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
     }
     return slots
   }, [config])
+
+  // Today highlight: compute current day index (0=Mon..4=Fri, -1 for weekends)
+  const todayDayIdx = useMemo(() => {
+    const jsDay = new Date().getDay() // 0=Sun, 1=Mon, ..., 6=Sat
+    if (jsDay === 0 || jsDay === 6) return -1
+    return jsDay - 1 // 0=Mon, 1=Tue, ..., 4=Fri
+  }, [])
+
+  // Current period index (which period is happening right now)
+  const currentPeriodIdx = useMemo(() => {
+    if (todayDayIdx < 0 || timeSlots.length === 0) return -1
+    const now = new Date()
+    const nowMin = now.getHours() * 60 + now.getMinutes()
+    for (const slot of timeSlots) {
+      const [sh, sm] = slot.start.split(':').map(Number)
+      const [eh, em] = slot.end.split(':').map(Number)
+      const startMin = sh * 60 + sm
+      const endMin = eh * 60 + em
+      if (nowMin >= startMin && nowMin < endMin) return slot.period
+    }
+    return -1
+  }, [todayDayIdx, timeSlots])
 
   const getCell = (dayIdx, periodIdx) => {
     return cells[`${dayIdx}_${periodIdx}`] || null
@@ -94,6 +116,13 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" ref={gridRef}>
+      <style>{`
+        @keyframes nowPulse {
+          0%, 100% { box-shadow: inset 0 0 0 2px #6366f1; }
+          50% { box-shadow: inset 0 0 0 2px #a5b4fc; }
+        }
+        .tt-now-cell { animation: nowPulse 2s ease-in-out infinite; border-radius: 6px; }
+      `}</style>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[600px]">
           {/* Header: Days */}
@@ -105,16 +134,26 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
               <th className="w-12 px-2 py-3 text-xs font-medium text-gray-400 text-center bg-gray-50 border-b border-r border-gray-200">
                 เวลา
               </th>
-              {DAYS.map((day, i) => (
-                <th
-                  key={day}
-                  className={`px-2 py-3 text-xs font-semibold text-center border-b border-r border-gray-200 ${
-                    i === 4 ? 'text-red-500 bg-red-50/50' : 'text-gray-700 bg-gray-50'
-                  }`}
-                >
-                  {day}
-                </th>
-              ))}
+              {DAYS.map((day, i) => {
+                const isToday = i === todayDayIdx
+                return (
+                  <th
+                    key={day}
+                    className={`px-2 py-3 text-xs font-semibold text-center border-b border-r border-gray-200 ${
+                      isToday
+                        ? 'text-indigo-700 bg-indigo-50'
+                        : i === 4
+                        ? 'text-red-500 bg-red-50/50'
+                        : 'text-gray-700 bg-gray-50'
+                    }`}
+                  >
+                    {day}
+                    {isToday && (
+                      <span className="ml-1 inline-block w-1.5 h-1.5 bg-indigo-500 rounded-full align-middle" />
+                    )}
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           <tbody>
@@ -132,15 +171,30 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                 {DAYS.map((_, dayIdx) => {
                   const cell = getCell(dayIdx, slot.period)
                   const isEditing = editCell?.dayIdx === dayIdx && editCell?.periodIdx === slot.period
+                  const isToday = dayIdx === todayDayIdx
+                  const isNow = isToday && slot.period === currentPeriodIdx
 
                   return (
                     <td
                       key={dayIdx}
                       className={`relative border-b border-r border-gray-100 min-h-[60px] align-top transition-colors ${
-                        isEditing ? 'bg-indigo-50' : cell ? 'hover:bg-gray-50' : 'hover:bg-indigo-50/30'
-                      }`}
+                        isEditing
+                          ? 'bg-indigo-50'
+                          : isNow
+                          ? 'bg-indigo-50/60'
+                          : isToday
+                          ? 'bg-indigo-50/20'
+                          : cell
+                          ? 'hover:bg-gray-50'
+                          : 'hover:bg-indigo-50/30'
+                      } ${isNow ? 'tt-now-cell' : ''}`}
                       style={{ height: '60px' }}
                     >
+                      {isNow && (
+                        <span className="absolute top-0.5 right-0.5 text-[8px] font-bold text-indigo-500 bg-indigo-100 px-1 rounded z-10 leading-tight">
+                          ▶ NOW
+                        </span>
+                      )}
                       {isEditing ? (
                         /* Inline edit form */
                         <div className="p-1.5 space-y-1" onKeyDown={handleKeyDown}>
@@ -171,6 +225,13 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                               className="w-1/2 px-1.5 py-1 text-[10px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
                             />
                           </div>
+                          <input
+                            type="text"
+                            value={form.note}
+                            onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
+                            placeholder="หมายเหตุ"
+                            className="w-full px-1.5 py-1 text-[10px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                          />
                           <div className="flex items-center gap-1">
                             <button
                               onClick={handleSaveCell}
@@ -223,6 +284,12 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                             {cell.room && (
                               <p className="text-[10px] text-gray-400 leading-tight truncate">
                                 🚪 {cell.room}
+                              </p>
+                            )}
+                            {cell.note && (
+                              <p className="text-[10px] text-amber-500 leading-tight truncate flex items-center gap-0.5">
+                                <StickyNote size={8} className="shrink-0" />
+                                {cell.note}
                               </p>
                             )}
                           </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Check, X } from 'lucide-react'
+import { Plus, Pencil, Trash2, Check, X, Copy } from 'lucide-react'
 
 export default function TimetableSelect({
   timetables,
@@ -8,6 +8,7 @@ export default function TimetableSelect({
   onCreate,
   onRename,
   onDelete,
+  onDuplicate,
 }) {
   const [showNewInput, setShowNewInput] = useState(false)
   const [newName, setNewName] = useState('')
@@ -66,6 +67,17 @@ export default function TimetableSelect({
           title="เปลี่ยนชื่อ"
         >
           <Pencil size={16} />
+        </button>
+      )}
+
+      {/* Duplicate current */}
+      {activeTimetable && editingId !== activeId && (
+        <button
+          onClick={() => onDuplicate(activeId)}
+          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+          title="คัดลอกตาราง"
+        >
+          <Copy size={16} />
         </button>
       )}
 

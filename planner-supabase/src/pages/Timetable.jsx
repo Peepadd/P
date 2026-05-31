@@ -116,6 +116,31 @@ export default function Timetable() {
     }
   }
 
+  const handleDuplicate = async (id) => {
+    const source = timetables.find((t) => t.id === id)
+    if (!source) return
+    try {
+      const duplicated = {
+        id: uuidv4(),
+        name: `${source.name} (สำเนา)`,
+        config: { ...source.config },
+        cells: { ...source.cells },
+        subjects: [...(source.subjects || [])],
+        updated_at: new Date().toISOString(),
+      }
+
+      const { error: insertError } = await supabase.from('timetables').insert(duplicated)
+      if (insertError) throw insertError
+
+      setTimetables((prev) => [...prev, duplicated])
+      setActiveId(duplicated.id)
+      showMessage('success', `คัดลอกตาราง "${source.name}" เรียบร้อย`)
+    } catch (err) {
+      console.error('Duplicate error:', err)
+      showMessage('error', err.message)
+    }
+  }
+
   const handleConfigChange = async (config) => {
     if (!activeTimetable) return
     try {
@@ -267,6 +292,7 @@ export default function Timetable() {
           onCreate={handleCreate}
           onRename={handleRename}
           onDelete={handleDelete}
+          onDuplicate={handleDuplicate}
         />
       </div>
 
