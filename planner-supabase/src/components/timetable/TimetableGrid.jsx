@@ -1,11 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { X, Trash2, Save, StickyNote, AlertTriangle } from 'lucide-react'
+import { X, Trash2, Save, StickyNote, AlertTriangle, Link } from 'lucide-react'
 
 const DAYS = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์']
 
 export default function TimetableGrid({ config, cells, subjects, onCellChange, onCellDelete, onConflictWarning, academicItems = [] }) {
   const [editCell, setEditCell] = useState(null)
-  const [form, setForm] = useState({ subject: '', teacher: '', room: '', note: '' })
+  const [form, setForm] = useState({ subject: '', teacher: '', room: '', note: '', url: '' })
   const gridRef = useRef(null)
 
   // Calculate time slots
@@ -73,6 +73,7 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
       teacher: existing?.teacher || '',
       room: existing?.room || '',
       note: existing?.note || '',
+      url: existing?.url || '',
     })
   }
 
@@ -117,6 +118,44 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
       setEditCell(null)
     }
   }
+
+  // Compute span matrix for Dynamic Slot Merging
+  const spanMatrix = useMemo(() => {
+    const matrix = {}
+    if (!config || !timeSlots.length) return matrix
+
+    for (let dayIdx = 0; dayIdx < 5; dayIdx++) {
+      for (let periodIdx = 0; periodIdx < timeSlots.length; periodIdx++) {
+        const key = `${dayIdx}_${periodIdx}`
+        if (matrix[key] && matrix[key].skip) continue // Already part of a merged block
+
+        const currentCell = cells[key]
+        if (!currentCell || !currentCell.subject) {
+          matrix[key] = { span: 1, skip: false }
+          continue
+        }
+
+        let span = 1
+        for (let nextP = periodIdx + 1; nextP < timeSlots.length; nextP++) {
+          const nextKey = `${dayIdx}_${nextP}`
+          const nextCell = cells[nextKey]
+          if (
+            nextCell &&
+            nextCell.subject === currentCell.subject &&
+            nextCell.teacher === currentCell.teacher &&
+            nextCell.room === currentCell.room
+          ) {
+            span++
+            matrix[nextKey] = { skip: true }
+          } else {
+            break
+          }
+        }
+        matrix[key] = { span, skip: false }
+      }
+    }
+    return matrix
+  }, [config, timeSlots, cells])
 
   if (!config) {
     return (
@@ -187,14 +226,20 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                 </td>
                 {/* Day cells */}
                 {DAYS.map((_, dayIdx) => {
+                  const cellKey = `${dayIdx}_${slot.period}`
+                  const spanInfo = spanMatrix[cellKey]
+                  if (spanInfo?.skip) return null
+
                   const cell = getCell(dayIdx, slot.period)
                   const isEditing = editCell?.dayIdx === dayIdx && editCell?.periodIdx === slot.period
                   const isToday = dayIdx === todayDayIdx
                   const isNow = isToday && slot.period === currentPeriodIdx
+                  const span = spanInfo?.span || 1
 
                   return (
                     <td
                       key={dayIdx}
+                      rowSpan={span}
                       className={`relative border-b border-r border-gray-100 min-h-[60px] align-top transition-colors ${
                         isEditing
                           ? 'bg-indigo-50'
@@ -206,7 +251,7 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                           ? 'hover:bg-gray-50'
                           : 'hover:bg-indigo-50/30'
                       } ${isNow ? 'tt-now-cell' : ''}`}
-                      style={{ height: '60px' }}
+                      style={{ height: `${60 * span}px` }}
                     >
                       {isNow && (
                         <span className="absolute top-0.5 right-0.5 text-[8px] font-bold text-indigo-500 bg-indigo-100 px-1 rounded z-10 leading-tight">
@@ -248,6 +293,13 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                             value={form.note}
                             onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
                             placeholder="หมายเหตุ"
+                            className="w-full px-1.5 py-1 text-[10px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                          />
+                          <input
+                            type="url"
+                            value={form.url}
+                            onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
+                            placeholder="ลิงก์เรียนออนไลน์ (Zoom/Meet)"
                             className="w-full px-1.5 py-1 text-[10px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
                           />
                           <div className="flex items-center gap-1">
@@ -309,6 +361,23 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                                 <StickyNote size={8} className="shrink-0" />
                                 {cell.note}
                               </p>
+                            )}
+                            {academicItems && academicItems.filter(item => item.subject === cell.subject && item.status !== 'เสร็จแล้ว').length > 0 && (
+                              <p className="mt-0.5 text-[9px] font-medium text-white bg-indigo-500 px-1 py-0.5 rounded inline-block truncate max-w-full">
+                                📝 {academicItems.filter(item => item.subject === cell.subject && item.status !== 'เสร็จแล้ว').length} งาน
+                              </p>
+                            )}
+                            {cell.url && (
+                              <a
+                                href={cell.url.startsWith('http') ? cell.url : `https://${cell.url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="mt-1 flex items-center gap-1 text-[10px] font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-1.5 py-0.5 rounded transition-colors truncate max-w-full"
+                                title={cell.url}
+                              >
+                                <Link size={10} className="shrink-0" /> เข้าเรียน
+                              </a>
                             )}
                           </div>
                         </button>

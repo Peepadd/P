@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
-import { X, Trash2, Save, StickyNote, Clock, MapPin, User, ExternalLink, Timer } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { X, Trash2, Save, StickyNote, Clock, MapPin, User, ExternalLink, Timer, Link, CheckCircle, Circle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../../supabase/supabaseClient'
 
 const DAYS = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์']
 const DAYS_SHORT = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.']
@@ -24,7 +25,77 @@ export default function TimetableDailyView({
 
   const [selectedDay, setSelectedDay] = useState(todayIdx)
   const [editPeriod, setEditPeriod] = useState(null)
-  const [form, setForm] = useState({ subject: '', teacher: '', room: '', note: '' })
+  const [form, setForm] = useState({ subject: '', teacher: '', room: '', note: '', url: '' })
+  const [attendances, setAttendances] = useState({}) // { periodIdx: 'present' }
+
+  // Calculate actual Date for the selected day in current week
+  const selectedDate = useMemo(() => {
+    const now = new Date()
+    const currentJsDay = now.getDay()
+    const diff = selectedDay - (currentJsDay === 0 ? 6 : currentJsDay - 1)
+    const targetDate = new Date(now)
+    targetDate.setDate(now.getDate() + diff)
+    return targetDate.toISOString().split('T')[0]
+  }, [selectedDay])
+
+  // Fetch attendance for selectedDate
+  useEffect(() => {
+    let isMounted = true
+    const fetchAttendance = async () => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) return
+
+      const { data } = await supabase
+        .from('attendance_logs')
+        .select('period_idx, status')
+        .eq('user_id', userData.user.id)
+        .eq('date', selectedDate)
+
+      if (isMounted && data) {
+        const attMap = {}
+        data.forEach(d => {
+          attMap[d.period_idx] = d.status
+        })
+        setAttendances(attMap)
+      }
+    }
+    fetchAttendance()
+    return () => { isMounted = false }
+  }, [selectedDate])
+
+  const toggleAttendance = async (e, periodIdx, subject) => {
+    e.stopPropagation()
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) return
+
+    const currentStatus = attendances[periodIdx]
+    const newStatus = currentStatus === 'present' ? null : 'present'
+
+    if (newStatus) {
+      setAttendances(prev => ({ ...prev, [periodIdx]: newStatus }))
+      // Upsert
+      await supabase.from('attendance_logs').upsert({
+        user_id: userData.user.id,
+        date: selectedDate,
+        day_idx: selectedDay,
+        period_idx: periodIdx,
+        subject: subject,
+        status: newStatus
+      }, { onConflict: 'user_id, date, period_idx' })
+    } else {
+      setAttendances(prev => {
+        const next = { ...prev }
+        delete next[periodIdx]
+        return next
+      })
+      // Delete
+      await supabase.from('attendance_logs')
+        .delete()
+        .eq('user_id', userData.user.id)
+        .eq('date', selectedDate)
+        .eq('period_idx', periodIdx)
+    }
+  }
 
   // Calculate time slots
   const timeSlots = useMemo(() => {
@@ -83,6 +154,7 @@ export default function TimetableDailyView({
       teacher: existing?.teacher || '',
       room: existing?.room || '',
       note: existing?.note || '',
+      url: existing?.url || '',
     })
   }
 
@@ -218,6 +290,13 @@ export default function TimetableDailyView({
                       placeholder="หมายเหตุ"
                       className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                     />
+                    <input
+                      type="url"
+                      value={form.url}
+                      onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
+                      placeholder="ลิงก์เรียนออนไลน์ (Zoom/Meet)"
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                    />
                     <div className="flex items-center justify-between pt-1">
                       <button
                         onClick={handleDeleteCell}
@@ -267,7 +346,8 @@ export default function TimetableDailyView({
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-gray-400">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-3 text-xs text-gray-400">
                           {cell.teacher && (
                             <span className="flex items-center gap-1">
                               <User size={11} /> {cell.teacher}
@@ -282,6 +362,18 @@ export default function TimetableDailyView({
                             <Clock size={11} /> {slot.start}–{slot.end}
                           </span>
                         </div>
+                        <button
+                          onClick={(e) => toggleAttendance(e, slot.period, cell.subject)}
+                          className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full transition-colors shrink-0 ${
+                            attendances[slot.period] === 'present'
+                              ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                          }`}
+                        >
+                          {attendances[slot.period] === 'present' ? <CheckCircle size={14} /> : <Circle size={14} />}
+                          เช็คชื่อ
+                        </button>
+                      </div>
                         {cell.note && (
                           <p className="text-xs text-amber-500 mt-1 flex items-center gap-1 truncate">
                             <StickyNote size={10} className="shrink-0" /> {cell.note}
@@ -321,6 +413,17 @@ export default function TimetableDailyView({
 
                     {/* Action buttons (visible on hover) */}
                     <div className="mt-2 pt-2 border-t border-gray-100 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {cell.url && (
+                        <a
+                          href={cell.url.startsWith('http') ? cell.url : `https://${cell.url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[11px] text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+                        >
+                          <Link size={11} /> เข้าเรียน
+                        </a>
+                      )}
                       <button
                         onClick={(e) => {
                           e.stopPropagation()

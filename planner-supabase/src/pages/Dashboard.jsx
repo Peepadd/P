@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [expenseByCategory, setExpenseByCategory] = useState([])
   const [incomeVsExpense, setIncomeVsExpense] = useState([])
   const [todayClasses, setTodayClasses] = useState([])
+  const [upcomingAcademic, setUpcomingAcademic] = useState([])
   
   const [greeting, setGreeting] = useState('สวัสดี')
   const [currentDate, setCurrentDate] = useState('')
@@ -25,9 +26,15 @@ export default function Dashboard() {
       setLoading(true)
       
       // 1. Fetch all items and filter in JS to avoid Postgres LIKE operator errors on timestamps
-      const { data: allScheduleData, error: err1 } = await supabase.from('academic_items').select('*')
+      const { data: allScheduleData, error: err1 } = await supabase.from('academic_items').select('*').neq('status', 'เสร็จแล้ว')
       if (err1) console.error('Schedule fetch error:', err1)
       const scheduleData = (allScheduleData || []).filter(item => item.deadline && item.deadline.startsWith(todayDateStr))
+      
+      const sevenDaysFromNow = new Date()
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
+      const nextWeekStr = sevenDaysFromNow.toISOString().split('T')[0]
+      const upcomingData = (allScheduleData || []).filter(item => item.deadline && item.deadline > todayDateStr && item.deadline <= nextWeekStr)
+      setUpcomingAcademic(upcomingData.sort((a,b) => a.deadline.localeCompare(b.deadline)))
 
       // 2. Fetch all checklist items and filter
       const { data: allTasksData, error: err2 } = await supabase.from('checklist_items').select('*')
@@ -450,6 +457,56 @@ export default function Dashboard() {
               </div>
             ) : (
               <p className="text-gray-500 text-sm">ไม่มีตารางในวันนี้</p>
+            )}
+          </section>
+
+          {/* Upcoming Academic Items */}
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-amber-500" />
+                งาน/สอบที่กำลังจะมาถึง (7 วัน)
+              </h2>
+              {upcomingAcademic.length > 0 && (
+                <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
+                  {upcomingAcademic.length} รายการ
+                </span>
+              )}
+            </div>
+            
+            {upcomingAcademic.length > 0 ? (
+              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                <div className="divide-y divide-gray-100">
+                  {upcomingAcademic.map((item) => {
+                    const dateObj = new Date(item.deadline)
+                    const dateStr = dateObj.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })
+                    return (
+                      <div key={item.id} className="flex p-3 sm:p-4 hover:bg-gray-50 transition-colors">
+                        <div className="w-16 shrink-0 text-xs font-medium text-amber-600 bg-amber-50 rounded-lg flex items-center justify-center p-2 mr-3">
+                          {dateStr}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-gray-900 font-medium text-sm truncate">{item.subject} - {item.topic}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                              {item.type}
+                            </span>
+                            {item.priority === 'สูง' && (
+                              <span className="text-[10px] text-red-600 bg-red-50 px-1.5 py-0.5 rounded">
+                                ด่วน
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-200 p-6 text-center shadow-sm">
+                <p className="text-gray-400 text-sm">ไม่มีงานหรือสอบใน 7 วันข้างหน้า</p>
+              </div>
             )}
           </section>
 

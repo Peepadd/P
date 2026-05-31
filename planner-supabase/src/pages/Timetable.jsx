@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../supabase/supabaseClient'
-import { Settings2, Palette, RefreshCw } from 'lucide-react'
+import { Settings2, Palette, RefreshCw, LayoutGrid, List, AlertTriangle } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import TimetableSelect from '../components/timetable/TimetableSelect'
 import TimetableConfig from '../components/timetable/TimetableConfig'
 import TimetableGrid from '../components/timetable/TimetableGrid'
+import TimetableDailyView from '../components/timetable/TimetableDailyView'
+import TimetableStats from '../components/timetable/TimetableStats'
 import TimetableExport from '../components/timetable/TimetableExport'
 import SubjectPalette from '../components/timetable/SubjectPalette'
 
@@ -18,6 +20,9 @@ export default function Timetable() {
   const [showConfig, setShowConfig] = useState(false)
   const [showPalette, setShowPalette] = useState(false)
   const [message, setMessage] = useState(null)
+  const [conflictWarning, setConflictWarning] = useState(null)
+  const [viewMode, setViewMode] = useState('grid') // 'grid' | 'daily'
+  const [academicItems, setAcademicItems] = useState([])
   const gridRef = useRef(null)
 
   const activeTimetable = timetables.find((t) => t.id === activeId)
@@ -33,6 +38,16 @@ export default function Timetable() {
 
       if (fetchError) throw fetchError
       setTimetables(data || [])
+
+      // Fetch pending academic items for badge integration
+      const { data: acData, error: acError } = await supabase
+        .from('academic_items')
+        .select('*')
+        .neq('status', 'เสร็จแล้ว')
+      if (!acError && acData) {
+        setAcademicItems(acData)
+      }
+
     } catch (err) {
       console.error('Error loading timetables:', err)
       setError(err.message)
@@ -44,6 +59,14 @@ export default function Timetable() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  // Clear conflict warning after 5s
+  useEffect(() => {
+    if (conflictWarning) {
+      const timer = setTimeout(() => setConflictWarning(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [conflictWarning])
 
   useEffect(() => {
     if (timetables.length > 0) {
@@ -248,6 +271,28 @@ export default function Timetable() {
         <div className="flex items-center gap-2">
           {activeTimetable && (
             <>
+              {/* View Toggle */}
+              <div className="hidden sm:flex bg-gray-100 p-1 rounded-lg mr-2">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1.5 rounded-md flex items-center transition-all ${
+                    viewMode === 'grid' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                  title="มุมมองตาราง"
+                >
+                  <LayoutGrid size={16} />
+                </button>
+                <button
+                  onClick={() => setViewMode('daily')}
+                  className={`p-1.5 rounded-md flex items-center transition-all ${
+                    viewMode === 'daily' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                  title="มุมมองรายวัน"
+                >
+                  <List size={16} />
+                </button>
+              </div>
+
               <button
                 onClick={() => setShowConfig(true)}
                 className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
@@ -280,6 +325,14 @@ export default function Timetable() {
           }`}
         >
           {message.text}
+        </div>
+      )}
+
+      {/* Conflict Warning */}
+      {conflictWarning && (
+        <div className="px-4 py-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-sm font-medium flex items-center gap-2 animate-[fadeIn_0.15s_ease-out]">
+          <AlertTriangle size={18} className="text-amber-500" />
+          {conflictWarning}
         </div>
       )}
 
@@ -319,13 +372,34 @@ export default function Timetable() {
           <p className="text-gray-400 text-sm mt-1">คลิกสร้างตารางใหม่เพื่อเริ่มต้น</p>
         </div>
       ) : (
-        <div ref={gridRef} className="overflow-x-auto bg-white rounded-xl border border-gray-200 pb-4">
-          <TimetableGrid
+        <div className="space-y-4">
+          <div ref={gridRef} className={viewMode === 'grid' ? 'overflow-x-auto bg-white rounded-xl border border-gray-200 pb-4' : ''}>
+            {viewMode === 'grid' ? (
+              <TimetableGrid
+                config={activeTimetable.config}
+                cells={activeTimetable.cells || {}}
+                subjects={activeTimetable.subjects || []}
+                academicItems={academicItems}
+                onCellChange={handleCellChange}
+                onCellDelete={handleCellDelete}
+                onConflictWarning={setConflictWarning}
+              />
+            ) : (
+              <TimetableDailyView
+                config={activeTimetable.config}
+                cells={activeTimetable.cells || {}}
+                subjects={activeTimetable.subjects || []}
+                academicItems={academicItems}
+                onCellChange={handleCellChange}
+                onCellDelete={handleCellDelete}
+              />
+            )}
+          </div>
+          
+          <TimetableStats 
             config={activeTimetable.config}
             cells={activeTimetable.cells || {}}
             subjects={activeTimetable.subjects || []}
-            onCellChange={handleCellChange}
-            onCellDelete={handleCellDelete}
           />
         </div>
       )}
