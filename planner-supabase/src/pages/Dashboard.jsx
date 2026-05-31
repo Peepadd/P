@@ -55,7 +55,7 @@ export default function Dashboard() {
   const isAllClear = schedule.length === 0 && tasks.length === 0 && habits.length === 0
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-10">
+    <div className="max-w-3xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
       
       {/* Header */}
       <header className="space-y-1">
@@ -75,11 +75,11 @@ export default function Dashboard() {
           <p className="text-gray-500">คุณไม่มีตารางงานหรือสิ่งที่ต้องทำในวันนี้ พักผ่อนให้เต็มที่!</p>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 md:space-y-8">
           
           {/* Schedule Section */}
           <section>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-gray-400" />
                 ตารางเวลา
@@ -90,7 +90,7 @@ export default function Dashboard() {
               <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                 <div className="divide-y divide-gray-100">
                   {schedule.map((item, index) => (
-                    <div key={item.id} className="flex p-4 hover:bg-gray-50 transition-colors">
+                    <div key={item.id} className="flex p-3 sm:p-4 hover:bg-gray-50 transition-colors">
                       <div className="w-20 shrink-0 text-sm font-medium text-gray-500 pt-0.5">
                         {item.time}
                       </div>
@@ -108,7 +108,7 @@ export default function Dashboard() {
 
           {/* Urgent Tasks Section */}
           <section>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-gray-400" />
                 สิ่งที่ต้องทำ
@@ -118,11 +118,11 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {tasks.map((task) => (
                 <label 
                   key={task.id} 
-                  className={`flex items-start gap-3 p-4 bg-white rounded-xl border transition-all cursor-pointer select-none
+                  className={`flex items-start gap-3 p-3 sm:p-4 bg-white rounded-xl border transition-all cursor-pointer select-none
                     ${task.completed ? 'border-gray-100 opacity-60 bg-gray-50' : 'border-gray-200 hover:border-indigo-300 shadow-sm'}
                   `}
                 >
@@ -146,7 +146,7 @@ export default function Dashboard() {
 
           {/* Daily Habits Section */}
           <section>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-gray-400" />
                 นิสัยประจำวัน
@@ -156,11 +156,11 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {habits.map((habit) => (
                 <label 
                   key={habit.id} 
-                  className={`flex items-center gap-3 p-4 bg-white rounded-xl border transition-all cursor-pointer select-none
+                  className={`flex items-center gap-3 p-3 sm:p-4 bg-white rounded-xl border transition-all cursor-pointer select-none
                     ${habit.completed ? 'border-gray-100 opacity-60 bg-gray-50' : 'border-gray-200 hover:border-indigo-300 shadow-sm'}
                   `}
                 >
