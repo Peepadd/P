@@ -31,16 +31,34 @@ export function AuthProvider({ children }) {
         redirectTo: window.location.origin,
       },
     })
-    if (error) console.error('Google login error:', error.message)
+    if (error) throw error
+  }
+
+  const signInWithEmail = async (email, password) => {
+    const { error, data } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    if (error) throw error
+    return data
+  }
+
+  const signUpWithEmail = async (email, password) => {
+    const { error, data } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+    if (error) throw error
+    return data
   }
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
-    if (error) console.error('Sign out error:', error.message)
+    if (error) throw error
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut }}>
       {children}
     </AuthContext.Provider>
   )

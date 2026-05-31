@@ -1,32 +1,82 @@
 import { useState, useEffect } from 'react'
 import { Check, Calendar as CalendarIcon, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
-
-// Realistic Mock Data for "Today"
-const MOCK_SCHEDULE = [
-  { id: 1, time: '09:00', title: 'ประชุมทีมพัฒนาโปรเจกต์', type: 'work' },
-  { id: 2, time: '11:30', title: 'ทานข้าวเที่ยงกับลูกค้า', type: 'social' },
-  { id: 3, time: '14:00', title: 'สรุปรายรับรายจ่ายประจำสัปดาห์', type: 'finance' },
-  { id: 4, time: '18:00', title: 'ออกกำลังกาย (วิ่ง 5km)', type: 'health' },
-]
-
-const MOCK_TASKS = [
-  { id: 101, title: 'จ่ายค่าไฟเดือนตุลาคม', urgent: true, completed: false },
-  { id: 102, title: 'ซื้อของเข้าบ้าน (นม, ไข่, ขนมปัง)', urgent: false, completed: false },
-  { id: 103, title: 'โทรหาคุณแม่', urgent: false, completed: true },
-]
-
-const MOCK_HABITS = [
-  { id: 201, title: 'ดื่มน้ำ 8 แก้ว', completed: false },
-  { id: 202, title: 'อ่านหนังสือ 30 นาที', completed: false },
-  { id: 203, title: 'นั่งสมาธิ 10 นาที', completed: true },
-]
+import { supabase } from '../supabase/supabaseClient'
 
 export default function Dashboard() {
-  const [schedule] = useState(MOCK_SCHEDULE)
-  const [tasks, setTasks] = useState(MOCK_TASKS)
-  const [habits, setHabits] = useState(MOCK_HABITS)
+  const [schedule, setSchedule] = useState([])
+  const [tasks, setTasks] = useState([])
+  const [habits, setHabits] = useState([])
+  
   const [greeting, setGreeting] = useState('สวัสดี')
   const [currentDate, setCurrentDate] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  const todayDateStr = new Date().toISOString().split('T')[0]
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      
+      // 1. Fetch Schedule (academic_items due today)
+      // Note: We use like for the date part if deadline includes timestamp
+      const { data: scheduleData } = await supabase
+        .from('academic_items')
+        .select('*')
+        .like('deadline', `${todayDateStr}%`)
+
+      // 2. Fetch Urgent Tasks (checklist_items due today)
+      const { data: tasksData } = await supabase
+        .from('checklist_items')
+        .select('*')
+        .like('due_date', `${todayDateStr}%`)
+
+      // 3. Fetch Habits and today's logs
+      const { data: habitsData } = await supabase.from('habits').select('*')
+      const { data: logsData } = await supabase
+        .from('habit_logs')
+        .select('*')
+        .eq('log_date', todayDateStr)
+
+      // Format Schedule
+      const formattedSchedule = (scheduleData || []).map(item => {
+        let timeStr = 'All Day'
+        if (item.deadline && item.deadline.includes('T')) {
+          const d = new Date(item.deadline)
+          timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+        return {
+          id: item.id,
+          time: timeStr,
+          title: `${item.subject || 'วิชา'} - ${item.topic || 'ไม่มีหัวข้อ'}`,
+          type: item.type
+        }
+      })
+
+      // Format Tasks
+      const formattedTasks = (tasksData || []).map(item => ({
+        id: item.id,
+        title: item.text,
+        urgent: true,
+        completed: item.checked
+      }))
+
+      // Format Habits
+      const loggedHabitIds = new Set((logsData || []).map(log => log.habit_id))
+      const formattedHabits = (habitsData || []).map(habit => ({
+        id: habit.id,
+        title: habit.title || habit.name, // handle dynamic column naming
+        completed: loggedHabitIds.has(habit.id)
+      }))
+
+      setSchedule(formattedSchedule)
+      setTasks(formattedTasks)
+      setHabits(formattedHabits)
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     // Set greeting based on time
@@ -39,14 +89,48 @@ export default function Dashboard() {
     const options = { weekday: 'long', day: 'numeric', month: 'long' }
     const formattedDate = new Date().toLocaleDateString('th-TH', options)
     setCurrentDate(formattedDate)
+
+    fetchData()
   }, [])
 
-  const toggleTask = (id) => {
+  const toggleTask = async (id) => {
+    const task = tasks.find(t => t.id === id)
+    if (!task) return
+
+    // Optimistic UI update
     setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t))
+    
+    try {
+      await supabase
+        .from('checklist_items')
+        .update({ checked: !task.completed })
+        .eq('id', id)
+    } catch (err) {
+      console.error('Error toggling task:', err)
+      // Revert on error
+      setTasks(tasks.map(t => t.id === id ? { ...t, completed: task.completed } : t))
+    }
   }
 
-  const toggleHabit = (id) => {
-    setHabits(habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h))
+  const toggleHabit = async (id) => {
+    const habit = habits.find(h => h.id === id)
+    if (!habit) return
+    
+    const isNowCompleted = !habit.completed
+    // Optimistic UI update
+    setHabits(habits.map(h => h.id === id ? { ...h, completed: isNowCompleted } : h))
+    
+    try {
+      if (isNowCompleted) {
+        await supabase.from('habit_logs').insert([{ habit_id: id, log_date: todayDateStr }])
+      } else {
+        await supabase.from('habit_logs').delete().match({ habit_id: id, log_date: todayDateStr })
+      }
+    } catch (err) {
+      console.error('Error toggling habit:', err)
+      // Revert on error
+      setHabits(habits.map(h => h.id === id ? { ...h, completed: !isNowCompleted } : h))
+    }
   }
 
   // Calculate completion
@@ -66,7 +150,14 @@ export default function Dashboard() {
         </p>
       </header>
 
-      {isAllClear ? (
+      {loading ? (
+        // Soft Skeleton Loader
+        <div className="space-y-6">
+          <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
+        </div>
+      ) : isAllClear ? (
         <div className="text-center py-20 bg-white rounded-xl border border-gray-200">
           <div className="w-16 h-16 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-8 h-8" />
@@ -89,7 +180,7 @@ export default function Dashboard() {
             {schedule.length > 0 ? (
               <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                 <div className="divide-y divide-gray-100">
-                  {schedule.map((item, index) => (
+                  {schedule.map((item) => (
                     <div key={item.id} className="flex p-3 sm:p-4 hover:bg-gray-50 transition-colors">
                       <div className="w-20 shrink-0 text-sm font-medium text-gray-500 pt-0.5">
                         {item.time}
@@ -119,9 +210,14 @@ export default function Dashboard() {
             </div>
 
             <div className="space-y-1.5">
-              {tasks.map((task) => (
+              {tasks.length > 0 ? tasks.map((task) => (
                 <label 
-                  key={task.id} 
+                  key={task.id}
+                  onClick={(e) => {
+                    // Prevent default to handle custom optimistic toggle
+                    e.preventDefault()
+                    toggleTask(task.id)
+                  }}
                   className={`flex items-start gap-3 p-3 sm:p-4 bg-white rounded-xl border transition-all cursor-pointer select-none
                     ${task.completed ? 'border-gray-100 opacity-60 bg-gray-50' : 'border-gray-200 hover:border-indigo-300 shadow-sm'}
                   `}
@@ -140,7 +236,9 @@ export default function Dashboard() {
                     )}
                   </div>
                 </label>
-              ))}
+              )) : (
+                <p className="text-gray-500 text-sm">ไม่มีสิ่งที่ต้องทำในวันนี้</p>
+              )}
             </div>
           </section>
 
@@ -157,9 +255,13 @@ export default function Dashboard() {
             </div>
 
             <div className="space-y-1.5">
-              {habits.map((habit) => (
+              {habits.length > 0 ? habits.map((habit) => (
                 <label 
-                  key={habit.id} 
+                  key={habit.id}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    toggleHabit(habit.id)
+                  }}
                   className={`flex items-center gap-3 p-3 sm:p-4 bg-white rounded-xl border transition-all cursor-pointer select-none
                     ${habit.completed ? 'border-gray-100 opacity-60 bg-gray-50' : 'border-gray-200 hover:border-indigo-300 shadow-sm'}
                   `}
@@ -173,7 +275,9 @@ export default function Dashboard() {
                     {habit.title}
                   </p>
                 </label>
-              ))}
+              )) : (
+                <p className="text-gray-500 text-sm">ยังไม่ได้ตั้งค่านิสัยประจำวัน</p>
+              )}
             </div>
           </section>
 
