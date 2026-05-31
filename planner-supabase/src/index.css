@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --color-primary: #6366f1;
@@ -59,49 +57,3 @@ body {
 }
 
 
-
-
-body {
-  margin: 0;
-  font-family: 'Sarabun', 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes bellRing {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  10%, 30%, 50%, 70%, 90% {
-    transform: rotate(8deg);
-  }
-  20%, 40%, 60%, 80% {
-    transform: rotate(-8deg);
-  }
-}
-
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .print-area, .print-area * {
-    visibility: visible;
-  }
-  .print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
-}
