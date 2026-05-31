@@ -320,6 +320,59 @@ export default function useNotificationChecker() {
         }
       }
 
+      // ── Check timetable pre-class reminders ──
+      try {
+        const jsDay = new Date().getDay()
+        if (jsDay >= 1 && jsDay <= 5) {
+          const dayIdx = jsDay - 1
+          const { data: ttData } = await supabase
+            .from('timetables')
+            .select('config, cells, subjects')
+            .order('updated_at', { ascending: false })
+            .limit(1)
+
+          if (ttData && ttData.length > 0) {
+            const tt = ttData[0]
+            if (tt.config && tt.cells) {
+              const cfg = tt.config
+              const startParts = cfg.tStart.split(':').map(Number)
+              let currentMin = startParts[0] * 60 + startParts[1]
+              const nowDate = new Date()
+              const nowMinutes = nowDate.getHours() * 60 + nowDate.getMinutes()
+
+              for (let i = 0; i < cfg.periods; i++) {
+                const periodStart = currentMin
+                const cellKey = `${dayIdx}_${i}`
+                const cell = tt.cells[cellKey]
+
+                if (cell && cell.subject) {
+                  const minutesUntilClass = periodStart - nowMinutes
+                  // Notify 15 minutes before class
+                  if (minutesUntilClass > 0 && minutesUntilClass <= 15) {
+                    const notifKey = `timetable-preclass-${cellKey}-${todayStr}`
+                    if (!notified[notifKey]) {
+                      const roomInfo = cell.room ? ` ห้อง ${cell.room}` : ''
+                      newNotifications.push({
+                        id: notifKey,
+                        type: 'timetable',
+                        title: `📚 อีก ${minutesUntilClass} นาทีจะเข้าเรียน`,
+                        body: `${cell.subject}${roomInfo}${cell.teacher ? ` (${cell.teacher})` : ''}`,
+                        urgency: '15 นาที',
+                        link: '/timetable',
+                      })
+                      notified[notifKey] = now
+                    }
+                  }
+                }
+                currentMin += cfg.pMin + cfg.bMin
+              }
+            }
+          }
+        }
+      } catch (ttErr) {
+        console.error('Timetable notification check error:', ttErr)
+      }
+
       // Clean old notification records
       notifiedRef.current = cleanOldRecords(notified)
       saveSentRecords(notifiedRef.current)

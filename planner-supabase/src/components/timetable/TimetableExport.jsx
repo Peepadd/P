@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
-import { Download, Image, FileText, ChevronDown } from 'lucide-react'
+import { Download, Image, FileText, ChevronDown, CalendarPlus } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
+import { downloadICS } from './TimetableCalendarExport'
 
-export default function TimetableExport({ gridRef, name }) {
+export default function TimetableExport({ gridRef, name, config, cells, subjects }) {
   const [exporting, setExporting] = useState(false)
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef(null)
@@ -124,6 +125,18 @@ export default function TimetableExport({ gridRef, name }) {
           >
             <FileText size={15} className="text-red-500" />
             ส่งออก PDF
+          </button>
+          <div className="border-t border-gray-100 my-1" />
+          <button
+            onClick={() => {
+              setOpen(false)
+              const ok = downloadICS({ config, cells, subjects, timetableName: name })
+              if (!ok) alert('ไม่มีข้อมูลตารางเรียนสำหรับ export')
+            }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <CalendarPlus size={15} className="text-blue-500" />
+            Add to Calendar (.ics)
           </button>
         </div>
       )}

@@ -14,12 +14,29 @@ export default function SubjectPalette({ subjects, onChange, onClose }) {
   const [editColor, setEditColor] = useState('#6366f1')
 
   const handleAdd = () => {
-    const newSubject = { name: 'วิชาใหม่', color: PRESET_COLORS[subjects.length % PRESET_COLORS.length] }
+    // Smart color: pick first unused color from preset palette
+    const usedColors = new Set(subjects.map((s) => s.color))
+    let assignedColor = PRESET_COLORS.find((c) => !usedColors.has(c))
+    if (!assignedColor) {
+      // All preset colors used — generate a random harmonious color
+      const hue = Math.floor(Math.random() * 360)
+      assignedColor = `hsl(${hue}, 60%, 55%)`
+    }
+
+    // Sequential naming: วิชา 1, วิชา 2, ...
+    const existingNums = subjects
+      .map((s) => s.name.match(/^วิชา (\d+)$/))
+      .filter(Boolean)
+      .map((m) => Number(m[1]))
+    const nextNum = existingNums.length > 0 ? Math.max(...existingNums) + 1 : subjects.length + 1
+    const defaultName = `วิชา ${nextNum}`
+
+    const newSubject = { name: defaultName, color: assignedColor }
     onChange([...subjects, newSubject])
     // Start editing the new subject immediately
     setEditingIndex(subjects.length)
-    setEditName('วิชาใหม่')
-    setEditColor(newSubject.color)
+    setEditName(defaultName)
+    setEditColor(assignedColor)
   }
 
   const handleSaveEdit = (index) => {

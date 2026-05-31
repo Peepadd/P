@@ -1,9 +1,9 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { X, Trash2, Save, StickyNote } from 'lucide-react'
+import { X, Trash2, Save, StickyNote, AlertTriangle } from 'lucide-react'
 
 const DAYS = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์']
 
-export default function TimetableGrid({ config, cells, subjects, onCellChange, onCellDelete }) {
+export default function TimetableGrid({ config, cells, subjects, onCellChange, onCellDelete, onConflictWarning, academicItems = [] }) {
   const [editCell, setEditCell] = useState(null)
   const [form, setForm] = useState({ subject: '', teacher: '', room: '', note: '' })
   const gridRef = useRef(null)
@@ -79,6 +79,24 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
   const handleSaveCell = () => {
     if (!editCell) return
     if (form.subject) {
+      // Conflict detection: check if the same cell already has a different subject
+      const cellKey = `${editCell.dayIdx}_${editCell.periodIdx}`
+      const existing = cells[cellKey]
+      if (existing && existing.subject && existing.subject !== form.subject) {
+        if (!confirm(`⚠️ คาบนี้มีวิชา "${existing.subject}" อยู่แล้ว\nต้องการเปลี่ยนเป็น "${form.subject}" หรือไม่?`)) {
+          return
+        }
+      }
+
+      // Check for duplicate subject in same day (warning only)
+      const sameSubjectCount = Object.entries(cells).filter(([key, cell]) => {
+        const [d] = key.split('_').map(Number)
+        return d === editCell.dayIdx && cell.subject === form.subject && key !== cellKey
+      }).length
+      if (sameSubjectCount >= 2 && onConflictWarning) {
+        onConflictWarning(`วิชา "${form.subject}" ซ้ำ ${sameSubjectCount + 1} คาบในวัน${DAYS[editCell.dayIdx]}`)
+      }
+
       onCellChange(editCell.dayIdx, editCell.periodIdx, form)
     }
     setEditCell(null)
