@@ -15,42 +15,46 @@ serve(async (req) => {
     const { data, error } = await supabase.rpc('get_morning_briefing');
     if (error) throw error;
 
-    // 2. ประกอบร่างข้อความ (จัด UI ให้สวยงามแบบนักผจญภัย)
-    let messageText = "🌅 อรุณสวัสดิ์ฮันเตอร์! นี่คือภารกิจประจำวันของคุณ:\n\n";
+    // 2. ส่งข้อมูลให้ Gemini AI วิเคราะห์และเรียบเรียงข้อความ
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
-    // จัดการ Timetable
-    messageText += "📚 **ตารางเรียน:**\n";
-    if (data.timetable && data.timetable.length > 0) {
-      data.timetable.forEach((t: any) => {
-        messageText += `- ${t.subject_name} (${t.start_time} - ${t.end_time})\n`;
-      });
-    } else {
-      messageText += "- ไม่มีคลาสเรียน\n";
+    const promptText = `
+คุณคือ "ฮันเตอร์ไกด์" ผู้ช่วยส่วนตัวในธีมกิลด์นักผจญภัย (Guild Master/Guide) หน้าที่ของคุณคือการบรีฟงานตอนเช้าให้กับ "ฮันเตอร์" (ผู้ใช้งาน) เพื่อปลุกไฟในการทำงานประจำวัน
+โปรดสรุปข้อมูลต่อไปนี้ให้น่าอ่าน ให้กำลังใจ สดใส และใช้ภาษาที่เป็นกันเอง สั้นกระชับ (ไม่เกิน 15-20 บรรทัด) จัดหน้าด้วย Emoji ให้สวยงาม
+
+ข้อมูลของวันนี้:
+- ตารางเรียน/ตารางงาน: ${JSON.stringify(data.timetable || [])}
+- สิ่งที่ต้องทำ (เควสต์รายวัน): ${JSON.stringify(data.checklist || [])}
+- นิสัยที่ต้องรักษาวินัย (Habits): ${JSON.stringify(data.habits || [])}
+
+รูปแบบการตอบ:
+- ทักทายตอนเช้าแบบฮันเตอร์
+- สรุปตารางเวลาที่สำคัญ
+- ไฮไลท์เควสต์ที่ต้องทำ
+- ปิดท้ายด้วยคำให้กำลังใจในการอัปเวลชีวิต
+    `;
+
+    const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: promptText }] }],
+        generationConfig: { maxOutputTokens: 800, temperature: 0.7 }
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      const errRes = await aiResponse.text();
+      throw new Error(`Gemini API failed: ${errRes}`);
     }
-    messageText += "\n";
 
-    // จัดการ Checklist
-    messageText += "✅ **เควสต์ที่ต้องเคลียร์:**\n";
-    if (data.checklist && data.checklist.length > 0) {
-      data.checklist.forEach((c: any) => {
-        messageText += `- ${c.title}\n`;
-      });
-    } else {
-      messageText += "- เคลียร์ครบหมดแล้ว!\n";
+    const aiData = await aiResponse.json();
+    let messageText = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!messageText) {
+      messageText = "🌅 อรุณสวัสดิ์ฮันเตอร์! ระบบไกด์ AI ขัดข้องชั่วคราว แต่วันนี้คุณมีภารกิจรออยู่นะ ลุยเลย!";
     }
-    messageText += "\n";
-
-    // จัดการ Habits
-    messageText += "🔥 **รักษาวินัย (Habits):**\n";
-    if (data.habits && data.habits.length > 0) {
-      data.habits.forEach((h: any) => {
-        messageText += `- ${h.title}\n`;
-      });
-    } else {
-      messageText += "- ไม่มี Habit กำหนดไว้\n";
-    }
-
-    messageText += "\nขอให้วันนี้เป็นวันที่ดีในการอัปเวลและฝึกภาษานะครับ! ⚔️";
 
     // 3. ส่งข้อความแบบ Push ผ่าน LINE
     const response = await fetch("https://api.line.me/v2/bot/message/push", {
