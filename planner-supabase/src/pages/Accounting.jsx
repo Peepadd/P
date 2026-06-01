@@ -118,6 +118,24 @@ export default function Accounting() {
     setShowAddForm(true)
   }
 
+  const handleReviewSlip = (extractedData) => {
+    // ปิด Modal อัปโหลดสลิป
+    setShowBatchUploader(false)
+    
+    // พรีฟิลข้อมูลที่ AI ส่งมาให้
+    setFormData({
+      type: 'Expense', // อนุมานว่าเป็นรายจ่ายเสมอจากการโอนออก
+      amount: extractedData.amount || '',
+      category: extractedData.category || '',
+      note: extractedData.payee ? `โอนให้: ${extractedData.payee}` : '',
+      date: extractedData.date || new Date().toISOString().split('T')[0]
+    })
+    
+    // เปิด Modal ฟอร์มปกติ เพื่อให้ User ตรวจสอบ/แก้ไขก่อนกดเซฟ
+    setEditingId(null)
+    setShowAddForm(true)
+  }
+
   // Calculate summaries
   const totalIncome = transactions.filter(t => t.type === 'Income').reduce((sum, t) => sum + t.amount, 0)
   const totalExpense = transactions.filter(t => t.type === 'Expense').reduce((sum, t) => sum + t.amount, 0)
@@ -340,7 +358,7 @@ export default function Accounting() {
             </div>
             
             <div className="p-4">
-              <BatchSlipUploader onComplete={fetchTransactions} />
+              <BatchSlipUploader onReview={handleReviewSlip} />
             </div>
           </div>
         </div>

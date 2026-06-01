@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Trash2, Pencil, CheckCircle2, Clock, Calendar } from 'lucide-react'
 import SubTaskList from './SubTaskList'
+import { useLeveling } from '../../hooks/useLeveling'
 
 function formatDateTime(iso) {
   if (!iso) return null
@@ -22,6 +23,7 @@ export default function ChecklistItem({
   onDeleteSubTask,
   loading,
 }) {
+  const { gainExp } = useLeveling()
   const [swiping, setSwiping] = useState(false)
   const [swipeX, setSwipeX] = useState(0)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -59,6 +61,16 @@ export default function ChecklistItem({
   const confirmDelete = () => {
     onDelete(item)
     setShowDeleteConfirm(false)
+  }
+
+  const handleCheck = async () => {
+    onToggleCheck(item)
+    if (!item.checked) {
+      const result = await gainExp('checklist', item.id)
+      if (result?.leveledUp) {
+        alert(`🎉 LEVEL UP! ตอนนี้คุณคือ Level ${result.newLevel} [${result.newRank}]`)
+      }
+    }
   }
 
   // Category color mapping for chips
@@ -100,7 +112,7 @@ export default function ChecklistItem({
           <div className="flex items-start gap-3">
             {/* Checkbox */}
             <button
-              onClick={() => onToggleCheck(item)}
+              onClick={handleCheck}
               disabled={loading}
               className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                 item.checked

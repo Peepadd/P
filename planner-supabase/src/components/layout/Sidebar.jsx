@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { navItems } from '../../config/navigation'
+import HunterStatus from '../leveling/HunterStatus'
 
 export default function Sidebar() {
   return (
@@ -30,6 +31,8 @@ export default function Sidebar() {
           </div>
         ))}
       </nav>
+      
+      <HunterStatus />
     </aside>
   )
 }

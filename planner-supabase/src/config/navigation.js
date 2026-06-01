@@ -12,6 +12,7 @@ import {
   Timer,
   Scale,
   Settings,
+  Film,
 } from 'lucide-react'
 
 export const navItems = [
@@ -27,5 +28,6 @@ export const navItems = [
   { to: '/recurring', label: 'รายการอัตโนมัติ', icon: Repeat },
   { to: '/csv-import', label: 'นำเข้า CSV', icon: Upload },
   { to: '/print-report', label: 'พิมพ์รายงาน', icon: Printer },
+  { to: '/media', label: 'Media', icon: Film },
   { to: '/settings', label: 'ตั้งค่า', icon: Settings, divider: true },
 ]

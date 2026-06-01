@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { format, getDay, isSameDay, isToday, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 import { th } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
+import { useLeveling } from '../../hooks/useLeveling'
 
 const DAY_HEADERS = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา']
 
@@ -14,6 +15,7 @@ export default function HabitBoard({
   onToday,
   onToggleLog,
 }) {
+  const { gainExp } = useLeveling()
   const monthTitle = format(currentMonth, 'MMMM yyyy', { locale: th })
 
   // Get all days in current month
@@ -120,8 +122,16 @@ export default function HabitBoard({
                     return (
                       <button
                         key={`${habit.id}-${format(day, 'yyyy-MM-dd')}`}
-                        onClick={() => {
-                          if (!isFuture) onToggleLog(habit.id, day, !done)
+                        onClick={async () => {
+                          if (!isFuture) {
+                            onToggleLog(habit.id, day, !done)
+                            if (!done) {
+                              const result = await gainExp('habit', habit.id)
+                              if (result?.leveledUp) {
+                                alert(`🎉 LEVEL UP! วินัยก้าวหน้า คุณเลื่อนเป็น Level ${result.newLevel} [${result.newRank}]`)
+                              }
+                            }
+                          }
                         }}
                         disabled={isFuture}
                         className={`

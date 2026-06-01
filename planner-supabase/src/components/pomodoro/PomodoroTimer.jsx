@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Timer, Play, Pause, RotateCcw, Coffee, Brain, Volume2 } from 'lucide-react'
+import { useLeveling } from '../../hooks/useLeveling'
 
 const WORK_MINUTES = 25
 const BREAK_MINUTES = 5
@@ -50,6 +51,7 @@ function sendBrowserNotification(title, body) {
 }
 
 export default function PomodoroTimer() {
+  const { gainExp } = useLeveling()
   const [mode, setMode] = useState('work') // 'work' | 'break'
   const [secondsLeft, setSecondsLeft] = useState(WORK_MINUTES * 60)
   const [isRunning, setIsRunning] = useState(false)
@@ -93,6 +95,12 @@ export default function PomodoroTimer() {
               '🎉 Pomodoro เสร็จแล้ว!',
               `ทำงานครบ ${WORK_MINUTES} นาทีแล้ว — ถึงเวลาพัก ${BREAK_MINUTES} นาที`
             )
+            
+            gainExp('pomodoro', null, WORK_MINUTES).then(result => {
+              if (result?.leveledUp) {
+                alert(`🎉 LEVEL UP! ความพยายามสัมฤทธิ์ผล คุณเลื่อนเป็น Level ${result.newLevel} [${result.newRank}]`)
+              }
+            })
           } else {
             playTimerSound()
             sendBrowserNotification(
