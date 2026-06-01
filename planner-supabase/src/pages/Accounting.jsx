@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Plus, ArrowUpRight, ArrowDownRight, Wallet, ArrowRightLeft, X } from 'lucide-react'
+import { Plus, ArrowUpRight, ArrowDownRight, Wallet, ArrowRightLeft, X, QrCode } from 'lucide-react'
 import { supabase } from '../supabase/supabaseClient'
+import BatchSlipUploader from '../components/accounting/BatchSlipUploader'
 
 export default function Accounting() {
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [showBatchUploader, setShowBatchUploader] = useState(false)
   
   // Form State
   const [formData, setFormData] = useState({
@@ -85,13 +87,22 @@ export default function Accounting() {
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">กระเป๋าเงินร่วม</h1>
           <p className="text-gray-500 text-lg mt-1">Shared Financial View</p>
         </div>
-        <button 
-          onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-600 transition-colors"
-        >
-          <Plus size={18} />
-          <span className="hidden sm:inline">บันทึกรายการ</span>
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setShowBatchUploader(true)}
+            className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+          >
+            <QrCode size={18} />
+            <span className="hidden sm:inline">สแกนสลิป</span>
+          </button>
+          <button 
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-600 transition-colors"
+          >
+            <Plus size={18} />
+            <span className="hidden sm:inline">บันทึกรายการ</span>
+          </button>
+        </div>
       </header>
 
       {/* Summary Cards */}
@@ -257,6 +268,25 @@ export default function Accounting() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Batch Uploader Modal Overlay */}
+      {showBatchUploader && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pb-20 md:pb-0">
+          <div className="absolute inset-0 bg-gray-900/20 backdrop-blur-sm" onClick={() => setShowBatchUploader(false)} />
+          <div className="bg-white w-full max-w-2xl rounded-2xl border border-gray-200 shadow-xl relative animate-[fadeIn_0.2s_ease-out]">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900">นำเข้าสลิปโอนเงิน (Batch Upload)</h2>
+              <button onClick={() => setShowBatchUploader(false)} className="text-gray-400 hover:text-gray-600 p-1">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-4">
+              <BatchSlipUploader onComplete={fetchTransactions} />
+            </div>
           </div>
         </div>
       )}
