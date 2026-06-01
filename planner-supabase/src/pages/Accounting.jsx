@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, ArrowUpRight, ArrowDownRight, Wallet, ArrowRightLeft, X, QrCode } from 'lucide-react'
+import { Plus, ArrowUpRight, ArrowDownRight, Wallet, ArrowRightLeft, X, QrCode, Pencil, Trash2 } from 'lucide-react'
 import { supabase } from '../supabase/supabaseClient'
 import BatchSlipUploader from '../components/accounting/BatchSlipUploader'
 
@@ -8,6 +8,7 @@ export default function Accounting() {
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
   const [showBatchUploader, setShowBatchUploader] = useState(false)
+  const [editingId, setEditingId] = useState(null)
   
   // Form State
   const [formData, setFormData] = useState({
@@ -47,30 +48,74 @@ export default function Accounting() {
 
     try {
       setIsSubmitting(true)
-      const { error } = await supabase.from('transactions').insert([
-        {
-          id: crypto.randomUUID(),
+      
+      if (editingId) {
+        const { error } = await supabase.from('transactions').update({
           type: formData.type,
           amount: parseFloat(formData.amount),
           category: formData.category,
           note: formData.note,
-          date: formData.date,
-          transaction_time: new Date().toTimeString().split(' ')[0]
-        }
-      ])
+          date: formData.date
+        }).eq('id', editingId)
 
-      if (error) throw error
+        if (error) throw error
+      } else {
+        const { error } = await supabase.from('transactions').insert([
+          {
+            id: crypto.randomUUID(),
+            type: formData.type,
+            amount: parseFloat(formData.amount),
+            category: formData.category,
+            note: formData.note,
+            date: formData.date,
+            transaction_time: new Date().toTimeString().split(' ')[0]
+          }
+        ])
+
+        if (error) throw error
+      }
       
       // Reset and hide form
       setFormData({ type: 'Expense', amount: '', category: '', note: '', date: new Date().toISOString().split('T')[0] })
+      setEditingId(null)
       setShowAddForm(false)
       fetchTransactions()
     } catch (err) {
-      console.error('Error adding transaction:', err)
-      alert('Failed to add transaction')
+      console.error('Error saving transaction:', err)
+      alert('Failed to save transaction')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('คุณต้องการลบรายการนี้ใช่หรือไม่?')) return
+    try {
+      const { error } = await supabase.from('transactions').delete().eq('id', id)
+      if (error) throw error
+      fetchTransactions()
+    } catch (err) {
+      console.error('Error deleting:', err)
+      alert('Failed to delete transaction')
+    }
+  }
+
+  const handleEditClick = (t) => {
+    setFormData({
+      type: t.type,
+      amount: t.amount,
+      category: t.category,
+      note: t.note || '',
+      date: t.date
+    })
+    setEditingId(t.id)
+    setShowAddForm(true)
+  }
+
+  const handleAddNewClick = () => {
+    setFormData({ type: 'Expense', amount: '', category: '', note: '', date: new Date().toISOString().split('T')[0] })
+    setEditingId(null)
+    setShowAddForm(true)
   }
 
   // Calculate summaries
@@ -96,7 +141,7 @@ export default function Accounting() {
             <span className="hidden sm:inline">สแกนสลิป</span>
           </button>
           <button 
-            onClick={() => setShowAddForm(true)}
+            onClick={handleAddNewClick}
             className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-600 transition-colors"
           >
             <Plus size={18} />
@@ -156,7 +201,7 @@ export default function Accounting() {
         ) : (
           <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
             {transactions.map(t => (
-              <div key={t.id} className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div key={t.id} className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
                     t.type === 'Income' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'
@@ -168,8 +213,18 @@ export default function Accounting() {
                     <p className="text-sm text-gray-500">{t.note || t.date}</p>
                   </div>
                 </div>
-                <div className={`font-semibold ${t.type === 'Income' ? 'text-green-600' : 'text-gray-900'}`}>
-                  {t.type === 'Income' ? '+' : '-'}฿{t.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <div className="flex items-center gap-4">
+                  <div className={`font-semibold ${t.type === 'Income' ? 'text-green-600' : 'text-gray-900'}`}>
+                    {t.type === 'Income' ? '+' : '-'}฿{t.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => handleEditClick(t)} className="p-1.5 text-gray-400 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors">
+                      <Pencil size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(t.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -183,7 +238,7 @@ export default function Accounting() {
           <div className="absolute inset-0 bg-gray-900/20 backdrop-blur-sm" onClick={() => setShowAddForm(false)} />
           <div className="bg-white w-full max-w-md rounded-2xl border border-gray-200 shadow-xl relative animate-[fadeIn_0.2s_ease-out]">
             <div className="flex items-center justify-between p-4 border-b border-gray-100">
-              <h2 className="text-lg font-bold text-gray-900">บันทึกรายการใหม่</h2>
+              <h2 className="text-lg font-bold text-gray-900">{editingId ? 'แก้ไขรายการ' : 'บันทึกรายการใหม่'}</h2>
               <button onClick={() => setShowAddForm(false)} className="text-gray-400 hover:text-gray-600 p-1">
                 <X size={20} />
               </button>
