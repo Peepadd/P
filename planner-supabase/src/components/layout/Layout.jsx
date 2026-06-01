@@ -10,7 +10,7 @@ export default function Layout() {
       <main className="flex-1 flex flex-col h-full overflow-y-auto">
         {/* On desktop, we want a clean breathable top padding since we don't have a top Navbar anymore.
             The sidebar handles navigation entirely. Mobile gets the bottom tab bar. */}
-        <div className="flex-1 p-0 md:p-6 pb-safe">
+        <div className="flex-1 shrink-0 p-0 md:p-6 pb-safe">
           <Outlet />
         </div>
         <MobileNav />

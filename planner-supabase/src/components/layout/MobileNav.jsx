@@ -14,7 +14,7 @@ export default function MobileNav() {
   return (
     <>
       {/* Spacer so content doesn't hide behind the fixed bottom bar */}
-      <div className="h-28 md:hidden" />
+      <div className="h-28 md:hidden shrink-0" />
 
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe z-50">
         <div className="flex items-center justify-around h-16 px-2">
