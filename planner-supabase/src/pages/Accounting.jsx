@@ -55,7 +55,7 @@ export default function Accounting() {
           category: formData.category,
           note: formData.note,
           date: formData.date,
-          transaction_time: new Date().toISOString()
+          transaction_time: new Date().toTimeString().split(' ')[0]
         }
       ])
 

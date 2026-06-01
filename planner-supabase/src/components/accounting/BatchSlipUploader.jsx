@@ -112,6 +112,7 @@ const BatchSlipUploader = ({ onComplete }) => {
     const d = new Date(data.transDate);
     // แปลงเวลาให้เป็น local YYYY-MM-DD
     const localDateString = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    const localTimeString = d.toTimeString().split(' ')[0]; // HH:MM:SS
 
     const { error } = await supabase.from('transactions').insert([{
       id: crypto.randomUUID(),
@@ -120,7 +121,7 @@ const BatchSlipUploader = ({ onComplete }) => {
       category: 'Slip Transfer', // หมวดหมู่ปริยาย
       note: 'โอนให้: ' + data.receiverName,
       date: localDateString,
-      transaction_time: d.toISOString()
+      transaction_time: localTimeString
     }]);
 
     if (error) throw new Error(error.message);
