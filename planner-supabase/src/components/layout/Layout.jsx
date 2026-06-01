@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import MobileNav from './MobileNav'
+import OmniAssistant from '../ai/OmniAssistant'
 
 export default function Layout() {
   return (
@@ -15,6 +16,9 @@ export default function Layout() {
         </div>
         <MobileNav />
       </main>
+      
+      {/* Global AI Assistant */}
+      <OmniAssistant />
     </div>
   )
 }

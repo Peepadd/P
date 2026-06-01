@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { format, getDay, isSameDay, isToday, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 import { th } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar, Sparkles } from 'lucide-react'
 import { useLeveling } from '../../hooks/useLeveling'
+import HabitAnalyzer from './HabitAnalyzer'
 
 const DAY_HEADERS = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา']
 
@@ -16,6 +17,7 @@ export default function HabitBoard({
   onToggleLog,
 }) {
   const { gainExp } = useLeveling()
+  const [isAnalyzerOpen, setIsAnalyzerOpen] = useState(false)
   const monthTitle = format(currentMonth, 'MMMM yyyy', { locale: th })
 
   // Get all days in current month
@@ -78,6 +80,13 @@ export default function HabitBoard({
           </button>
           <h3 className="text-lg font-semibold text-gray-900 ml-2">{monthTitle}</h3>
         </div>
+        <button
+          onClick={() => setIsAnalyzerOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 rounded-lg shadow-sm transition-all active:scale-95"
+        >
+          <Sparkles size={16} />
+          วิเคราะห์ด้วย AI
+        </button>
       </div>
 
       {/* Scrollable board */}
@@ -168,6 +177,13 @@ export default function HabitBoard({
           })}
         </div>
       </div>
+
+      <HabitAnalyzer 
+        isOpen={isAnalyzerOpen} 
+        onClose={() => setIsAnalyzerOpen(false)} 
+        habits={habits}
+        habitLogs={habitLogs}
+      />
     </div>
   )
 }

@@ -15,9 +15,9 @@ serve(async (req) => {
     const { data, error } = await supabase.rpc('get_morning_briefing');
     if (error) throw error;
 
-    // 2. ส่งข้อมูลให้ Gemini AI วิเคราะห์และเรียบเรียงข้อความ
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
+    // 2. ส่งข้อมูลให้ Groq AI วิเคราะห์และเรียบเรียงข้อความ
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
 
     const promptText = `
 คุณคือ "ฮันเตอร์ไกด์" ผู้ช่วยส่วนตัวในธีมกิลด์นักผจญภัย (Guild Master/Guide) หน้าที่ของคุณคือการบรีฟงานตอนเช้าให้กับ "ฮันเตอร์" (ผู้ใช้งาน) เพื่อปลุกไฟในการทำงานประจำวัน
@@ -35,22 +35,27 @@ serve(async (req) => {
 - ปิดท้ายด้วยคำให้กำลังใจในการอัปเวลชีวิต
     `;
 
-    const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const aiResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${GROQ_API_KEY}`
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: promptText }] }],
-        generationConfig: { maxOutputTokens: 800, temperature: 0.7 }
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: promptText }],
+        max_tokens: 800, 
+        temperature: 0.7 
       }),
     });
 
     if (!aiResponse.ok) {
       const errRes = await aiResponse.text();
-      throw new Error(`Gemini API failed: ${errRes}`);
+      throw new Error(`Groq API failed: ${errRes}`);
     }
 
     const aiData = await aiResponse.json();
-    let messageText = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
+    let messageText = aiData.choices?.[0]?.message?.content;
     
     if (!messageText) {
       messageText = "🌅 อรุณสวัสดิ์ฮันเตอร์! ระบบไกด์ AI ขัดข้องชั่วคราว แต่วันนี้คุณมีภารกิจรออยู่นะ ลุยเลย!";

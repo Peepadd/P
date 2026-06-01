@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../supabase/supabaseClient'
-import { Settings2, Palette, RefreshCw, LayoutGrid, List, AlertTriangle } from 'lucide-react'
+import { Settings2, Palette, RefreshCw, LayoutGrid, List, AlertTriangle, Sparkles } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import TimetableSelect from '../components/timetable/TimetableSelect'
 import TimetableConfig from '../components/timetable/TimetableConfig'
@@ -9,6 +9,7 @@ import TimetableDailyView from '../components/timetable/TimetableDailyView'
 import TimetableStats from '../components/timetable/TimetableStats'
 import TimetableExport from '../components/timetable/TimetableExport'
 import SubjectPalette from '../components/timetable/SubjectPalette'
+import TimetableAssistant from '../components/timetable/TimetableAssistant'
 
 const DEFAULT_CONFIG = { periods: 6, tStart: '08:00', pMin: 50, bMin: 10 }
 
@@ -23,6 +24,7 @@ export default function Timetable() {
   const [conflictWarning, setConflictWarning] = useState(null)
   const [viewMode, setViewMode] = useState('grid') // 'grid' | 'daily'
   const [academicItems, setAcademicItems] = useState([])
+  const [showAiAssistant, setShowAiAssistant] = useState(false)
   const gridRef = useRef(null)
 
   const activeTimetable = timetables.find((t) => t.id === activeId)
@@ -241,6 +243,39 @@ export default function Timetable() {
     }
   }
 
+  const handleApplyAiSchedule = async (generatedCells) => {
+    if (!activeTimetable) return
+
+    const newCells = { ...activeTimetable.cells }
+    
+    generatedCells.forEach(cell => {
+      const cellKey = `${cell.dayIdx}_${cell.periodIdx}`
+      newCells[cellKey] = {
+        subject: cell.subject || '',
+        teacher: cell.teacher || '',
+        room: cell.room || '',
+        note: cell.note || ''
+      }
+    })
+
+    try {
+      const { error: updateError } = await supabase
+        .from('timetables')
+        .update({ cells: newCells, updated_at: new Date().toISOString() })
+        .eq('id', activeTimetable.id)
+
+      if (updateError) throw updateError
+
+      setTimetables((prev) =>
+        prev.map((t) => (t.id === activeTimetable.id ? { ...t, cells: newCells } : t))
+      )
+      showMessage('success', 'นำตารางจาก AI ไปใช้เรียบร้อย')
+    } catch (err) {
+      console.error('AI apply error:', err)
+      showMessage('error', err.message)
+    }
+  }
+
   const handleSubjectsChange = async (subjects) => {
     if (!activeTimetable) return
     try {
@@ -430,6 +465,25 @@ export default function Timetable() {
           </div>
         </div>
       )}
+      {/* AI Assistant Floating Button */}
+      {activeTimetable && (
+        <button
+          onClick={() => setShowAiAssistant(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium rounded-full shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all active:scale-95 group"
+        >
+          <Sparkles size={20} className="animate-pulse" />
+          <span className="hidden md:inline">AI จัดตาราง</span>
+        </button>
+      )}
+
+      {/* Modals - Flat Canvas style */}
+      <TimetableAssistant
+        isOpen={showAiAssistant}
+        onClose={() => setShowAiAssistant(false)}
+        config={activeTimetable?.config}
+        subjects={activeTimetable?.subjects || []}
+        onApplySchedule={handleApplyAiSchedule}
+      />
     </div>
   )
 }
