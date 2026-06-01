@@ -14,7 +14,7 @@ export default function MobileNav() {
   return (
     <>
       {/* Spacer so content doesn't hide behind the fixed bottom bar */}
-      <div className="h-20 md:hidden" />
+      <div className="h-28 md:hidden" />
 
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe z-50">
         <div className="flex items-center justify-around h-16 px-2">
@@ -71,10 +71,14 @@ export default function MobileNav() {
                   }`
                 }
               >
-                <div className={`p-2 rounded-lg ${isActive ? 'bg-indigo-100' : 'bg-gray-100 text-gray-500'}`}>
-                  <item.icon size={20} />
-                </div>
-                {item.label}
+                {({ isActive }) => (
+                  <>
+                    <div className={`p-2 rounded-lg ${isActive ? 'bg-indigo-100' : 'bg-gray-100 text-gray-500'}`}>
+                      <item.icon size={20} />
+                    </div>
+                    {item.label}
+                  </>
+                )}
               </NavLink>
             ))}
           </div>
