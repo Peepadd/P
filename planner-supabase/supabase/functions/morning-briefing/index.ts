@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
-const LINE_ACCESS_TOKEN = Deno.env.get("LINE_ACCESS_TOKEN");
+// ✅ ใช้ LINE_CHANNEL_ACCESS_TOKEN เป็นมาตรฐานเดียวกันทั้งโปรเจกต์
+const LINE_ACCESS_TOKEN = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN");
 const LINE_USER_ID = Deno.env.get("LINE_USER_ID"); // User ID ปลายทาง
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";

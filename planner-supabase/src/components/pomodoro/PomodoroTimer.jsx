@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Timer, Play, Pause, RotateCcw, Coffee, Brain, Volume2 } from 'lucide-react'
 import { useLeveling } from '../../hooks/useLeveling'
+import LevelUpOverlay from '../leveling/LevelUpOverlay'
 
 const WORK_MINUTES = 25
 const BREAK_MINUTES = 5
@@ -57,6 +58,7 @@ export default function PomodoroTimer() {
   const [isRunning, setIsRunning] = useState(false)
   const [sessions, setSessions] = useState(0)
   const [showComplete, setShowComplete] = useState(false)
+  const [expResult, setExpResult] = useState(null) // สำหรับ LevelUpOverlay
   const intervalRef = useRef(null)
 
   const workDuration = WORK_MINUTES * 60
@@ -97,8 +99,8 @@ export default function PomodoroTimer() {
             )
             
             gainExp('pomodoro', null, WORK_MINUTES).then(result => {
-              if (result?.leveledUp) {
-                alert(`🎉 LEVEL UP! ความพยายามสัมฤทธิ์ผล คุณเลื่อนเป็น Level ${result.newLevel} [${result.newRank}]`)
+              if (result) {
+                setExpResult({ ...result, description: `ฝึกสมาธิ Pomodoro ${WORK_MINUTES} นาที ⏱️` })
               }
             })
           } else {
@@ -295,6 +297,14 @@ export default function PomodoroTimer() {
           <span>☕ {BREAK_MINUTES} นาที พัก</span>
         </div>
       </div>
+
+      {/* Level Up Overlay */}
+      {expResult && (
+        <LevelUpOverlay
+          result={expResult}
+          onClose={() => setExpResult(null)}
+        />
+      )}
     </div>
   )
 }

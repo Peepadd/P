@@ -2,12 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase/supabaseClient';
 import { useAuth } from '../context/AuthContext'; // อิงจากโปรเจกต์คุณที่มี AuthContext
 
-// กติกาแจก EXP
+// กติกาแจก EXP — ออกแบบให้รู้สึกสมค่าแรงของคนที่ทั้งเรียนและวิ่งงาน
 const EXP_RATES = {
-  checklist: 15,
-  habit: 10,
-  habit_bonus: 50,
-  pomodoro_per_min: 2
+  checklist: 50,          // ติ๊กถูกทาสก์ทั่วไป
+  checklist_study: 80,    // ทาสก์หมวด "เรียน/ทบทวน" (วิชารังสีเทคนิค)
+  habit: 30,              // รักษานิสัยรายวัน
+  habit_bonus: 100,       // โบนัสรักษาวินัยต่อเนื่อง 7 วัน!
+  pomodoro_per_min: 2,    // 25 นาที = +50 EXP
+  accounting: 100,        // บันทึกรายรับ-รายจ่าย (สร้างวินัยการเงิน)
+  rider_income: 150,      // บันทึกรายได้ไรเดอร์ (ให้กำลังใจวิ่งงาน)
 };
 
 // ฟังก์ชันคำนวณ Rank
@@ -76,19 +79,31 @@ export function useLeveling() {
     switch (sourceType) {
       case 'checklist':
         expGained = EXP_RATES.checklist;
-        description = 'เคลียร์ภารกิจรายวัน';
+        description = 'เคลียร์ภารกิจรายวัน ⚔️';
+        break;
+      case 'checklist_study':
+        expGained = EXP_RATES.checklist_study;
+        description = 'ทบทวนบทเรียนรังสีเทคนิค 📖';
         break;
       case 'habit':
         expGained = EXP_RATES.habit;
-        description = 'รักษาวินัย (Habit)';
+        description = 'รักษาวินัย (Habit) 💪';
         break;
       case 'habit_bonus':
         expGained = EXP_RATES.habit_bonus;
-        description = 'โบนัสรักษาวินัยต่อเนื่อง 7 วัน!';
+        description = 'โบนัสรักษาวินัยต่อเนื่อง 7 วัน! 🔥';
         break;
       case 'pomodoro':
         expGained = durationMinutes * EXP_RATES.pomodoro_per_min;
-        description = `ฝึกสมาธิ (Pomodoro) ${durationMinutes} นาที`;
+        description = `ฝึกสมาธิ Pomodoro ${durationMinutes} นาที ⏱️`;
+        break;
+      case 'accounting':
+        expGained = EXP_RATES.accounting;
+        description = 'บันทึกรายรับ-รายจ่าย 💰';
+        break;
+      case 'rider_income':
+        expGained = EXP_RATES.rider_income;
+        description = 'บันทึกรายได้จากงานไรเดอร์ 🛵';
         break;
       default:
         expGained = 0;

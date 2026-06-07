@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Plus, Pencil } from 'lucide-react'
+import { useLeveling } from '../../hooks/useLeveling'
+import LevelUpOverlay from '../leveling/LevelUpOverlay'
 
 const DEFAULT_FORM = {
   date: new Date().toISOString().split('T')[0],
@@ -17,6 +19,8 @@ export default function TransactionForm({
   categories,
 }) {
   const isEditing = !!initialData
+  const { gainExp } = useLeveling()
+  const [expResult, setExpResult] = useState(null)
   const [form, setForm] = useState(
     initialData
       ? {
@@ -52,6 +56,20 @@ export default function TransactionForm({
         ...form,
         amount: parsedAmount,
       })
+
+      // ตรวจว่าเป็นรายได้หมวดไรเดอร์หรือเป็นรายรับทั่วไป
+      const riderKeywords = ['ไรเดอร์', 'rider', 'grab', 'foodpanda', 'ขี่', 'ส่ง', 'รับส่ง']
+      const isRiderIncome = form.type === 'Income' &&
+        riderKeywords.some(kw => form.category.toLowerCase().includes(kw))
+
+      if (isRiderIncome) {
+        const result = await gainExp('rider_income', null)
+        if (result) setExpResult(result)
+      } else if (form.type === 'Income' || form.type === 'Expense') {
+        const result = await gainExp('accounting', null)
+        if (result) setExpResult(result)
+      }
+
       if (!isEditing) {
         setForm({ ...DEFAULT_FORM })
       }
@@ -61,7 +79,8 @@ export default function TransactionForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <>
+      <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex items-center gap-2 mb-1">
         {isEditing ? (
           <>
@@ -118,10 +137,22 @@ export default function TransactionForm({
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           />
           <datalist id="category-suggestions">
+            {/* หมวดหมู่รายรับพิเศษ (ได้ EXP โบนัส) */}
+            <option value="ไรเดอร์" />
+            <option value="ไรเดอร์ Grab" />
+            <option value="ไรเดอร์ Foodpanda" />
+            {/* หมวดหมู่ทั่วไป */}
             {categories.map((cat) => (
               <option key={cat} value={cat} />
             ))}
           </datalist>
+          {/* Hint สำหรับหมวดไรเดอร์ */}
+          {(form.category.toLowerCase().includes('ไรเดอร์') || form.category.toLowerCase().includes('rider')) &&
+            form.type === 'Income' && (
+            <p className="mt-1 text-xs text-indigo-500 font-medium">
+              🛵 หมวดไรเดอร์! คุณจะได้รับ +150 EXP พิเศษ
+            </p>
+          )}
         </div>
 
         {/* จำนวนเงิน */}
@@ -186,5 +217,14 @@ export default function TransactionForm({
         )}
       </div>
     </form>
+
+    {/* EXP Overlay — แสดงเมื่อบันทึกรายการสำเร็จ */}
+    {expResult && (
+      <LevelUpOverlay
+        result={expResult}
+        onClose={() => setExpResult(null)}
+      />
+    )}
+  </>
   )
 }

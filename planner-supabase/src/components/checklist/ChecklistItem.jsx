@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Trash2, Pencil, CheckCircle2, Clock, Calendar } from 'lucide-react'
 import SubTaskList from './SubTaskList'
 import { useLeveling } from '../../hooks/useLeveling'
+import LevelUpOverlay from '../leveling/LevelUpOverlay'
 
 function formatDateTime(iso) {
   if (!iso) return null
@@ -27,6 +28,7 @@ export default function ChecklistItem({
   const [swiping, setSwiping] = useState(false)
   const [swipeX, setSwipeX] = useState(0)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [expResult, setExpResult] = useState(null) // สำหรับ LevelUpOverlay
   const touchStartX = useRef(0)
   const touchCurrentX = useRef(0)
   const itemRef = useRef(null)
@@ -66,9 +68,18 @@ export default function ChecklistItem({
   const handleCheck = async () => {
     onToggleCheck(item)
     if (!item.checked) {
-      const result = await gainExp('checklist', item.id)
-      if (result?.leveledUp) {
-        alert(`🎉 LEVEL UP! ตอนนี้คุณคือ Level ${result.newLevel} [${result.newRank}]`)
+      // ตรวจว่าเป็นงานหมวด "เรียน/ทบทวน" หรือไม่
+      const studyKeywords = ['เรียน', 'ทบทวน', 'อ่าน', 'สอบ', 'การบ้าน', 'โปรเจกต์', 'วิชา', 'รังสี']
+      const isStudyTask = studyKeywords.some(
+        (kw) =>
+          item.text?.toLowerCase().includes(kw) ||
+          item.category?.toLowerCase().includes(kw) ||
+          item.note?.toLowerCase().includes(kw)
+      )
+      const sourceType = isStudyTask ? 'checklist_study' : 'checklist'
+      const result = await gainExp(sourceType, item.id)
+      if (result) {
+        setExpResult(result)
       }
     }
   }
@@ -228,6 +239,14 @@ export default function ChecklistItem({
             </div>
           </div>
         </div>
+      )}
+
+      {/* EXP Overlay */}
+      {expResult && (
+        <LevelUpOverlay
+          result={expResult}
+          onClose={() => setExpResult(null)}
+        />
       )}
     </>
   )
