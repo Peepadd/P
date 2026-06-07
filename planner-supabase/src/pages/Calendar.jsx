@@ -18,7 +18,7 @@ export default function Calendar() {
     google: true,
   })
 
-  const { eventsByDate, loading } = useCalendarData(currentDate)
+  const { eventsByDate, loading, googleError } = useCalendarData(currentDate)
 
   // Filter events locally based on toggle state
   const filteredEventsByDate = useMemo(() => {
@@ -39,6 +39,19 @@ export default function Calendar() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-6">
       
+      {/* Debug Info */}
+      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
+        <div className="flex">
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-yellow-800">Debug Google Calendar</h3>
+            <div className="mt-2 text-sm text-yellow-700">
+              <p>Provider Token: {providerToken ? '✅ มี Token' : '❌ ไม่มี Token'}</p>
+              {googleError && <p className="mt-1 text-red-600 font-semibold">Error: {googleError}</p>}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>

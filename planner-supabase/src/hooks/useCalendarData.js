@@ -36,11 +36,13 @@ export default function useCalendarData(currentDate) {
   const [eventsByDate, setEventsByDate] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [googleError, setGoogleError] = useState(null)
 
   const fetchData = useCallback(async (date) => {
     try {
       setLoading(true)
       setError(null)
+      setGoogleError(null)
 
       // Get month range (extend to full weeks for week view)
       const monthStart = startOfMonth(date)
@@ -80,11 +82,13 @@ export default function useCalendarData(currentDate) {
           if (!res.ok) {
             const errText = await res.text()
             console.error('Google API Error:', res.status, errText)
+            setGoogleError(`HTTP ${res.status}: ${errText}`)
             return { items: [] }
           }
           return res.json()
         }).catch((err) => {
           console.error('Google Fetch Catch:', err)
+          setGoogleError(err.message)
           return { items: [] }
         }) : Promise.resolve({ items: [] }),
       ])
@@ -241,5 +245,5 @@ export default function useCalendarData(currentDate) {
     fetchData(currentDate)
   }, [currentDate, fetchData, providerToken])
 
-  return { eventsByDate, loading, error, refetch: () => fetchData(currentDate) }
+  return { eventsByDate, loading, error, googleError, refetch: () => fetchData(currentDate) }
 }
