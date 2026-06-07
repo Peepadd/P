@@ -9,19 +9,34 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Try to restore from local storage first
+    const cachedToken = localStorage.getItem('google_provider_token')
+    if (cachedToken) {
+      setProviderToken(cachedToken)
+    }
+
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
-      setProviderToken(session?.provider_token ?? null)
+      if (session?.provider_token) {
+        localStorage.setItem('google_provider_token', session.provider_token)
+        setProviderToken(session.provider_token)
+      }
       setLoading(false)
     })
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
-      setProviderToken(session?.provider_token ?? null)
+      if (session?.provider_token) {
+        localStorage.setItem('google_provider_token', session.provider_token)
+        setProviderToken(session.provider_token)
+      } else if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('google_provider_token')
+        setProviderToken(null)
+      }
     })
 
     return () => subscription.unsubscribe()

@@ -76,7 +76,17 @@ export default function useCalendarData(currentDate) {
         providerToken ? fetch(
           `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startStr}T00:00:00Z&timeMax=${endStr}T23:59:59Z&singleEvents=true&orderBy=startTime`,
           { headers: { Authorization: `Bearer ${providerToken}` } }
-        ).then(res => res.ok ? res.json() : { items: [] }).catch(() => ({ items: [] })) : Promise.resolve({ items: [] }),
+        ).then(async res => {
+          if (!res.ok) {
+            const errText = await res.text()
+            console.error('Google API Error:', res.status, errText)
+            return { items: [] }
+          }
+          return res.json()
+        }).catch((err) => {
+          console.error('Google Fetch Catch:', err)
+          return { items: [] }
+        }) : Promise.resolve({ items: [] }),
       ])
 
       if (transResult.error) throw transResult.error
