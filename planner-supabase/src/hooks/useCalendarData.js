@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format } from 'date-fns'
 import { supabase } from '../supabase/supabaseClient'
+import { useAuth } from '../context/AuthContext'
+import { syncLocalEventsToGoogle } from '../utils/googleCalendarSync'
 
 const EVENT_COLORS = {
   transaction_income: { bg: 'bg-green-100', text: 'text-green-700', dot: 'bg-green-500', label: 'รายรับ' },
@@ -13,6 +15,7 @@ const EVENT_COLORS = {
   academic_group: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500', label: 'งานกลุ่ม' },
   academic_presentation: { bg: 'bg-pink-100', text: 'text-pink-700', dot: 'bg-pink-500', label: 'นำเสนอ' },
   academic_other: { bg: 'bg-gray-100', text: 'text-gray-700', dot: 'bg-gray-500', label: 'อื่นๆ' },
+  google_calendar: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', label: 'Google Calendar' },
 }
 
 function getAcademicColor(type) {
@@ -29,6 +32,7 @@ function getAcademicColor(type) {
 export { EVENT_COLORS, getAcademicColor }
 
 export default function useCalendarData(currentDate) {
+  const { providerToken } = useAuth()
   const [eventsByDate, setEventsByDate] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -48,7 +52,7 @@ export default function useCalendarData(currentDate) {
       const endStr = format(rangeEnd, 'yyyy-MM-dd')
 
       // Fetch all data in parallel
-      const [transResult, checkResult, acadResult] = await Promise.all([
+      const [transResult, checkResult, acadResult, googleResult] = await Promise.all([
         // 1. Transactions
         supabase
           .from('transactions')
@@ -67,6 +71,12 @@ export default function useCalendarData(currentDate) {
           .from('academic_items')
           .select('id, subject, topic, type, deadline, end_time, priority, status')
           .not('deadline', 'is', null),
+
+        // 4. Google Calendar events
+        providerToken ? fetch(
+          `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startStr}T00:00:00Z&timeMax=${endStr}T23:59:59Z&singleEvents=true&orderBy=startTime`,
+          { headers: { Authorization: `Bearer ${providerToken}` } }
+        ).then(res => res.ok ? res.json() : { items: [] }).catch(() => ({ items: [] })) : Promise.resolve({ items: [] }),
       ])
 
       if (transResult.error) throw transResult.error
@@ -153,6 +163,31 @@ export default function useCalendarData(currentDate) {
         }
       })
 
+      // Google Calendar
+      const gEvents = googleResult?.items || []
+      gEvents.forEach((gEvent) => {
+        const startDateObj = gEvent.start?.dateTime || gEvent.start?.date
+        if (startDateObj) {
+          const dateKey = startDateObj.split('T')[0]
+          let time = null
+          if (gEvent.start?.dateTime) {
+            const dateObj = new Date(gEvent.start.dateTime)
+            time = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+          }
+          addEvent(dateKey, {
+            id: `google-${gEvent.id}`,
+            source: 'google',
+            type: 'google_calendar',
+            color: EVENT_COLORS.google_calendar,
+            title: gEvent.summary || '(ไม่มีชื่อ)',
+            subtitle: gEvent.location ? `📍 ${gEvent.location}` : 'Google Calendar',
+            time: time,
+            note: gEvent.description,
+            data: gEvent,
+          })
+        }
+      })
+
       // Sort events within each day by time
       Object.keys(eventsMap).forEach((key) => {
         eventsMap[key].sort((a, b) => {
@@ -164,6 +199,26 @@ export default function useCalendarData(currentDate) {
       })
 
       setEventsByDate(eventsMap)
+
+      // Background auto-sync to Google Calendar
+      if (providerToken) {
+        const localEventsToSync = []
+        Object.keys(eventsMap).forEach((dateKey) => {
+          eventsMap[dateKey].forEach((e) => {
+            if (e.source !== 'google') {
+              localEventsToSync.push({ ...e, dateKey })
+            }
+          })
+        })
+        
+        syncLocalEventsToGoogle(providerToken, localEventsToSync, startStr, endStr)
+          .then((count) => {
+            if (count > 0) {
+              console.log(`Auto-synced ${count} events to Google Calendar`)
+            }
+          })
+          .catch((err) => console.error('Auto-sync failed:', err))
+      }
     } catch (err) {
       console.error('Calendar data error:', err.message)
       setError(err.message)
@@ -174,7 +229,7 @@ export default function useCalendarData(currentDate) {
 
   useEffect(() => {
     fetchData(currentDate)
-  }, [currentDate, fetchData])
+  }, [currentDate, fetchData, providerToken])
 
   return { eventsByDate, loading, error, refetch: () => fetchData(currentDate) }
 }

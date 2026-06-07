@@ -5,12 +5,14 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
+  const [providerToken, setProviderToken] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
+      setProviderToken(session?.provider_token ?? null)
       setLoading(false)
     })
 
@@ -19,6 +21,7 @@ export function AuthProvider({ children }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      setProviderToken(session?.provider_token ?? null)
     })
 
     return () => subscription.unsubscribe()
@@ -29,6 +32,7 @@ export function AuthProvider({ children }) {
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
+        scopes: 'https://www.googleapis.com/auth/calendar',
       },
     })
     if (error) throw error
@@ -58,7 +62,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut }}>
+    <AuthContext.Provider value={{ user, providerToken, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut }}>
       {children}
     </AuthContext.Provider>
   )

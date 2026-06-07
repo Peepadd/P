@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react'
 import { CalendarDays } from 'lucide-react'
+import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format } from 'date-fns'
+import { useAuth } from '../context/AuthContext'
 import useCalendarData, { EVENT_COLORS } from '../hooks/useCalendarData'
 import CalendarGrid from '../components/calendar/CalendarGrid'
 import CalendarDayPreview from '../components/calendar/CalendarDayPreview'
@@ -8,10 +10,12 @@ export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(null)
   const [viewMode, setViewMode] = useState('month')
+  const { providerToken, signInWithGoogle } = useAuth()
   const [filters, setFilters] = useState({
     transaction: true,
     academic: true,
     checklist: true,
+    google: true,
   })
 
   const { eventsByDate, loading } = useCalendarData(currentDate)
@@ -36,9 +40,11 @@ export default function Calendar() {
     <div className="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-6">
       
       {/* Header */}
-      <header>
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">ปฏิทิน</h1>
-        <p className="text-gray-500 text-lg mt-1">Calendar & Schedule</p>
+      <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">ปฏิทิน</h1>
+          <p className="text-gray-500 text-lg mt-1">Calendar & Schedule</p>
+        </div>
       </header>
 
       {/* Filter Bar */}
@@ -66,6 +72,14 @@ export default function Calendar() {
           }`}
         >
           <span>✅</span> Checklist
+        </button>
+        <button
+          onClick={() => toggleFilter('google')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+            filters.google ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'
+          }`}
+        >
+          <span>📅</span> Google
         </button>
       </div>
 
