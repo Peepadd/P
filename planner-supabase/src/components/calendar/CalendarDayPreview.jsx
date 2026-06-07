@@ -22,8 +22,9 @@ function formatTimeDisplay(time) {
 function getSourceIcon(source) {
   switch (source) {
     case 'transaction': return '💰'
-    case 'checklist': return '📋'
+    case 'checklist': return '✅'
     case 'academic': return '📚'
+    case 'google': return '📅'
     default: return '📌'
   }
 }
@@ -33,6 +34,7 @@ function getSourceLabel(source) {
     case 'transaction': return 'บัญชี'
     case 'checklist': return 'Checklist'
     case 'academic': return 'งาน/สอบ'
+    case 'google': return 'Google Calendar'
     default: return ''
   }
 }
@@ -60,7 +62,7 @@ export default function CalendarDayPreview({ selectedDate, eventsByDate, onClose
     grouped[event.source].push(event)
   })
 
-  const sourceOrder = ['transaction', 'academic', 'checklist']
+  const sourceOrder = ['transaction', 'academic', 'checklist', 'google']
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
