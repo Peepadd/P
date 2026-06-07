@@ -63,8 +63,10 @@ planner-supabase/
 │       ├── morning-briefing/index.ts     # LINE แจ้งเตือนตี 7
 │       ├── line-notifier/index.ts        # LINE แจ้งเตือน deadline
 │       └── ...
-├── supabase-morning-briefing.sql         # RPC + Cron Job ตี 7
+├── supabase-cron-setup.sql         # RPC + Cron Job ตี 7
 ├── supabase-leveling.sql                 # hunter_stats + exp_logs tables
+├── supabase-stocks.sql                   # trades + dividends + watchlists
+├── .agents/                              # Agent Prompts (Manager, Javis, Buff)
 └── LIFE_OS_CONTEXT.md                    # ← ไฟล์นี้
 ```
 
@@ -109,3 +111,15 @@ SUPABASE_SERVICE_ROLE_KEY  ← Auto-set โดย Supabase
 | `exp_logs` | ประวัติการได้ EXP |
 | `user_profiles` | LINE User ID |
 | `line_notification_log` | ป้องกัน spam notification |
+| `trades` | ประวัติการซื้อขายหุ้น/ETF |
+| `dividends` | ประวัติการรับปันผล |
+| `watchlists` | หุ้นที่เฝ้าติดตาม |
+
+---
+
+## 🤖 Multi-Agent System (Manager / Javis / Buff)
+
+ระบบ OmniAssistant ถูกอัปเกรดเป็น Router Pattern:
+- **Manager (Router):** ตัดสินใจว่าคำสั่งผู้ใช้เหมาะกับใคร
+- **Javis:** ดูแลเรื่องเรียน (Checklist, Pomodoro, Timetables)
+- **Buff:** ดูแลเรื่องเงินและการลงทุน (Income, Expense, หุ้น ETF, ปันผล)

@@ -16,7 +16,7 @@ import Pomodoro from './pages/Pomodoro'
 import PriceCompare from './pages/PriceCompare'
 import Settings from './pages/Settings'
 import MediaTracker from './pages/MediaTracker'
-
+import AgentHub from './pages/AgentHub'
 function LoginPage() {
   const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth()
   const [isLoginMode, setIsLoginMode] = useState(true)
@@ -205,6 +205,7 @@ function AppContent() {
         <Route path="pomodoro" element={<Pomodoro />} />
         <Route path="price-compare" element={<PriceCompare />} />
         <Route path="media" element={<MediaTracker />} />
+        <Route path="agents" element={<AgentHub />} />
         <Route path="settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

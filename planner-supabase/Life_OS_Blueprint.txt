@@ -1,0 +1,67 @@
+# MASTER BLUEPRINT: Life_OS Multi-Agent System (For Antigravity Implementation)
+
+เป้าหมายสูงสุด: สร้างระบบบริหารจัดการชีวิตที่สมบูรณ์แบบสำหรับนักศึกษารังสีเทคนิคและไรเดอร์ 
+ลด Cognitive Load (ภาระสมอง) และเพิ่ม Productivity ผ่าน Multi-Agent System
+
+---
+
+## 1. ข้อมูลพื้นฐานผู้ใช้งาน (Knowledge Base)
+ไฟล์อ้างอิงหลัก: LIFE_OS_CONTEXT.md
+- ผู้ใช้: Peerapat, 20 ปี
+- สถานะ: นักศึกษารังสีเทคนิค ปี 3, รายได้เสริมไรเดอร์, นักลงทุน (ETF/หุ้น)
+- Pain Points: สมาธิสั้น, จัดการเวลาลำบาก, ขี้ลืม
+- เป้าหมาย: สร้างระบบเตือน/จัดการอัตโนมัติ + ระบบ Gamification (EXP/Leveling) + จัดการพอร์ตการลงทุน
+
+---
+
+## 2. โครงสร้างทีม AI (Agent Definition)
+
+### A. Manager (The Router)
+หน้าที่: รับคำสั่งดิบจากมนุษย์ แปลงเป็นงานที่ทำได้ (Task Delegation)
+SOP:
+1. ห้ามตอบโต้ภาษามนุษย์, ตอบกลับเป็น JSON format เท่านั้น
+2. วิเคราะห์คำสั่ง → เลือก Agent ที่เหมาะสม (Javis/Buff)
+3. ส่ง Context ที่จำเป็นไปพร้อมกับงาน
+
+### B. Javis (Life & Academic Manager)
+หน้าที่: บริหารตารางเรียน, วิ่งงาน, เตือนความจำ
+Tools/Skills:
+- สแกน `src/components/timetable/`
+- เชื่อมต่อ `supabase/functions/morning-briefing/`
+- รัน `PomodoroTimer.jsx` (เตือนสติ/จับเวลา)
+
+### C. Buff (Wealth & Investment Manager)
+หน้าที่: บัญชี, พอร์ตหุ้น/ETF, ปันผล, และไรเดอร์
+Tools/Skills:
+- สแกนราคาหุ้น/ETF ผ่าน API (Yahoo Finance)
+- ดูแลบัญชีรายรับ-รายจ่าย (Transactions)
+- ประเมินสถานะพอร์ตการลงทุน (Trades, Dividends, Watchlists)
+- วิเคราะห์ข้อมูลการเงิน -> ส่งให้ระบบ Leveling (EXP)
+
+---
+
+## 3. ขั้นตอนการ Implement ใน Antigravity (SOP)
+
+### ขั้นตอนที่ 1: จัดระบบไฟล์
+- สร้างโฟลเดอร์ `.agents/` ใน Root
+- สร้างไฟล์ .md สำหรับ Manager, Javis, Buff ตามโครงสร้างไฟล์นี้
+
+### ขั้นตอนที่ 2: เชื่อมต่อ (Integration)
+- นำระบบหุ้นจาก etf มาใส่ (trades, dividends, watchlists)
+- ใช้ `supabase-cron-setup.sql` เป็นตัวสั่งงานอัตโนมัติ
+- เชื่อมระบบ Notification เข้า LINE ตามฟังก์ชันใน `supabase/functions/`
+
+### ขั้นตอนที่ 3: พัฒนาต่อเนื่อง (Feedback Loop)
+- ใช้ Skils จาก `.impeccable` นำมาเป็นมาตรฐานในการเขียนโค้ด
+
+---
+
+## 4. วิธีสั่งงาน Agent (Execution Flow)
+- พิมพ์ใน OmniAssistant Chat (UI ใหม่):
+  "เช็คราคา VOO หน่อย"
+- Manager Router จะตอบกลับภายในระบบ (JSON):
+  { "target_agent": "Buff", "action": "check_stock_price", "context": "VOO" }
+- Buff จะทำการดึงข้อมูลและตอบกลับพร้อม Action Results
+
+---
+# บันทึกไว้ให้ดี: ไฟล์นี้คือหัวใจของระบบ หากระบบเริ่มงง ให้ AI อ่านไฟล์นี้ใหม่เสมอ
