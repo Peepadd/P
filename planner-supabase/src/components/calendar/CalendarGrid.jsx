@@ -155,19 +155,24 @@ export default function CalendarGrid({
 
               {/* Event chips */}
               <div className="space-y-0.5">
-                {dayEvents.slice(0, 3).map((event) => (
-                  <div
-                    key={event.id}
-                    className={`flex items-center gap-1 px-1 py-0.5 rounded text-[10px] font-medium truncate ${event.color.bg} ${event.color.text}`}
-                    title={`${event.title}${event.subtitle ? ` — ${event.subtitle}` : ''}`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${event.color.dot}`} />
-                    <span className="truncate">{event.title}</span>
-                  </div>
-                ))}
-                {dayEvents.length > 3 && (
+                {dayEvents.slice(0, 4).map((event) => {
+                  const isBlock = event.isAllDay || event.isMultiDay;
+                  return (
+                    <div
+                      key={event.id}
+                      className={`flex items-center gap-1 px-1 py-0.5 rounded text-[10px] font-medium truncate ${
+                        isBlock ? `${event.color.dot} text-white` : `${event.color.bg} ${event.color.text}`
+                      }`}
+                      title={`${event.title}${event.subtitle ? ` — ${event.subtitle}` : ''}`}
+                    >
+                      {!isBlock && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${event.color.dot}`} />}
+                      <span className="truncate">{event.title}</span>
+                    </div>
+                  )
+                })}
+                {dayEvents.length > 4 && (
                   <span className="text-[10px] text-gray-400 pl-1">
-                    +{dayEvents.length - 3} รายการ
+                    +{dayEvents.length - 4} รายการ
                   </span>
                 )}
               </div>

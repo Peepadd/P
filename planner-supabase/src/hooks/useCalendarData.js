@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format } from 'date-fns'
+import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format, eachDayOfInterval } from 'date-fns'
 import { supabase } from '../supabase/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { syncLocalEventsToGoogle } from '../utils/googleCalendarSync'
@@ -185,24 +185,46 @@ export default function useCalendarData(currentDate) {
           return
         }
 
-        const startDateObj = gEvent.start?.dateTime || gEvent.start?.date
-        if (startDateObj) {
-          const dateKey = startDateObj.split('T')[0]
+        const startStr = gEvent.start?.dateTime || gEvent.start?.date
+        const endStr = gEvent.end?.dateTime || gEvent.end?.date
+
+        if (startStr && endStr) {
+          let startDate = new Date(startStr)
+          let endDate = new Date(endStr)
+          
+          // For all-day events (no time component), Google's end date is exclusive.
+          // Subtract 1 millisecond so it falls on the correct end day.
+          if (!gEvent.start?.dateTime) {
+            endDate = new Date(endDate.getTime() - 1)
+          }
+
+          // Generate an array of dates from startDate to endDate
+          const dates = eachDayOfInterval({ start: startDate, end: endDate })
+
           let time = null
           if (gEvent.start?.dateTime) {
             const dateObj = new Date(gEvent.start.dateTime)
             time = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
           }
-          addEvent(dateKey, {
-            id: `google-${gEvent.id}`,
-            source: 'google',
-            type: 'google_calendar',
-            color: EVENT_COLORS.google_calendar,
-            title: gEvent.summary || '(ไม่มีชื่อ)',
-            subtitle: gEvent.location ? `📍 ${gEvent.location}` : 'Google Calendar',
-            time: time,
-            note: gEvent.description,
-            data: gEvent,
+
+          const isAllDay = !gEvent.start?.dateTime
+          const isMultiDay = dates.length > 1
+
+          dates.forEach((date) => {
+            const dateKey = format(date, 'yyyy-MM-dd')
+            addEvent(dateKey, {
+              id: `google-${gEvent.id}`,
+              source: 'google',
+              type: 'google_calendar',
+              color: EVENT_COLORS.google_calendar,
+              title: gEvent.summary || '(ไม่มีชื่อ)',
+              subtitle: gEvent.location ? `📍 ${gEvent.location}` : 'Google Calendar',
+              time: time,
+              note: gEvent.description,
+              data: gEvent,
+              isAllDay,
+              isMultiDay,
+            })
           })
         }
       })
