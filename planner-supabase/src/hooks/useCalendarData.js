@@ -180,6 +180,11 @@ export default function useCalendarData(currentDate) {
       // Google Calendar
       const gEvents = googleResult?.items || []
       gEvents.forEach((gEvent) => {
+        // Skip events that were auto-synced from this app to avoid showing duplicates
+        if (gEvent.extendedProperties?.private?.localId) {
+          return
+        }
+
         const startDateObj = gEvent.start?.dateTime || gEvent.start?.date
         if (startDateObj) {
           const dateKey = startDateObj.split('T')[0]
