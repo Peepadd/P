@@ -9,17 +9,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Try to restore from local storage first
-    const cachedToken = localStorage.getItem('google_provider_token')
-    if (cachedToken) {
-      setProviderToken(cachedToken)
-    }
+    // Clean up any stale cached tokens from localStorage (tokens expire ~1hr)
+    localStorage.removeItem('google_provider_token')
 
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
+      // Only use provider_token from a live session — never from cache
       if (session?.provider_token) {
-        localStorage.setItem('google_provider_token', session.provider_token)
         setProviderToken(session.provider_token)
       }
       setLoading(false)
@@ -31,16 +28,27 @@ export function AuthProvider({ children }) {
     } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
       if (session?.provider_token) {
-        localStorage.setItem('google_provider_token', session.provider_token)
         setProviderToken(session.provider_token)
-      } else if (event === 'SIGNED_OUT') {
-        localStorage.removeItem('google_provider_token')
-        setProviderToken(null)
+      } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        // On sign out, clear token. On token refresh, update if provided.
+        if (!session?.provider_token) {
+          setProviderToken(null)
+        }
       }
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  // Call this to get a fresh provider_token from the current session
+  const refreshProviderToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.provider_token) {
+      setProviderToken(session.provider_token)
+      return session.provider_token
+    }
+    return null
+  }
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -77,7 +85,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, providerToken, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut }}>
+    <AuthContext.Provider value={{ user, providerToken, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut, refreshProviderToken }}>
       {children}
     </AuthContext.Provider>
   )

@@ -10,7 +10,7 @@ export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(null)
   const [viewMode, setViewMode] = useState('month')
-  const { providerToken, signInWithGoogle } = useAuth()
+  const { providerToken, signInWithGoogle, refreshProviderToken } = useAuth()
   const [filters, setFilters] = useState({
     transaction: true,
     academic: true,
@@ -42,13 +42,23 @@ export default function Calendar() {
       {/* Error Info */}
       {googleError && (
         <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">พบข้อผิดพลาดจาก Google Calendar API</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p className="font-mono text-xs break-all">{googleError}</p>
-              </div>
+          <div className="flex items-start gap-3">
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-red-800">
+                ⚠️ ไม่สามารถโหลด Google Calendar ได้
+              </h3>
+              <p className="mt-1 text-sm text-red-700">
+                {googleError.includes('หมดอายุ') || googleError.includes('401')
+                  ? 'Google token หมดอายุแล้ว กรุณาเข้าสู่ระบบด้วย Google อีกครั้ง'
+                  : googleError}
+              </p>
             </div>
+            <button
+              onClick={signInWithGoogle}
+              className="shrink-0 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+            >
+              Sign In with Google
+            </button>
           </div>
         </div>
       )}

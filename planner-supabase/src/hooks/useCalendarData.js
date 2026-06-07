@@ -32,7 +32,7 @@ function getAcademicColor(type) {
 export { EVENT_COLORS, getAcademicColor }
 
 export default function useCalendarData(currentDate) {
-  const { providerToken } = useAuth()
+  const { providerToken, refreshProviderToken } = useAuth()
   const [eventsByDate, setEventsByDate] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -79,6 +79,26 @@ export default function useCalendarData(currentDate) {
           `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startStr}T00:00:00Z&timeMax=${endStr}T23:59:59Z&singleEvents=true&orderBy=startTime`,
           { headers: { Authorization: `Bearer ${providerToken}` } }
         ).then(async res => {
+          if (res.status === 401) {
+            // Token expired — try to refresh and retry once
+            console.warn('Google token expired (401). Attempting refresh...')
+            const freshToken = await refreshProviderToken()
+            if (!freshToken) {
+              setGoogleError('Google token หมดอายุ กรุณา Sign In with Google อีกครั้ง')
+              return { items: [] }
+            }
+            const retryRes = await fetch(
+              `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${startStr}T00:00:00Z&timeMax=${endStr}T23:59:59Z&singleEvents=true&orderBy=startTime`,
+              { headers: { Authorization: `Bearer ${freshToken}` } }
+            )
+            if (!retryRes.ok) {
+              const errText = await retryRes.text()
+              setGoogleError('Google token หมดอายุ กรุณา Sign In with Google อีกครั้ง')
+              console.error('Google API retry failed:', retryRes.status, errText)
+              return { items: [] }
+            }
+            return retryRes.json()
+          }
           if (!res.ok) {
             const errText = await res.text()
             console.error('Google API Error:', res.status, errText)
