@@ -1,6 +1,18 @@
 import { supabase } from '../supabase/supabaseClient';
 import { getSingleStockQuote } from './stockApi';
-import { askNotebookLM } from '../../.agents/skills/notebooklm_bridge';
+
+// Lazy import notebooklm — the package uses Node.js APIs (os.homedir()) that
+// crash in the browser if loaded eagerly. Only imported when the user actually
+// asks a NotebookLM question.
+async function askNotebook(query, notebookId) {
+  try {
+    const { askNotebookLM } = await import('../../.agents/skills/notebooklm_bridge');
+    return await askNotebookLM(query, notebookId);
+  } catch (err) {
+    console.warn('NotebookLM not available in browser:', err.message);
+    return { success: false, error: 'NotebookLM ใช้งานได้เฉพาะในโหมด Desktop เท่านั้น' };
+  }
+}
 
 export async function executeAgentActions(agentName, actions, user) {
   if (!actions || actions.length === 0) return [];
@@ -30,7 +42,7 @@ export async function executeAgentActions(agentName, actions, user) {
           results.push(`✅ เพิ่มนิสัย: ${action.payload.name}`);
         }
         else if (action.type === 'ask_notebook') {
-          const nbResult = await askNotebookLM(action.payload.query, action.payload.notebookId);
+          const nbResult = await askNotebook(action.payload.query, action.payload.notebookId);
           if (nbResult.success) {
             results.push(`📚 NotebookLM: ${nbResult.text}`);
           } else {
