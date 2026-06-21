@@ -61,22 +61,22 @@ export default function CsvUploader({ onParse, parsedData }) {
   // If already parsed, show success state
   if (parsedData) {
     return (
-      <div className="bg-white rounded-xl border border-green-200 shadow-sm p-5">
+      <div className="bg-surface rounded-md border border-green-200 shadow-sm p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
               <FileText size={20} className="text-green-600" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">ไฟล์ CSV อ่านสำเร็จ</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-medium text-fg">ไฟล์ CSV อ่านสำเร็จ</p>
+              <p className="text-xs text-muted">
                 พบ {parsedData.headers.length} คอลัมน์, {parsedData.rows.length} รายการ
               </p>
             </div>
           </div>
           <button
             onClick={() => onParse(null)} // Use as reset signal
-            className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+            className="p-1.5 text-meta hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
             title="เปลี่ยนไฟล์"
           >
             <X size={18} />
@@ -93,10 +93,10 @@ export default function CsvUploader({ onParse, parsedData }) {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onClick={() => inputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${
+        className={`border-2 border-dashed rounded-md p-10 text-center cursor-pointer transition-all ${
           dragOver
-            ? 'border-indigo-500 bg-indigo-50'
-            : 'border-gray-300 hover:border-indigo-400 hover:bg-gray-50'
+            ? 'border-accent bg-accent-soft'
+            : 'border-border hover:border-accent hover:bg-surface-warm'
         }`}
       >
         <input
@@ -109,25 +109,25 @@ export default function CsvUploader({ onParse, parsedData }) {
 
         {parsing ? (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-gray-500">กำลังอ่านไฟล์ CSV...</p>
+            <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-muted">กำลังอ่านไฟล์ CSV...</p>
           </div>
         ) : (
           <>
             <div
               className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center transition-colors ${
-                dragOver ? 'bg-indigo-200' : 'bg-indigo-100'
+                dragOver ? 'bg-accent-soft' : 'bg-accent-soft'
               }`}
             >
-              <Upload size={28} className={dragOver ? 'text-indigo-700' : 'text-indigo-600'} />
+              <Upload size={28} className={dragOver ? 'text-accent' : 'text-accent'} />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-1">
+            <h3 className="font-semibold text-fg mb-1">
               {dragOver ? 'วางไฟล์ที่นี่' : 'อัปโหลดไฟล์ CSV'}
             </h3>
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-sm text-muted mb-2">
               ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-meta">
               รองรับไฟล์ .csv (UTF-8) ที่มีหัวคอลัมน์ในแถวแรก
             </p>
           </>

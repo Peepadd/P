@@ -52,11 +52,11 @@ export default function TimetableConfig({ config, onChange, onClose }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Settings2 size={18} className="text-indigo-600" />
-          <h3 className="font-semibold text-gray-900">ตั้งค่าตารางเรียน</h3>
+          <Settings2 size={18} className="text-accent" />
+          <h3 className="font-semibold text-fg">ตั้งค่าตารางเรียน</h3>
         </div>
         {onClose && (
-          <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+          <button onClick={onClose} className="p-1 text-muted hover:text-fg-2 rounded-lg hover:bg-surface-warm transition-colors">
             <X size={18} />
           </button>
         )}
@@ -64,50 +64,50 @@ export default function TimetableConfig({ config, onChange, onClose }) {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">จำนวนคาบ</label>
+          <label className="block text-xs font-medium text-muted mb-1">จำนวนคาบ</label>
           <input
             type="number" min={1} max={12}
             value={form.periods}
             onChange={(e) => handleChange('periods', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">เวลาเริ่มคาบแรก</label>
+          <label className="block text-xs font-medium text-muted mb-1">เวลาเริ่มคาบแรก</label>
           <input
             type="time"
             value={form.tStart}
             onChange={(e) => handleChange('tStart', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">ความยาวคาบ (นาที)</label>
+          <label className="block text-xs font-medium text-muted mb-1">ความยาวคาบ (นาที)</label>
           <input
             type="number" min={20} max={180}
             value={form.pMin}
             onChange={(e) => handleChange('pMin', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">เวลาพัก (นาที)</label>
+          <label className="block text-xs font-medium text-muted mb-1">เวลาพัก (นาที)</label>
           <input
             type="number" min={0} max={60}
             value={form.bMin}
             onChange={(e) => handleChange('bMin', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none"
           />
         </div>
       </div>
 
       {/* Preview */}
-      <div className="bg-gray-50 rounded-lg p-3">
-        <p className="text-xs font-medium text-gray-500 mb-2">ตัวอย่างเวลา:</p>
+      <div className="bg-surface-warm rounded-lg p-3">
+        <p className="text-xs font-medium text-muted mb-2">ตัวอย่างเวลา:</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
           {slots.map((slot) => (
-            <div key={slot.period} className="flex items-center gap-1.5 text-xs text-gray-600 bg-white px-2 py-1 rounded border border-gray-200">
-              <span className="font-medium text-indigo-600">{slot.period}</span>
+            <div key={slot.period} className="flex items-center gap-1.5 text-xs text-muted bg-surface px-2 py-1 rounded border border-border">
+              <span className="font-medium text-accent">{slot.period}</span>
               <span>{slot.start} - {slot.end}</span>
             </div>
           ))}
@@ -117,7 +117,7 @@ export default function TimetableConfig({ config, onChange, onClose }) {
       <div className="flex justify-end">
         <button
           onClick={handleSave}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors"
         >
           บันทึกการตั้งค่า
         </button>

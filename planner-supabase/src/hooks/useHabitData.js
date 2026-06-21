@@ -131,7 +131,7 @@ export default function useHabitData() {
         id: crypto.randomUUID(),
         name,
         frequency: frequency || 'Daily',
-        color: color || '#6366f1',
+        color: color || '#7c3aed',
       }
 
       const { error: insertErr } = await supabase

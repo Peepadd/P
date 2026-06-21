@@ -13,7 +13,7 @@ export default function OmniAssistant() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [contextData, setContextData] = useState(null)
-  
+
   const messagesEndRef = useRef(null)
 
   const scrollToBottom = () => {
@@ -70,15 +70,15 @@ export default function OmniAssistant() {
       const response = await processAgentChat(userMessage, chatHistory, contextData, user)
 
       setMessages(prev => [
-        ...prev, 
-        { 
-          role: 'assistant', 
+        ...prev,
+        {
+          role: 'assistant',
           agentName: response.agentName,
           content: response.reply,
-          actionsExecuted: response.actionsExecuted 
+          actionsExecuted: response.actionsExecuted
         }
       ])
-      
+
       // Refresh context after potential DB changes
       if (response.actionsExecuted && response.actionsExecuted.length > 0) {
         fetchContext()
@@ -111,7 +111,7 @@ export default function OmniAssistant() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-24 right-4 md:bottom-10 md:right-8 z-50 flex items-center justify-center p-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all active:scale-95 group"
+          className="fixed bottom-24 right-4 md:bottom-10 md:right-8 z-50 flex items-center justify-center p-4 bg-accent text-white rounded-full shadow-raised hover:shadow-raised transition-all group"
         >
           <Sparkles size={24} className="group-hover:animate-pulse" />
         </button>
@@ -119,61 +119,61 @@ export default function OmniAssistant() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 md:bottom-10 md:right-8 z-50 w-[380px] h-[550px] max-h-[80vh] max-w-[calc(100vw-32px)] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out]">
-          
+        <div className="fixed bottom-24 right-4 md:bottom-10 md:right-8 z-50 w-[380px] h-[550px] max-h-[80vh] max-w-[calc(100vw-32px)] bg-surface rounded-lg shadow-raised border border-border flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out]">
+
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md">
+          <div className="flex items-center justify-between px-4 py-3 bg-accent text-white shadow-raised">
             <div className="flex items-center gap-2">
-              <div className="bg-white/20 p-1.5 rounded-lg">
+              <div className="bg-surface/20 p-1.5 rounded-lg">
                 <BrainCircuit size={20} />
               </div>
               <div>
                 <h3 className="font-bold text-sm leading-tight">Agent Router</h3>
-                <p className="text-[10px] text-indigo-100 opacity-90 leading-tight">Javis (Life) | Buff (Wealth)</p>
+                <p className="text-[10px] text-accent/30 leading-tight">Javis (Life) | Buff (Wealth)</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setIsOpen(false)}
-              className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
+              className="p-1.5 hover:bg-surface/20 rounded-full transition-colors"
             >
               <X size={18} />
             </button>
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-warm/50">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.role === 'assistant' && (
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm mt-1 ${
-                    msg.agentName === 'Javis' ? 'bg-gradient-to-br from-blue-500 to-indigo-500' :
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 shadow-card mt-1 ${
+                    msg.agentName === 'Javis' ? 'bg-accent' :
                     msg.agentName === 'Buff' ? 'bg-gradient-to-br from-green-500 to-emerald-600' :
-                    'bg-gradient-to-br from-gray-500 to-gray-700'
+                    'bg-muted'
                   }`}>
                     {getAgentIcon(msg.agentName)}
                   </div>
                 )}
-                
+
                 <div className={`max-w-[80%] flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   {msg.role === 'assistant' && msg.agentName && (
-                     <span className="text-[10px] text-gray-500 font-medium ml-1">{msg.agentName}</span>
+                     <span className="text-[10px] text-muted font-medium ml-1">{msg.agentName}</span>
                   )}
-                  <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                    msg.role === 'user' 
-                      ? 'bg-indigo-600 text-white rounded-tr-sm' 
-                      : msg.isError 
+                  <div className={`px-4 py-2.5 rounded-lg text-sm leading-relaxed shadow-card ${
+                    msg.role === 'user'
+                      ? 'bg-accent text-white rounded-tr-sm'
+                      : msg.isError
                         ? 'bg-red-50 text-red-600 border border-red-100 rounded-tl-sm'
-                        : 'bg-white border border-gray-100 text-gray-700 rounded-tl-sm'
+                        : 'bg-surface border border-border text-fg-2 rounded-tl-sm'
                   }`}>
                     {msg.content}
                   </div>
-                  
+
                   {/* Action Results */}
                   {msg.actionsExecuted && msg.actionsExecuted.length > 0 && (
                     <div className="flex flex-col gap-1 mt-1">
                       {msg.actionsExecuted.map((res, i) => (
                         <span key={i} className={`text-[10px] font-medium px-2 py-1 rounded-md ${
-                          res.includes('❌') ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700 border border-green-100 shadow-sm'
+                          res.includes('❌') ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700 border border-green-100 shadow-card'
                         }`}>
                           {res}
                         </span>
@@ -183,21 +183,21 @@ export default function OmniAssistant() {
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 shrink-0 mt-1">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-muted shrink-0 mt-1">
                     <User size={16} />
                   </div>
                 )}
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white shrink-0 shadow-sm mt-1">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-white shrink-0 shadow-card mt-1">
                   <BrainCircuit size={16} />
                 </div>
-                <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-white border border-gray-100 shadow-sm flex items-center gap-2">
-                  <Loader2 size={16} className="animate-spin text-gray-500" />
-                  <span className="text-xs text-gray-500 animate-pulse">Routing to Agent...</span>
+                <div className="px-4 py-3 rounded-lg rounded-tl-sm bg-surface border border-border shadow-card flex items-center gap-2">
+                  <Loader2 size={16} className="animate-spin text-muted" />
+                  <span className="text-xs text-muted animate-pulse">Routing to Agent...</span>
                 </div>
               </div>
             )}
@@ -205,21 +205,21 @@ export default function OmniAssistant() {
           </div>
 
           {/* Input Area */}
-          <div className="p-3 bg-white border-t border-gray-100">
+          <div className="p-3 bg-surface border-t border-border">
             <div className="relative flex items-center">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="สั่งงานให้ Javis หรือ Buff..."
-                className="w-full pl-4 pr-12 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none resize-none max-h-32 min-h-[48px] overflow-hidden"
+                className="w-full pl-4 pr-12 py-3 text-sm bg-bg border border-border rounded-md focus:ring-2 focus:ring-accent focus:bg-surface outline-none resize-none max-h-32 min-h-[48px] overflow-hidden"
                 rows={1}
                 disabled={isLoading}
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading}
-                className="absolute right-2 p-2 text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:text-gray-500 rounded-lg transition-colors"
+                className="absolute right-2 p-2 text-white bg-accent hover:bg-accent-hover disabled:bg-muted disabled:text-meta rounded-lg transition-colors"
               >
                 <Send size={16} />
               </button>

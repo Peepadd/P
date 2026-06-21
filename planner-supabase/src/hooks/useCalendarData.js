@@ -5,17 +5,17 @@ import { useAuth } from '../context/AuthContext'
 import { syncLocalEventsToGoogle } from '../utils/googleCalendarSync'
 
 const EVENT_COLORS = {
-  transaction_income: { bg: 'bg-green-100', text: 'text-green-700', dot: 'bg-green-500', label: 'รายรับ' },
-  transaction_expense: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500', label: 'รายจ่าย' },
+  transaction_income: { bg: 'bg-green-100', text: 'text-success', dot: 'bg-green-500', label: 'รายรับ' },
+  transaction_expense: { bg: 'bg-red-100', text: 'text-danger', dot: 'bg-red-500', label: 'รายจ่าย' },
   checklist_shopping: { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500', label: 'ซื้อของ' },
   checklist_todo: { bg: 'bg-teal-100', text: 'text-teal-700', dot: 'bg-teal-500', label: 'สิ่งที่ต้องทำ' },
-  academic_exam: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500', label: 'สอบ' },
-  academic_homework: { bg: 'bg-blue-100', text: 'text-blue-700', dot: 'bg-blue-500', label: 'การบ้าน' },
-  academic_project: { bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500', label: 'โปรเจกต์' },
-  academic_group: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500', label: 'งานกลุ่ม' },
-  academic_presentation: { bg: 'bg-pink-100', text: 'text-pink-700', dot: 'bg-pink-500', label: 'นำเสนอ' },
-  academic_other: { bg: 'bg-gray-100', text: 'text-gray-700', dot: 'bg-gray-500', label: 'อื่นๆ' },
-  google_calendar: { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', label: 'Google Calendar' },
+  academic_exam: { bg: 'bg-red-100', text: 'text-danger', dot: 'bg-red-500', label: 'สอบ' },
+  academic_homework: { bg: 'bg-blue-100', text: 'text-accent', dot: 'bg-blue-500', label: 'การบ้าน' },
+  academic_project: { bg: 'bg-purple-100', text: 'text-accent', dot: 'bg-purple-500', label: 'โปรเจกต์' },
+  academic_group: { bg: 'bg-amber-100', text: 'text-warn', dot: 'bg-amber-500', label: 'งานกลุ่ม' },
+  academic_presentation: { bg: 'bg-pink-100', text: 'text-accent', dot: 'bg-pink-500', label: 'นำเสนอ' },
+  academic_other: { bg: 'bg-surface-warm', text: 'text-fg-2', dot: 'bg-gray-500', label: 'อื่นๆ' },
+  google_calendar: { bg: 'bg-accent-soft', text: 'text-accent', dot: 'bg-blue-500', label: 'Google Calendar' },
 }
 
 function getAcademicColor(type) {
@@ -152,7 +152,7 @@ export default function useCalendarData(currentDate) {
             type: item.type === 'shopping' ? 'checklist_shopping' : 'checklist_todo',
             color: item.type === 'shopping' ? EVENT_COLORS.checklist_shopping : EVENT_COLORS.checklist_todo,
             title: item.text,
-            subtitle: item.category ? `📂 ${item.category}` : (item.checked ? '✅ เสร็จแล้ว' : '⏳ รอทำ'),
+            subtitle: item.category ? `หมวดหมู่: ${item.category}` : (item.checked ? 'เสร็จแล้ว' : 'รอทำ'),
             time: null,
             note: item.note,
             data: item,
@@ -169,7 +169,7 @@ export default function useCalendarData(currentDate) {
               type: item.type === 'shopping' ? 'checklist_shopping' : 'checklist_todo',
               color: item.type === 'shopping' ? EVENT_COLORS.checklist_shopping : EVENT_COLORS.checklist_todo,
               title: `${item.text} (สิ้นสุด)`,
-              subtitle: item.checked ? '✅ เสร็จแล้ว' : '⏳ รอทำ',
+              subtitle: item.checked ? 'เสร็จแล้ว' : 'รอทำ',
               time: null,
               note: item.note,
               data: item,
@@ -189,7 +189,7 @@ export default function useCalendarData(currentDate) {
             type: `academic_${item.type}`,
             color: acadColor,
             title: `${item.subject}: ${item.topic}`,
-            subtitle: `${item.type} • ${item.priority === 'สูง' ? '🔴' : item.priority === 'กลาง' ? '🟡' : '🟢'} ${item.status}`,
+            subtitle: `${item.type} • ${item.status}`,
             time: item.end_time,
             note: item.note,
             data: item,
@@ -211,7 +211,7 @@ export default function useCalendarData(currentDate) {
         if (startStr && endStr) {
           let startDate = new Date(startStr)
           let endDate = new Date(endStr)
-          
+
           // For all-day events (no time component), Google's end date is exclusive.
           // Subtract 1 millisecond so it falls on the correct end day.
           if (!gEvent.start?.dateTime) {
@@ -271,7 +271,7 @@ export default function useCalendarData(currentDate) {
             }
           })
         })
-        
+
         syncLocalEventsToGoogle(providerToken, localEventsToSync, startStr, endStr)
           .then((count) => {
             if (count > 0) {

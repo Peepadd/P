@@ -59,35 +59,35 @@ export default function CalendarGrid({
   const isMonthView = viewMode === 'month'
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-surface rounded-md border border-border overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
           <button
             onClick={handlePrev}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 text-muted hover:text-muted hover:bg-surface-warm rounded-lg transition-colors"
           >
             <ChevronLeft size={20} />
           </button>
           <button
             onClick={handleToday}
-            className="px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+            className="px-3 py-1 text-sm font-medium text-accent hover:bg-accent-soft rounded-lg transition-colors"
           >
             วันนี้
           </button>
           <button
             onClick={handleNext}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 text-muted hover:text-muted hover:bg-surface-warm rounded-lg transition-colors"
           >
             <ChevronRight size={20} />
           </button>
-          <h2 className="text-lg font-semibold text-gray-900 ml-2">{titleDate}</h2>
+          <h2 className="text-lg font-semibold text-fg ml-2">{titleDate}</h2>
         </div>
-        <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+        <div className="flex items-center bg-surface-warm rounded-lg p-0.5">
           <button
             onClick={() => onViewModeChange('month')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              isMonthView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              isMonthView ? 'bg-surface text-accent shadow-card' : 'text-muted hover:text-fg-2'
             }`}
           >
             <CalendarDays size={16} />
@@ -96,7 +96,7 @@ export default function CalendarGrid({
           <button
             onClick={() => onViewModeChange('week')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              !isMonthView ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              !isMonthView ? 'bg-surface text-accent shadow-card' : 'text-muted hover:text-fg-2'
             }`}
           >
             <CalendarRange size={16} />
@@ -111,7 +111,7 @@ export default function CalendarGrid({
           <div
             key={name}
             className={`px-2 py-2 text-xs font-medium text-center ${
-              i === 6 ? 'text-red-400' : 'text-gray-400'
+              i === 6 ? 'text-red-400' : 'text-muted'
             }`}
           >
             {name}
@@ -135,19 +135,19 @@ export default function CalendarGrid({
               className={`
                 relative min-h-[80px] sm:min-h-[100px] p-1.5 border-b border-r border-gray-50
                 text-left transition-colors
-                ${isCurrentMonth ? 'bg-white' : 'bg-gray-50/50'}
-                ${isSelected ? 'ring-2 ring-indigo-400 ring-inset z-10' : ''}
-                ${today ? 'bg-indigo-50/50' : ''}
-                hover:bg-gray-50
+                ${isCurrentMonth ? 'bg-surface' : 'bg-surface-warm/50'}
+                ${isSelected ? 'ring-2 ring-accent ring-inset z-10' : ''}
+                ${today ? 'bg-accent-soft/50' : ''}
+                hover:bg-surface-warm
               `}
             >
               {/* Day number */}
               <span
                 className={`
                   inline-flex items-center justify-center w-6 h-6 text-xs font-medium rounded-full mb-0.5
-                  ${today ? 'bg-indigo-600 text-white' : ''}
-                  ${!isCurrentMonth ? 'text-gray-300' : dayOfWeek === 0 ? 'text-red-500' : 'text-gray-700'}
-                  ${isSelected && !today ? 'bg-indigo-100 text-indigo-700' : ''}
+                  ${today ? 'bg-accent text-white' : ''}
+                  ${!isCurrentMonth ? 'text-meta' : dayOfWeek === 0 ? 'text-red-500' : 'text-fg-2'}
+                  ${isSelected && !today ? 'bg-accent-soft text-accent' : ''}
                 `}
               >
                 {format(day, 'd')}
@@ -171,7 +171,7 @@ export default function CalendarGrid({
                   )
                 })}
                 {dayEvents.length > 4 && (
-                  <span className="text-[10px] text-gray-400 pl-1">
+                  <span className="text-[10px] text-muted pl-1">
                     +{dayEvents.length - 4} รายการ
                   </span>
                 )}

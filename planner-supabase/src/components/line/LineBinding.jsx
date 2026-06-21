@@ -179,9 +179,9 @@ export default function LineBinding() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <Loader size={20} className="animate-spin text-indigo-600 mx-auto" />
-        <p className="text-sm text-gray-400 mt-2">กำลังโหลด...</p>
+      <div className="bg-surface rounded-md border border-border p-8 text-center">
+        <Loader size={20} className="animate-spin text-accent mx-auto" />
+        <p className="text-sm text-meta mt-2">กำลังโหลด...</p>
       </div>
     )
   }
@@ -189,7 +189,7 @@ export default function LineBinding() {
   const isBound = profile?.line_user_id
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-surface rounded-md border border-border overflow-hidden">
       {/* Message */}
       {message && (
         <div className={`px-5 py-3 text-sm font-medium flex items-center gap-2 border-b ${
@@ -203,12 +203,12 @@ export default function LineBinding() {
       )}
 
       {/* Header */}
-      <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-white">
+      <div className="px-5 py-4 border-b border-border bg-surface">
         <div className="flex items-center gap-2">
           <MessageCircle size={18} className="text-green-600" />
-          <h3 className="font-semibold text-gray-900">เชื่อมต่อ LINE</h3>
+          <h3 className="font-semibold text-fg">เชื่อมต่อ LINE</h3>
         </div>
-        <p className="text-xs text-gray-400 mt-0.5">
+        <p className="text-xs text-meta mt-0.5">
           รับการแจ้งเตือนและบันทึกรายการผ่าน LINE
         </p>
       </div>
@@ -218,7 +218,7 @@ export default function LineBinding() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-              isBound ? 'bg-green-50' : 'bg-gray-100'
+              isBound ? 'bg-green-50' : 'bg-surface-warm'
             }`}>
               {isBound ? (
                 <MessageCircle size={20} className="text-green-600" />
@@ -227,10 +227,10 @@ export default function LineBinding() {
               )}
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-fg">
                 {isBound ? 'เชื่อมต่อ LINE แล้ว' : 'ยังไม่ได้เชื่อมต่อ LINE'}
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-meta">
                 {isBound
                   ? 'สามารถรับการแจ้งเตือนและใช้คำสั่งผ่าน LINE ได้'
                   : 'เชื่อมต่อเพื่อรับการแจ้งเตือนทาง LINE'}
@@ -244,7 +244,7 @@ export default function LineBinding() {
                 เชื่อมต่อแล้ว
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-400 text-xs font-medium rounded-full">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface-warm text-meta text-xs font-medium rounded-full">
                 <Link2Off size={12} />
                 ยังไม่ได้เชื่อมต่อ
               </span>
@@ -253,15 +253,15 @@ export default function LineBinding() {
         </div>
 
         {/* LINE Features Info */}
-        <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-          <p className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
+        <div className="bg-surface-warm rounded-md p-4 space-y-2">
+          <p className="text-xs font-medium text-fg-2 flex items-center gap-1.5">
             <Smartphone size={14} />
             ความสามารถเมื่อเชื่อมต่อ LINE:
           </p>
-          <ul className="text-xs text-gray-500 space-y-1.5 pl-1">
+          <ul className="text-xs text-muted space-y-1.5 pl-1">
             <li>🔔 แจ้งเตือนเมื่อใกล้ถึงกำหนดส่งงาน/สอบ</li>
-            <li>💬 บันทึกรายการผ่าน LINE: <code className="bg-gray-200 px-1 rounded text-[10px]">จ่าย 50 ข้าวแกง</code></li>
-            <li>📊 สรุปรายรับ-รายจ่าย: พิมพ์ <code className="bg-gray-200 px-1 rounded text-[10px]">สรุป</code></li>
+            <li>💬 บันทึกรายการผ่าน LINE: <code className="bg-border px-1 rounded text-[10px]">จ่าย 50 ข้าวแกง</code></li>
+            <li>📊 สรุปรายรับ-รายจ่าย: พิมพ์ <code className="bg-border px-1 rounded text-[10px]">สรุป</code></li>
           </ul>
         </div>
 
@@ -295,8 +295,8 @@ export default function LineBinding() {
         {!LIFF_ID && !isBound && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
             <p className="text-xs text-amber-700">
-              ⚠️ ยังไม่ได้ตั้งค่า <code className="bg-amber-100 px-1 rounded">VITE_LIFF_ID</code> 
-              ใน .env.local — ไปที่ <a href="https://developers.line.biz/console/" target="_blank" rel="noopener noreferrer" className="underline font-medium">LINE Developers Console</a> 
+              ⚠️ ยังไม่ได้ตั้งค่า <code className="bg-amber-100 px-1 rounded">VITE_LIFF_ID</code>
+              ใน .env.local — ไปที่ <a href="https://developers.line.biz/console/" target="_blank" rel="noopener noreferrer" className="underline font-medium">LINE Developers Console</a>
               เพื่อสร้าง LIFF app และรับ LIFF ID
             </p>
           </div>

@@ -98,11 +98,11 @@ export default function TimetableExport({ gridRef, name, config, cells, subjects
       <button
         onClick={() => setOpen(!open)}
         disabled={exporting}
-        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted hover:text-fg hover:bg-surface-warm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         title="ส่งออกตารางเรียน"
       >
         {exporting ? (
-          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-border border-t-transparent rounded-full animate-spin" />
         ) : (
           <Download size={16} />
         )}
@@ -111,29 +111,29 @@ export default function TimetableExport({ gridRef, name, config, cells, subjects
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 bg-white rounded-lg border border-gray-200 shadow-lg py-1 z-20 min-w-[160px] animate-[fadeIn_0.1s_ease-out]">
+        <div className="absolute right-0 top-full mt-1 bg-surface rounded-lg border border-border shadow-lg py-1 z-20 min-w-[160px] animate-[fadeIn_0.1s_ease-out]">
           <button
             onClick={handleExportPNG}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-fg-2 hover:bg-surface-warm transition-colors"
           >
             <Image size={15} className="text-green-500" />
             ส่งออก PNG
           </button>
           <button
             onClick={handleExportPDF}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-fg-2 hover:bg-surface-warm transition-colors"
           >
             <FileText size={15} className="text-red-500" />
             ส่งออก PDF
           </button>
-          <div className="border-t border-gray-100 my-1" />
+          <div className="border-t border-border my-1" />
           <button
             onClick={() => {
               setOpen(false)
               const ok = downloadICS({ config, cells, subjects, timetableName: name })
               if (!ok) alert('ไม่มีข้อมูลตารางเรียนสำหรับ export')
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-fg-2 hover:bg-surface-warm transition-colors"
           >
             <CalendarPlus size={15} className="text-blue-500" />
             Add to Calendar (.ics)

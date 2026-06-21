@@ -45,7 +45,7 @@ export default function TimetableSelect({
         <select
           value={activeId || ''}
           onChange={(e) => onSelect(e.target.value)}
-          className="appearance-none px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer min-w-[180px]"
+          className="appearance-none px-3 py-2 pr-8 border border-border rounded-lg text-sm font-medium text-fg-2 bg-surface focus:ring-2 focus:ring-accent focus:border-accent outline-none cursor-pointer min-w-[180px]"
         >
           {timetables.length === 0 && (
             <option value="" disabled>ยังไม่มีตารางเรียน</option>
@@ -54,7 +54,7 @@ export default function TimetableSelect({
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
-        <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-meta pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </div>
@@ -63,7 +63,7 @@ export default function TimetableSelect({
       {activeTimetable && editingId !== activeId && (
         <button
           onClick={() => { setEditingId(activeId); setEditName(activeTimetable.name) }}
-          className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+          className="p-2 text-meta hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
           title="เปลี่ยนชื่อ"
         >
           <Pencil size={16} />
@@ -74,7 +74,7 @@ export default function TimetableSelect({
       {activeTimetable && editingId !== activeId && (
         <button
           onClick={() => onDuplicate(activeId)}
-          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+          className="p-2 text-muted hover:text-accent hover:bg-accent-soft rounded-lg transition-colors"
           title="คัดลอกตาราง"
         >
           <Copy size={16} />
@@ -90,10 +90,10 @@ export default function TimetableSelect({
             onChange={(e) => setEditName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleRename(editingId)}
             autoFocus
-            className="px-2 py-1.5 text-sm border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none w-36"
+            className="px-2 py-1.5 text-sm border border-accent rounded-lg focus:ring-2 focus:ring-accent outline-none w-36"
           />
           <button onClick={() => handleRename(editingId)} className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"><Check size={16} /></button>
-          <button onClick={() => setEditingId(null)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"><X size={16} /></button>
+          <button onClick={() => setEditingId(null)} className="p-1 text-muted hover:text-gray-600 rounded transition-colors"><X size={16} /></button>
         </div>
       )}
 
@@ -101,7 +101,7 @@ export default function TimetableSelect({
       {activeTimetable && editingId !== activeId && timetables.length > 1 && (
         <button
           onClick={(e) => handleDelete(e, activeId)}
-          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          className="p-2 text-meta hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
           title="ลบตาราง"
         >
           <Trash2 size={16} />
@@ -112,7 +112,7 @@ export default function TimetableSelect({
       {!showNewInput ? (
         <button
           onClick={() => setShowNewInput(true)}
-          className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+          className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-accent hover:bg-accent-soft rounded-lg transition-colors"
         >
           <Plus size={16} />
           <span className="hidden sm:inline">สร้างใหม่</span>
@@ -126,10 +126,10 @@ export default function TimetableSelect({
             onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             placeholder="ชื่อตาราง (เช่น ปี1 เทอม1)"
             autoFocus
-            className="px-2 py-1.5 text-sm border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none w-44"
+            className="px-2 py-1.5 text-sm border border-accent rounded-lg focus:ring-2 focus:ring-accent outline-none w-44"
           />
           <button onClick={handleCreate} className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"><Check size={16} /></button>
-          <button onClick={() => setShowNewInput(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"><X size={16} /></button>
+          <button onClick={() => setShowNewInput(false)} className="p-1 text-muted hover:text-gray-600 rounded transition-colors"><X size={16} /></button>
         </div>
       )}
     </div>

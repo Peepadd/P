@@ -69,85 +69,85 @@ export default function AcademicForm({ initialData, onSubmit, onCancel }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex items-center gap-2 mb-1">
         {isEditing ? (
-          <><Pencil size={18} className="text-indigo-600" /><h3 className="font-semibold text-gray-900">แก้ไขงาน/สอบ</h3></>
+          <><Pencil size={18} className="text-accent" /><h3 className="font-semibold text-fg">แก้ไขงาน/สอบ</h3></>
         ) : (
-          <><Plus size={18} className="text-indigo-600" /><h3 className="font-semibold text-gray-900">เพิ่มงาน/สอบ</h3></>
+          <><Plus size={18} className="text-accent" /><h3 className="font-semibold text-fg">เพิ่มงาน/สอบ</h3></>
         )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* วิชา */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">วิชา <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">วิชา <span className="text-red-500">*</span></label>
           <input type="text" name="subject" value={form.subject} onChange={handleChange} required
             placeholder="เช่น คณิตศาสตร์, ฟิสิกส์..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow" />
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow" />
         </div>
 
         {/* หัวข้อ */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">หัวข้อ <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">หัวข้อ <span className="text-red-500">*</span></label>
           <input type="text" name="topic" value={form.topic} onChange={handleChange} required
             placeholder="เช่น บทที่ 5, โครงงาน..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow" />
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow" />
         </div>
 
         {/* ประเภท */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">ประเภท</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">ประเภท</label>
           <select name="type" value={form.type} onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow">
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow">
             {TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
 
         {/* วันที่กำหนดส่ง */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">วันที่กำหนดส่ง</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">วันที่กำหนดส่ง</label>
           <input type="date" name="deadline_date" value={form.deadline_date} onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow" />
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow" />
         </div>
 
         {/* เวลากำหนดส่ง */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">เวลากำหนดส่ง</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">เวลากำหนดส่ง</label>
           <input type="time" name="deadline_time" value={form.deadline_time} onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow" />
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow" />
         </div>
 
         {/* ระดับความสำคัญ */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">ความสำคัญ</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">ความสำคัญ</label>
           <select name="priority" value={form.priority} onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow">
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow">
             {PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
         </div>
 
         {/* เวลาสิ้นสุด (end_time) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">เวลาสิ้นสุด</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">เวลาสิ้นสุด</label>
           <input type="time" name="end_time" value={form.end_time} onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow" />
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow" />
         </div>
 
         {/* หมายเหตุ */}
         <div className="lg:col-span-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">หมายเหตุ</label>
           <input type="text" name="note" value={form.note} onChange={handleChange}
             placeholder="รายละเอียดเพิ่มเติม..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow" />
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow" />
         </div>
       </div>
 
       <div className="flex gap-3 pt-1">
         <button type="submit" disabled={submitting}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           {submitting ? 'กำลังบันทึก...' : isEditing ? 'บันทึกการเปลี่ยนแปลง' : 'เพิ่ม'}
         </button>
         {isEditing && (
           <button type="button" onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+            className="px-4 py-2 text-sm font-medium text-muted hover:text-fg rounded-lg hover:bg-surface-warm transition-colors">
             ยกเลิก
           </button>
         )}

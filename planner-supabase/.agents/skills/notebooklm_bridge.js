@@ -1,5 +1,5 @@
 // .agents/skills/notebooklm_bridge.js
-import { NotebookLM } from 'notebooklm';
+import { NotebookLMClient as NotebookLM } from 'notebooklm';
 
 /**
  * --------------------------------------------------------------------------

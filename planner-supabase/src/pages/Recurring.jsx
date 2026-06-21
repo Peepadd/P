@@ -9,7 +9,7 @@ export default function Recurring() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
-  
+
   // Get unique categories for suggestions
   const [categories, setCategories] = useState([])
 
@@ -23,7 +23,7 @@ export default function Recurring() {
 
       if (error) throw error
       setRecurringTransactions(data || [])
-      
+
       // Extract unique categories
       const uniqueCats = [...new Set((data || []).map(t => t.category).filter(Boolean))]
       setCategories(uniqueCats)
@@ -75,7 +75,7 @@ export default function Recurring() {
 
         if (error) throw error
       }
-      
+
       setShowForm(false)
       setEditingItem(null)
       fetchRecurring()
@@ -130,22 +130,22 @@ export default function Recurring() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">รายการอัตโนมัติ</h1>
-          <p className="text-gray-500 text-lg mt-1">Recurring Items</p>
+          <p className="text-muted text-lg mt-1">Recurring Items</p>
         </div>
-        <button 
+        <button
           onClick={openAddForm}
-          className="flex items-center justify-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-indigo-600 transition-colors shrink-0"
+          className="flex items-center justify-center gap-2 bg-accent text-white px-4 py-2.5 rounded-lg font-medium hover:bg-accent-hover transition-colors shrink-0"
         >
           <Plus size={18} />
           <span>เพิ่มรายการใหม่</span>
         </button>
       </header>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      <div className="bg-surface rounded-md border border-border overflow-hidden shadow-card">
         {loading ? (
           <div className="p-8 text-center text-gray-400 animate-pulse">กำลังโหลดข้อมูล...</div>
         ) : (
-          <RecurringList 
+          <RecurringList
             recurringTransactions={recurringTransactions}
             onToggleActive={handleToggleActive}
             onEdit={openEditForm}
@@ -158,7 +158,7 @@ export default function Recurring() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pb-20 md:pb-0 pt-4 overflow-y-auto">
           <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowForm(false)} />
-          <div className="bg-white w-full max-w-2xl rounded-2xl border border-gray-200 shadow-xl relative animate-[fadeIn_0.2s_ease-out] my-auto">
+          <div className="bg-surface w-full max-w-2xl rounded-lg border border-border shadow-xl relative animate-[fadeIn_0.2s_ease-out] my-auto">
             <div className="flex items-center justify-between p-4 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-900">
                 {editingItem ? 'แก้ไขรายการอัตโนมัติ' : 'เพิ่มรายการอัตโนมัติ'}
@@ -168,7 +168,7 @@ export default function Recurring() {
               </button>
             </div>
             <div className="p-4 md:p-6">
-              <RecurringForm 
+              <RecurringForm
                 initialData={editingItem}
                 categories={categories}
                 onSubmit={handleSubmit}

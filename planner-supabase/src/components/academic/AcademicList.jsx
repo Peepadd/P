@@ -49,13 +49,13 @@ export default function AcademicList({ items, onEdit, onDelete, onStatusChange, 
   if (!items || items.length === 0) {
     return (
       <div className="p-10 text-center">
-        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-          <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-surface-warm flex items-center justify-center">
+          <svg className="w-6 h-6 text-meta" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
         </div>
-        <p className="text-gray-400">ยังไม่มีงาน/สอบ</p>
-        <p className="text-gray-300 text-sm mt-1">เพิ่มงานหรือสอบแรกของคุณ</p>
+        <p className="text-meta">ยังไม่มีงาน/สอบ</p>
+        <p className="text-meta text-sm mt-1">เพิ่มงานหรือสอบแรกของคุณ</p>
       </div>
     )
   }
@@ -64,14 +64,14 @@ export default function AcademicList({ items, onEdit, onDelete, onStatusChange, 
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-gray-200 text-left">
-            <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">วิชา</th>
-            <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">หัวข้อ</th>
-            <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
-            <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">กำหนดส่ง</th>
-            <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">สำคัญ</th>
-            <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-            <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">จัดการ</th>
+          <tr className="border-b border-border text-left">
+            <th className="px-4 py-3 text-xs font-medium text-muted uppercase tracking-wider">วิชา</th>
+            <th className="px-4 py-3 text-xs font-medium text-muted uppercase tracking-wider">หัวข้อ</th>
+            <th className="px-4 py-3 text-xs font-medium text-muted uppercase tracking-wider">ประเภท</th>
+            <th className="px-4 py-3 text-xs font-medium text-muted uppercase tracking-wider">กำหนดส่ง</th>
+            <th className="px-4 py-3 text-xs font-medium text-muted uppercase tracking-wider">สำคัญ</th>
+            <th className="px-4 py-3 text-xs font-medium text-muted uppercase tracking-wider">สถานะ</th>
+            <th className="px-4 py-3 text-xs font-medium text-muted uppercase tracking-wider text-right">จัดการ</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -83,12 +83,12 @@ export default function AcademicList({ items, onEdit, onDelete, onStatusChange, 
             return (
               <tr
                 key={item.id}
-                className={`hover:bg-gray-50 transition-colors ${item.status === 'ส่งแล้ว' ? 'opacity-60' : ''}`}
+                className={`hover:bg-surface-warm transition-colors ${item.status === 'ส่งแล้ว' ? 'opacity-60' : ''}`}
               >
-                <td className="px-4 py-3 text-sm font-medium text-gray-900 whitespace-nowrap">
+                <td className="px-4 py-3 text-sm font-medium text-fg whitespace-nowrap">
                   {item.subject}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
+                <td className="px-4 py-3 text-sm text-fg-2 whitespace-nowrap">
                   {item.topic}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
@@ -97,10 +97,10 @@ export default function AcademicList({ items, onEdit, onDelete, onStatusChange, 
                   </span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <span className={`text-sm ${overdue ? 'text-red-600 font-medium' : 'text-gray-700'}`}>
+                  <span className={`text-sm ${overdue ? 'text-red-600 font-medium' : 'text-fg-2'}`}>
                     {formatDate(item.deadline)}
                     {formatTime(item.deadline) && (
-                      <span className="text-gray-400 ml-1">{formatTime(item.deadline)}</span>
+                      <span className="text-meta ml-1">{formatTime(item.deadline)}</span>
                     )}
                     {overdue && <span className="ml-1 text-xs">⚠️</span>}
                   </span>
@@ -132,7 +132,7 @@ export default function AcademicList({ items, onEdit, onDelete, onStatusChange, 
                     {item.status === 'ส่งแล้ว' && (
                       <button
                         onClick={() => onArchive(item)}
-                        className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                        className="p-1.5 text-meta hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                         title="ย้ายไปประวัติ"
                       >
                         <Archive size={16} />
@@ -140,14 +140,14 @@ export default function AcademicList({ items, onEdit, onDelete, onStatusChange, 
                     )}
                     <button
                       onClick={() => onEdit(item)}
-                      className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                      className="p-1.5 text-meta hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                       title="แก้ไข"
                     >
                       <Pencil size={16} />
                     </button>
                     <button
                       onClick={() => setDeleting(item)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-1.5 text-meta hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="ลบ"
                     >
                       <Trash2 size={16} />
@@ -164,18 +164,18 @@ export default function AcademicList({ items, onEdit, onDelete, onStatusChange, 
       {deleting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black/50" onClick={() => setDeleting(null)} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">ยืนยันการลบ</h3>
-            <p className="text-sm text-gray-600 mb-1">
-              คุณแน่ใจหรือไม่ที่จะลบ <span className="font-medium text-gray-900">{deleting.topic}</span>?
+          <div className="relative bg-surface rounded-md shadow-xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-lg font-semibold text-fg mb-2">ยืนยันการลบ</h3>
+            <p className="text-sm text-muted mb-1">
+              คุณแน่ใจหรือไม่ที่จะลบ <span className="font-medium text-fg">{deleting.topic}</span>?
             </p>
-            <p className="text-xs text-gray-400 mb-5">
+            <p className="text-xs text-meta mb-5">
               วิชา: {deleting.subject} | ประเภท: {deleting.type}
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setDeleting(null)}
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-muted hover:text-fg rounded-lg hover:bg-surface-warm transition-colors"
               >
                 ยกเลิก
               </button>

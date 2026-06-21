@@ -33,7 +33,7 @@ export default function HabitAnalyzer({ isOpen, onClose, habits, habitLogs }) {
       })
 
       const promptText = `
-คุณคือ "Habit Coach" นักจิตวิทยาและโค้ชส่วนตัวผู้เชี่ยวชาญด้านการสร้างนิสัย 
+คุณคือ "Habit Coach" นักจิตวิทยาและโค้ชส่วนตัวผู้เชี่ยวชาญด้านการสร้างนิสัย
 นี่คือข้อมูลการทำ Habit (นิสัย) ประจำเดือนของผู้ใช้งาน:
 ${JSON.stringify(promptData, null, 2)}
 
@@ -76,18 +76,18 @@ ${JSON.stringify(promptData, null, 2)}
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="bg-surface rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-accent-soft">
           <div className="flex items-center gap-2">
-            <div className="bg-indigo-500 p-1.5 rounded-lg text-white">
+            <div className="bg-accent p-1.5 rounded-lg text-white">
               <Brain size={20} />
             </div>
-            <h2 className="text-lg font-bold text-gray-800">AI Habit Analyzer</h2>
+            <h2 className="text-lg font-bold text-fg">AI Habit Analyzer</h2>
           </div>
-          <button 
+          <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-200/50 p-1.5 rounded-full transition-colors"
+            className="text-meta hover:text-muted hover:bg-gray-200/50 p-1.5 rounded-full transition-colors"
           >
             <X size={20} />
           </button>
@@ -96,27 +96,27 @@ ${JSON.stringify(promptData, null, 2)}
         {/* Content */}
         <div className="p-6 overflow-y-auto">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 text-indigo-500">
+            <div className="flex flex-col items-center justify-center py-12 text-accent">
               <Loader2 size={40} className="animate-spin mb-4" />
-              <p className="text-sm font-medium animate-pulse text-indigo-600">กำลังวิเคราะห์พฤติกรรมของคุณ...</p>
+              <p className="text-sm font-medium animate-pulse text-accent">กำลังวิเคราะห์พฤติกรรมของคุณ...</p>
             </div>
           ) : error ? (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm text-center">
+            <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm text-center">
               {error}
             </div>
           ) : (
-            <div className="prose prose-sm sm:prose-base prose-indigo max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
+            <div className="prose prose-sm sm:prose-base prose-indigo max-w-none text-fg-2 whitespace-pre-wrap leading-relaxed">
               {analysis}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+        <div className="px-6 py-4 border-t border-gray-100 bg-surface-warm flex justify-end">
           <button
             onClick={analyzeHabits}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-medium rounded-xl transition-all shadow-sm shadow-indigo-200 disabled:opacity-70 disabled:active:scale-100"
+            className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover active:scale-95 text-white text-sm font-medium rounded-lg transition-all shadow-card disabled:opacity-70 disabled:active:scale-100"
           >
             <Sparkles size={16} />
             วิเคราะห์ใหม่

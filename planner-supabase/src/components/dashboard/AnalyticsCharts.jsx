@@ -82,18 +82,18 @@ function BarChartSection({ monthlyData, loading }) {
   }
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+    <div className="bg-surface rounded-md p-5 border border-border shadow-sm">
       <div className="flex items-center gap-2 mb-4">
-        <BarChart3 size={18} className="text-indigo-600" />
-        <h3 className="font-semibold text-gray-900">รายรับ-รายจ่าย 6 เดือน</h3>
+        <BarChart3 size={18} className="text-accent" />
+        <h3 className="font-semibold text-fg">รายรับ-รายจ่าย 6 เดือน</h3>
       </div>
       <div className="h-72">
         {loading ? (
           <div className="h-full flex items-center justify-center">
-            <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
         ) : monthlyData.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+          <div className="h-full flex items-center justify-center text-meta text-sm">
             ยังไม่มีข้อมูล
           </div>
         ) : (
@@ -106,7 +106,7 @@ function BarChartSection({ monthlyData, loading }) {
 
 // ---- Doughnut Chart ----
 const CATEGORY_COLORS = [
-  '#6366f1', '#f59e0b', '#ef4444', '#22c55e', '#3b82f6',
+  '#7c3aed', '#f59e0b', '#ef4444', '#22c55e', '#3b82f6',
   '#ec4899', '#14b8a6', '#f97316', '#8b5cf6', '#06b6d4',
   '#84cc16', '#d946ef', '#0ea5e9', '#eab308',
 ]
@@ -114,13 +114,13 @@ const CATEGORY_COLORS = [
 function DoughnutChartSection({ categoryData, loading }) {
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+      <div className="bg-surface rounded-md p-5 border border-border shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <PieChart size={18} className="text-indigo-600" />
-          <h3 className="font-semibold text-gray-900">สัดส่วนค่าใช้จ่ายตามหมวดหมู่</h3>
+          <PieChart size={18} className="text-accent" />
+          <h3 className="font-semibold text-fg">สัดส่วนค่าใช้จ่ายตามหมวดหมู่</h3>
         </div>
         <div className="h-72 flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       </div>
     )
@@ -177,14 +177,14 @@ function DoughnutChartSection({ categoryData, loading }) {
   }
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+    <div className="bg-surface rounded-md p-5 border border-border shadow-sm">
       <div className="flex items-center gap-2 mb-4">
-        <PieChart size={18} className="text-indigo-600" />
-        <h3 className="font-semibold text-gray-900">สัดส่วนค่าใช้จ่ายตามหมวดหมู่</h3>
+        <PieChart size={18} className="text-accent" />
+        <h3 className="font-semibold text-fg">สัดส่วนค่าใช้จ่ายตามหมวดหมู่</h3>
       </div>
       <div className="h-72">
         {categoryData.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+          <div className="h-full flex items-center justify-center text-meta text-sm">
             ยังไม่มีรายจ่ายในเดือนนี้
           </div>
         ) : (

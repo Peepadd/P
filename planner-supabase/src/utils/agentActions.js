@@ -19,11 +19,11 @@ export async function executeAgentActions(agentName, actions, user) {
           });
           if (error) throw error;
           results.push(`✅ เพิ่มเควสต์: ${action.payload.title}`);
-        } 
+        }
         else if (action.type === 'add_habit') {
           const { error } = await supabase.from('habits').insert({
             name: action.payload.name,
-            color: action.payload.color || '#6366f1',
+            color: action.payload.color || 'var(--accent)',
             created_at: new Date().toISOString()
           });
           if (error) throw error;
@@ -37,7 +37,7 @@ export async function executeAgentActions(agentName, actions, user) {
             results.push(`❌ NotebookLM Error: ${nbResult.error}`);
           }
         }
-      } 
+      }
       else if (agentName === 'Buff') {
         if (action.type === 'check_stock_price') {
           const quote = await getSingleStockQuote(action.payload.symbol);
@@ -65,6 +65,6 @@ export async function executeAgentActions(agentName, actions, user) {
       results.push(`❌ การกระทำล้มเหลว (${action.type}): ${err.message}`);
     }
   }
-  
+
   return results;
 }

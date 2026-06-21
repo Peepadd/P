@@ -48,11 +48,11 @@ export default function SummaryCards({ summary }) {
       valueBg: 'text-red-600',
     },
     indigo: {
-      text: 'text-indigo-600',
-      bg: 'bg-indigo-100',
-      icon: 'text-indigo-600',
+      text: 'text-accent',
+      bg: 'bg-accent-soft',
+      icon: 'text-accent',
       valueBg:
-        summary.balance >= 0 ? 'text-indigo-600' : 'text-red-600',
+        summary.balance >= 0 ? 'text-accent' : 'text-red-600',
     },
   }
 
@@ -64,17 +64,17 @@ export default function SummaryCards({ summary }) {
         return (
           <div
             key={card.label}
-            className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+            className="bg-surface rounded-md p-5 border border-border shadow-card hover:shadow-card-hover transition-shadow"
           >
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-gray-500">{card.label}</p>
+                <p className="text-sm text-muted">{card.label}</p>
                 <p className={`text-2xl font-bold ${c.valueBg}`}>
                   {card.prefix}
                   {formatCurrency(card.value)}
                 </p>
                 {card.count !== undefined && (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-meta">
                     {card.count} รายการ
                   </p>
                 )}

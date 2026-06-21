@@ -38,7 +38,7 @@ export default function Calendar() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-6">
-      
+
       {/* Error Info */}
       {googleError && (
         <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
@@ -66,54 +66,54 @@ export default function Calendar() {
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">ปฏิทิน</h1>
-          <p className="text-gray-500 text-lg mt-1">Calendar & Schedule</p>
+          <h1 className="text-3xl font-semibold text-fg tracking-heading">ปฏิทิน</h1>
+          <p className="text-muted text-lg mt-1">Calendar & Schedule</p>
         </div>
       </header>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-2 p-2 bg-white rounded-xl border border-gray-200 shadow-sm w-fit">
+      <div className="flex flex-wrap items-center gap-2 p-2 bg-surface rounded-md border border-border shadow-card w-fit">
         <button
           onClick={() => toggleFilter('transaction')}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-            filters.transaction ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'
+            filters.transaction ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-surface-warm'
           }`}
         >
-          <span>💰</span> บัญชี
+          บัญชี
         </button>
         <button
           onClick={() => toggleFilter('academic')}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-            filters.academic ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'
+            filters.academic ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-surface-warm'
           }`}
         >
-          <span>📚</span> งาน/สอบ
+           งาน/สอบ
         </button>
         <button
           onClick={() => toggleFilter('checklist')}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-            filters.checklist ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'
+            filters.checklist ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-surface-warm'
           }`}
         >
-          <span>✅</span> Checklist
+          Checklist
         </button>
         <button
           onClick={() => toggleFilter('google')}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-            filters.google ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'
+            filters.google ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-surface-warm'
           }`}
         >
-          <span>📅</span> Google
+          Google
         </button>
       </div>
 
       {loading ? (
-        <div className="h-[500px] w-full bg-gray-50 rounded-xl border border-gray-100 animate-pulse flex items-center justify-center">
-           <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="h-[500px] w-full bg-surface-warm rounded-md border border-border animate-pulse flex items-center justify-center">
+           <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* Left Column: Calendar Grid & Legend */}
           <div className="lg:col-span-2 space-y-4">
             <CalendarGrid
@@ -127,12 +127,12 @@ export default function Calendar() {
             />
 
             {/* Legend */}
-            <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
+            <div className="bg-surface rounded-md border border-border p-3 shadow-card">
               <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center lg:justify-start">
                 {Object.values(EVENT_COLORS).map((color, idx) => (
                   <div key={idx} className="flex items-center gap-1.5">
                     <span className={`w-2 h-2 rounded-full ${color.dot}`} />
-                    <span className="text-[10px] sm:text-xs font-medium text-gray-600">{color.label}</span>
+                    <span className="text-[10px] sm:text-xs font-medium text-muted">{color.label}</span>
                   </div>
                 ))}
               </div>

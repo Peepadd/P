@@ -33,7 +33,7 @@ export default function SubTaskList({
       {/* Toggle button */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-1 text-xs text-gray-400 hover:text-indigo-600 transition-colors"
+        className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors"
       >
         {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         งานย่อย {subTasks.length > 0 && `(${subTasks.filter((s) => s.checked).length}/${subTasks.length})`}
@@ -53,7 +53,7 @@ export default function SubTaskList({
                 className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                   st.checked
                     ? 'bg-green-500 border-green-500'
-                    : 'border-gray-300 hover:border-indigo-400'
+                    : 'border-border hover:border-accent'
                 }`}
               >
                 {st.checked && (
@@ -64,14 +64,14 @@ export default function SubTaskList({
               </button>
               <span
                 className={`text-sm flex-1 ${
-                  st.checked ? 'line-through text-gray-300' : 'text-gray-600'
+                  st.checked ? 'line-through text-meta' : 'text-muted'
                 }`}
               >
                 {st.text}
               </span>
               <button
                 onClick={() => onDeleteSubTask(st.id)}
-                className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-300 hover:text-red-500 transition-all"
+                className="opacity-0 group-hover:opacity-100 p-0.5 text-meta hover:text-red-500 transition-all"
                 title="ลบงานย่อย"
               >
                 <Trash2 size={12} />
@@ -81,7 +81,7 @@ export default function SubTaskList({
 
           {/* Add sub-task input */}
           <div className="flex items-center gap-2">
-            <Plus size={14} className="text-gray-300 flex-shrink-0" />
+            <Plus size={14} className="text-meta flex-shrink-0" />
             <input
               type="text"
               value={newText}
@@ -89,13 +89,13 @@ export default function SubTaskList({
               onKeyDown={handleKeyDown}
               placeholder="เพิ่มงานย่อย..."
               disabled={adding}
-              className="flex-1 text-sm border-b border-gray-200 py-0.5 outline-none focus:border-indigo-400 transition-colors placeholder:text-gray-300"
+              className="flex-1 text-sm border-b border-border py-0.5 outline-none focus:border-accent transition-colors placeholder:text-meta"
             />
             {newText.trim() && (
               <button
                 onClick={handleAdd}
                 disabled={adding}
-                className="text-xs text-indigo-600 hover:text-indigo-800 font-medium disabled:opacity-50"
+                className="text-xs text-accent hover:text-accent font-medium disabled:opacity-50"
               >
                 {adding ? '...' : 'เพิ่ม'}
               </button>

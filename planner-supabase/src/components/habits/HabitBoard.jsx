@@ -54,35 +54,35 @@ export default function HabitBoard({
 
   if (habits.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-10 text-center">
-        <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-indigo-50 flex items-center justify-center">
-          <Calendar size={28} className="text-indigo-400" />
+      <div className="bg-surface rounded-md border border-border p-10 text-center">
+        <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-accent-soft flex items-center justify-center">
+          <Calendar size={28} className="text-accent" />
         </div>
-        <h3 className="font-semibold text-gray-900 mb-1">ยังไม่มีนิสัย</h3>
-        <p className="text-sm text-gray-400">เพิ่มนิสัยแรกของคุณเพื่อเริ่มต้น</p>
+        <h3 className="font-semibold text-fg mb-1">ยังไม่มีนิสัย</h3>
+        <p className="text-sm text-meta">เพิ่มนิสัยแรกของคุณเพื่อเริ่มต้น</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-surface rounded-md border border-border overflow-hidden">
       {/* Month navigation */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
-          <button onClick={onPrevMonth} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button onClick={onPrevMonth} className="p-1.5 text-meta hover:text-muted hover:bg-surface-warm rounded-lg transition-colors">
             <ChevronLeft size={20} />
           </button>
-          <button onClick={onToday} className="px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+          <button onClick={onToday} className="px-3 py-1 text-sm font-medium text-accent hover:bg-accent-soft rounded-lg transition-colors">
             วันนี้
           </button>
-          <button onClick={onNextMonth} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button onClick={onNextMonth} className="p-1.5 text-meta hover:text-muted hover:bg-surface-warm rounded-lg transition-colors">
             <ChevronRight size={20} />
           </button>
-          <h3 className="text-lg font-semibold text-gray-900 ml-2">{monthTitle}</h3>
+          <h3 className="text-lg font-semibold text-fg ml-2">{monthTitle}</h3>
         </div>
         <button
           onClick={() => setIsAnalyzerOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 rounded-lg shadow-sm transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg shadow-card transition-all active:scale-95"
         >
           <Sparkles size={16} />
           วิเคราะห์ด้วย AI
@@ -94,19 +94,19 @@ export default function HabitBoard({
         <div className="min-w-[600px]">
           {/* Day headers */}
           <div className="grid grid-cols-[160px_repeat(31,36px)] gap-0 border-b border-gray-100">
-            <div className="px-3 py-2 text-xs font-medium text-gray-400">นิสัย</div>
+            <div className="px-3 py-2 text-xs font-medium text-meta">นิสัย</div>
             {daysInMonth.map((day) => (
               <div
                 key={day.toISOString()}
                 className={`flex items-center justify-center py-1 text-[11px] font-medium ${
-                  isToday(day) ? 'text-indigo-600' : getDay(day) === 0 ? 'text-red-400' : 'text-gray-400'
+                  isToday(day) ? 'text-accent' : getDay(day) === 0 ? 'text-red-400' : 'text-meta'
                 }`}
               >
                 {format(day, 'd')}
               </div>
             ))}
             {/* Completion */}
-            <div className="px-2 py-1 text-[10px] text-gray-400 font-medium text-center">สำเร็จ</div>
+            <div className="px-2 py-1 text-[10px] text-meta font-medium text-center">สำเร็จ</div>
           </div>
 
           {/* Habit rows */}
@@ -118,7 +118,7 @@ export default function HabitBoard({
                   {/* Habit name */}
                   <div className="flex items-center gap-2 px-3 py-2 overflow-hidden">
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: habit.color }} />
-                    <span className="text-xs font-medium text-gray-700 truncate">{habit.name}</span>
+                    <span className="text-xs font-medium text-fg-2 truncate">{habit.name}</span>
                   </div>
 
                   {/* Day cells */}
@@ -145,15 +145,15 @@ export default function HabitBoard({
                         disabled={isFuture}
                         className={`
                           flex items-center justify-center h-9 transition-all relative
-                          ${isFuture ? 'cursor-default' : 'hover:bg-gray-50 cursor-pointer'}
-                          ${isToday(day) ? 'ring-1 ring-indigo-300 ring-inset z-10' : ''}
-                          ${isWeekend && !isToday(day) ? 'bg-gray-50/50' : ''}
+                          ${isFuture ? 'cursor-default' : 'hover:bg-surface-warm cursor-pointer'}
+                          ${isToday(day) ? 'ring-1 ring-accent ring-inset z-10' : ''}
+                          ${isWeekend && !isToday(day) ? 'bg-surface-warm/50' : ''}
                         `}
                         title={`${habit.name} - ${format(day, 'd MMM', { locale: th })}${log?.note ? `: ${log.note}` : ''}`}
                       >
                         {done ? (
                           <div
-                            className="w-5 h-5 rounded-md flex items-center justify-center text-white text-[10px] font-bold shadow-sm transition-transform hover:scale-110"
+                            className="w-5 h-5 rounded-md flex items-center justify-center text-white text-[10px] font-bold shadow-card transition-transform hover:scale-110"
                             style={{ backgroundColor: habit.color }}
                           >
                             ✓
@@ -161,7 +161,7 @@ export default function HabitBoard({
                         ) : isFuture ? (
                           <span className="text-gray-200 text-xs">·</span>
                         ) : (
-                          <span className="text-gray-200 hover:text-gray-400 text-xs">○</span>
+                          <span className="text-gray-200 hover:text-meta text-xs">○</span>
                         )}
                       </button>
                     )
@@ -169,7 +169,7 @@ export default function HabitBoard({
 
                   {/* Completion rate */}
                   <div className="flex items-center justify-center px-2">
-                    <span className="text-[11px] font-mono font-medium text-gray-500">{rate}%</span>
+                    <span className="text-[11px] font-mono font-medium text-muted">{rate}%</span>
                   </div>
                 </div>
               </div>
@@ -178,9 +178,9 @@ export default function HabitBoard({
         </div>
       </div>
 
-      <HabitAnalyzer 
-        isOpen={isAnalyzerOpen} 
-        onClose={() => setIsAnalyzerOpen(false)} 
+      <HabitAnalyzer
+        isOpen={isAnalyzerOpen}
+        onClose={() => setIsAnalyzerOpen(false)}
         habits={habits}
         habitLogs={habitLogs}
       />

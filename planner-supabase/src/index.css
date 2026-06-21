@@ -1,59 +1,361 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
 
-:root {
-  --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
-  --color-success: #22c55e;
-  --color-danger: #ef4444;
-  --color-warning: #f59e0b;
-  --color-budget-green: #22c55e;
-  --color-budget-orange: #f97316;
-  --color-budget-red: #ef4444;
+/* ===========================================================================
+   Life OS 2.0 — Design Tokens → Tailwind v4 Binding
+   Warm Violet design system.
+   Source of truth: styles/tokens.css (all CSS custom properties defined there)
+   =========================================================================== */
+
+@theme {
+  /* ─── Font family ─────────────────────────────────────────────── */
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  /* ─── Colors ──────────────────────────────────────────────────── */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-warm: var(--surface-warm);
+
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-muted: var(--muted);
+  --color-meta: var(--meta);
+
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+
+  --color-accent: var(--accent);
+  --color-accent-on: var(--accent-on);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-active: var(--accent-active);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  /* Hunter (Solo Leveling) — access via Tailwind: bg-hunter-surface */
+  --color-hunter-bg: var(--hunter-bg);
+  --color-hunter-surface: var(--hunter-surface);
+  --color-hunter-border: var(--hunter-border);
+  --color-hunter-fg: var(--hunter-fg);
+  --color-hunter-muted: var(--hunter-muted);
+  --color-hunter-accent: var(--hunter-accent);
+  --color-hunter-gold: var(--hunter-gold);
+  --color-hunter-rank-s: var(--hunter-rank-s);
+  --color-hunter-rank-a: var(--hunter-rank-a);
+  --color-hunter-rank-b: var(--hunter-rank-b);
+  --color-hunter-rank-c: var(--hunter-rank-c);
+  --color-hunter-rank-d: var(--hunter-rank-d);
+  --color-hunter-rank-e: var(--hunter-rank-e);
+
+  /* Calendar */
+  --color-calendar-event-transaction: var(--calendar-event-transaction);
+  --color-calendar-event-academic: var(--calendar-event-academic);
+  --color-calendar-event-checklist: var(--calendar-event-checklist);
+  --color-calendar-event-google: var(--calendar-event-google);
+  --color-calendar-event-habit: var(--calendar-event-habit);
+  --color-calendar-today-ring: var(--calendar-today-ring);
+  --color-calendar-weekend-bg: var(--calendar-weekend-bg);
+
+  /* Pomodoro */
+  --color-pomodoro-focus: var(--pomodoro-focus);
+  --color-pomodoro-short-break: var(--pomodoro-short-break);
+  --color-pomodoro-long-break: var(--pomodoro-long-break);
+
+  /* ─── Text sizes ──────────────────────────────────────────────── */
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+  --text-4xl: var(--text-4xl);
+
+  /* ─── Leading ─────────────────────────────────────────────────── */
+  --leading-body: var(--leading-body);
+  --leading-tight: var(--leading-tight);
+  --leading-display: var(--leading-display);
+  --leading-none: 1;
+
+  /* ─── Tracking (letter-spacing) ───────────────────────────────── */
+  --tracking-display: var(--tracking-display);
+  --tracking-heading: var(--tracking-heading);
+  --tracking-label: var(--tracking-label);
+  --tracking-small: var(--tracking-small);
+  --tracking-caps: var(--tracking-caps);
+
+  /* ─── Spacing ─────────────────────────────────────────────────── */
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+  --spacing-8: var(--space-8);
+  --spacing-10: var(--space-10);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+  --spacing-20: var(--space-20);
+
+  /* Section rhythm */
+  --spacing-section-desktop: var(--section-y-desktop);
+  --spacing-section-tablet: var(--section-y-tablet);
+  --spacing-section-phone: var(--section-y-phone);
+
+  /* ─── Radius ──────────────────────────────────────────────────── */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+
+  /* ─── Shadow (elevation) ──────────────────────────────────────── */
+  --shadow-flat: var(--elev-flat);
+  --shadow-ring: var(--elev-ring);
+  --shadow-raised: var(--elev-raised);
+  --shadow-focus-ring: var(--focus-ring);
+
+  /* ─── Duration & easing ───────────────────────────────────────── */
+  --duration-fast: var(--motion-fast);
+  --duration-base: var(--motion-base);
+  --duration-enter: var(--motion-enter);
+  --ease-standard: var(--ease-standard);
+  --ease-emphasized: var(--ease-emphasized);
+
+  /* ─── Layout ──────────────────────────────────────────────────── */
+  --container-max: var(--container-max);
+  --spacing-container-desktop: var(--container-gutter-desktop);
+  --spacing-container-tablet: var(--container-gutter-tablet);
+  --spacing-container-phone: var(--container-gutter-phone);
+  --sidebar-width: var(--sidebar-width);
+  --sidebar-icon-rail: var(--sidebar-icon-rail);
 }
 
-body {
-  margin: 0;
-  font-family: 'Sarabun', 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ===========================================================================
+   Base layer
+   =========================================================================== */
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  :root.dark {
+    color-scheme: dark;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-body);
+    font-feature-settings: "liga" 1, "ss01" 1, "tnum" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-weight: 400;
+  }
+
+  /* Three-weight system: 400 read, 500 interact, 600 announce */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    font-family: var(--font-display);
+  }
+
+  h1 { font-size: var(--text-2xl); letter-spacing: var(--tracking-heading); }
+  h2 { font-size: var(--text-xl); letter-spacing: var(--tracking-heading); }
+  h3 { font-size: var(--text-lg); }
+  h4 { font-size: var(--text-base); }
+
+  /* Heading 1 — page titles use display leading */
+  h1 { line-height: var(--leading-display); }
+
+  /* Links inherit accent colour */
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* Focus-visible: all interactive elements */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  /* Number tabular for amounts/stats */
+  .num, .amount, [data-num] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Selection colour */
+  ::selection {
+    background: color-mix(in oklab, var(--accent), transparent 70%);
+    color: var(--fg);
+  }
+
+  /* Custom scrollbar — slim and neutral */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--fg), transparent 80%);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--fg), transparent 65%);
+  }
 }
+
+/* ===========================================================================
+   Animation keyframes (component-local where possible, global for shared)
+   =========================================================================== */
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 @keyframes bellRing {
-  0%, 100% {
-    transform: rotate(0deg);
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: rotate(8deg); }
+  20%, 40%, 60%, 80% { transform: rotate(-8deg); }
+}
+
+@keyframes levelUpPop {
+  from { opacity: 0; transform: scale(0.7) translateY(30px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes glowPulse {
+  from { text-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+  to   { text-shadow: 0 0 50px rgba(168, 85, 247, 1), 0 0 80px rgba(139, 92, 246, 0.6); }
+}
+
+@keyframes starTwinkle {
+  from { opacity: 0.3; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1.4); }
+}
+
+@keyframes toastSlideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes nowPulse {
+  0%, 100% { box-shadow: inset 0 0 0 2px var(--accent); }
+  50%      { box-shadow: inset 0 0 0 2px var(--accent-hover); }
+}
+
+/* ===========================================================================
+   Component utility classes (Tailwind v4 @utility)
+   =========================================================================== */
+
+@utility shadow-card {
+  box-shadow: var(--elev-ring);
+}
+
+@utility shadow-card-hover {
+  box-shadow: var(--elev-raised);
+}
+
+@utility shadow-modal {
+  box-shadow: var(--elev-raised);
+}
+
+@utility card-interactive {
+  transition: box-shadow var(--motion-fast) var(--ease-standard),
+              transform var(--motion-fast) var(--ease-standard);
+}
+@utility card-interactive-hover {
+  box-shadow: var(--elev-raised);
+  transform: translateY(-1px);
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility text-label {
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  font-size: var(--text-sm);
+}
+
+@utility caps {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+}
+
+/* ===========================================================================
+   Reduced motion — strip transform-based animations
+   =========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-  10%, 30%, 50%, 70%, 90% {
-    transform: rotate(8deg);
-  }
-  20%, 40%, 60%, 80% {
-    transform: rotate(-8deg);
+
+  /* Keep opacity crossfades as substitutes */
+  .card-interactive-hover {
+    transform: none;
   }
 }
 
+/* ===========================================================================
+   Print — restore print-area visibility
+   =========================================================================== */
+
 @media print {
-  body * {
-    visibility: hidden;
-  }
-  .print-area, .print-area * {
-    visibility: visible;
-  }
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
   .print-area {
     position: absolute;
-    left: 0;
-    top: 0;
+    left: 0; top: 0;
     width: 100%;
   }
 }
-
-

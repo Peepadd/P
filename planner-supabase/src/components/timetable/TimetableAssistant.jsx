@@ -56,14 +56,14 @@ Example format:
 
       const data = await response.json()
       let rawText = data.choices[0].message.content.trim()
-      
+
       // Clean up if AI still includes markdown
       if (rawText.startsWith('```json')) rawText = rawText.replace(/```json/g, '')
       if (rawText.startsWith('```')) rawText = rawText.replace(/```/g, '')
       rawText = rawText.trim()
 
       const generatedCells = JSON.parse(rawText)
-      
+
       if (!Array.isArray(generatedCells)) {
         throw new Error("AI ตอบกลับมาผิดรูปแบบ ไม่เป็น Array")
       }
@@ -88,18 +88,18 @@ Example format:
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col">
+      <div className="bg-surface rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-surface">
           <div className="flex items-center gap-2">
-            <div className="bg-indigo-500 p-1.5 rounded-lg text-white">
+            <div className="bg-accent p-1.5 rounded-lg text-white">
               <Sparkles size={20} />
             </div>
-            <h2 className="text-lg font-bold text-gray-800">AI ช่วยจัดตาราง</h2>
+            <h2 className="text-lg font-bold text-fg">AI ช่วยจัดตาราง</h2>
           </div>
-          <button 
+          <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-200/50 p-1.5 rounded-full transition-colors"
+            className="text-muted hover:text-muted hover:bg-surface-warm p-1.5 rounded-full transition-colors"
           >
             <X size={20} />
           </button>
@@ -107,16 +107,16 @@ Example format:
 
         {/* Content */}
         <div className="p-6">
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-muted mb-4">
             บอกความต้องการของคุณให้ AI จัดตารางให้ เช่น <br/>
-            <span className="text-indigo-600 font-medium">"มีวิชาคณิต, วิทย์, อังกฤษ จัดวิชาละ 2 คาบในช่วงเช้าของวันจันทร์ พุธ ศุกร์"</span>
+            <span className="text-accent font-medium">"มีวิชาคณิต, วิทย์, อังกฤษ จัดวิชาละ 2 คาบในช่วงเช้าของวันจันทร์ พุธ ศุกร์"</span>
           </p>
 
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="พิมพ์โจทย์ของคุณที่นี่..."
-            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none min-h-[120px]"
+            className="w-full px-4 py-3 text-sm border border-border rounded-md focus:ring-2 focus:ring-accent outline-none resize-none min-h-[120px]"
             disabled={isLoading || success}
           />
 
@@ -125,7 +125,7 @@ Example format:
               {error}
             </div>
           )}
-          
+
           {success && (
             <div className="mt-3 bg-green-50 text-green-700 p-3 rounded-xl text-sm flex items-center gap-2">
               <CheckCircle2 size={18} />
@@ -135,17 +135,17 @@ Example format:
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2">
+        <div className="px-6 py-4 border-t border-border bg-surface-warm flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-muted hover:text-fg transition-colors"
           >
             ยกเลิก
           </button>
           <button
             onClick={handleGenerate}
             disabled={isLoading || success || !prompt.trim()}
-            className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-medium rounded-xl transition-all shadow-sm shadow-indigo-200 disabled:opacity-70 disabled:active:scale-100"
+            className="flex items-center gap-2 px-6 py-2 bg-accent hover:bg-accent-hover active:scale-95 text-white text-sm font-medium rounded-md transition-all shadow-card disabled:opacity-70 disabled:active:scale-100"
           >
             {isLoading ? (
               <>

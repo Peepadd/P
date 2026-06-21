@@ -126,9 +126,9 @@ export default function NotifyPanel() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-sm text-gray-400 mt-3">กำลังโหลด...</p>
+      <div className="bg-surface rounded-md border border-border p-8 text-center">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-sm text-meta mt-3">กำลังโหลด...</p>
       </div>
     )
   }
@@ -150,13 +150,13 @@ export default function NotifyPanel() {
       )}
 
       {/* Budget Card */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-white">
+      <div className="bg-surface rounded-md border border-border overflow-hidden">
+        <div className="px-5 py-4 border-b border-border bg-surface">
           <div className="flex items-center gap-2">
-            <Wallet size={18} className="text-indigo-600" />
-            <h3 className="font-semibold text-gray-900">งบประมาณรายเดือน</h3>
+            <Wallet size={18} className="text-accent" />
+            <h3 className="font-semibold text-fg">งบประมาณรายเดือน</h3>
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-meta mt-0.5">
             ตั้งวงเงินใช้จ่ายประจำเดือนเพื่อควบคุมรายจ่าย
           </p>
         </div>
@@ -164,8 +164,8 @@ export default function NotifyPanel() {
         <div className="p-5 space-y-4">
           {/* Current budget display */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">งบประมาณปัจจุบัน</span>
-            <span className="text-lg font-bold text-indigo-700">
+            <span className="text-sm text-muted">งบประมาณปัจจุบัน</span>
+            <span className="text-lg font-bold text-accent">
               {budget > 0 ? `${formatCurrency(budget)} บาท` : 'ยังไม่ได้ตั้ง'}
             </span>
           </div>
@@ -173,14 +173,14 @@ export default function NotifyPanel() {
           {/* Current expense */}
           <div>
             <div className="flex items-center justify-between text-sm mb-1.5">
-              <span className="text-gray-500">ใช้จ่ายเดือนนี้</span>
-              <span className={`font-semibold font-mono ${isOverBudget ? 'text-red-600' : 'text-gray-700'}`}>
+              <span className="text-muted">ใช้จ่ายเดือนนี้</span>
+              <span className={`font-semibold font-mono ${isOverBudget ? 'text-red-600' : 'text-fg-2'}`}>
                 {formatCurrency(currentMonthExpense)} บาท
               </span>
             </div>
             {/* Progress bar */}
             {budget > 0 && (
-              <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div className="relative h-3 bg-surface-warm rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${
                     isOverBudget
@@ -208,7 +208,7 @@ export default function NotifyPanel() {
           {/* Budget input */}
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium text-muted mb-1">
                 ตั้งวงเงินงบประมาณ
               </label>
               <div className="relative">
@@ -219,17 +219,17 @@ export default function NotifyPanel() {
                   value={budgetInput}
                   onChange={(e) => setBudgetInput(e.target.value)}
                   placeholder="เช่น 15000"
-                  className="w-full px-3 py-2.5 pr-12 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+                  className="w-full px-3 py-2.5 pr-12 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow"
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveBudget()}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">บาท</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-meta">บาท</span>
               </div>
             </div>
             <div className="flex items-end">
               <button
                 onClick={handleSaveBudget}
                 disabled={saving}
-                className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                className="px-5 py-2.5 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
                 {saving ? <RefreshCw size={16} className="animate-spin" /> : <Save size={16} />}
                 บันทึก
@@ -240,17 +240,17 @@ export default function NotifyPanel() {
       </div>
 
       {/* Notification Settings Card */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-white">
+      <div className="bg-surface rounded-md border border-border overflow-hidden">
+        <div className="px-5 py-4 border-b border-border bg-surface">
           <div className="flex items-center gap-2">
             {notificationEnabled ? (
               <BellRing size={18} className="text-purple-600" />
             ) : (
               <BellOff size={18} className="text-gray-400" />
             )}
-            <h3 className="font-semibold text-gray-900">การแจ้งเตือน</h3>
+            <h3 className="font-semibold text-fg">การแจ้งเตือน</h3>
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-meta mt-0.5">
             จัดการการแจ้งเตือนจากบราวเซอร์
           </p>
         </div>
@@ -259,7 +259,7 @@ export default function NotifyPanel() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                notificationEnabled ? 'bg-green-50' : 'bg-gray-100'
+                notificationEnabled ? 'bg-green-50' : 'bg-surface-warm'
               }`}>
                 {notificationEnabled ? (
                   <Bell size={20} className="text-green-600" />
@@ -268,10 +268,10 @@ export default function NotifyPanel() {
                 )}
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-fg">
                   {notificationEnabled ? 'เปิดการแจ้งเตือนแล้ว' : 'ปิดการแจ้งเตือน'}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-meta">
                   {notificationEnabled
                     ? 'แจ้งเตือนเมื่อใกล้ถึงกำหนดส่งงาน ซื้อของ และสอบ'
                     : 'คลิกเพื่อเปิดการแจ้งเตือนจากบราวเซอร์'}
@@ -283,7 +283,7 @@ export default function NotifyPanel() {
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                 notificationEnabled
                   ? 'bg-green-50 text-green-700'
-                  : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                  : 'bg-accent-soft text-accent hover:bg-accent-hover'
               }`}
             >
               {notificationEnabled ? 'เปิดอยู่' : 'เปิดการแจ้งเตือน'}
@@ -295,7 +295,7 @@ export default function NotifyPanel() {
       {/* Info card */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
         <p className="text-xs text-amber-700 leading-relaxed">
-          ℹ️ งบประมาณที่ตั้งไว้จะถูกนำไปแสดงบน <strong>แดชบอร์ด</strong> 
+          ℹ️ งบประมาณที่ตั้งไว้จะถูกนำไปแสดงบน <strong>แดชบอร์ด</strong>
           เพื่อให้คุณเห็นภาพรวมการใช้จ่ายประจำเดือน
         </p>
       </div>

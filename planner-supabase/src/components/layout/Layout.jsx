@@ -5,9 +5,9 @@ import OmniAssistant from '../ai/OmniAssistant'
 
 export default function Layout() {
   return (
-    <div className="h-[100dvh] flex bg-gray-50 overflow-hidden text-gray-900 font-sans">
+    <div className="h-[100dvh] flex bg-gray-50 overflow-hidden text-fg font-sans">
       <Sidebar />
-      
+
       <main className="flex-1 flex flex-col h-full overflow-y-auto">
         {/* On desktop, we want a clean breathable top padding since we don't have a top Navbar anymore.
             The sidebar handles navigation entirely. Mobile gets the bottom tab bar. */}
@@ -16,7 +16,7 @@ export default function Layout() {
         </div>
         <MobileNav />
       </main>
-      
+
       {/* Global AI Assistant */}
       <OmniAssistant />
     </div>

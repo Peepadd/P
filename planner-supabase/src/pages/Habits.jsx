@@ -5,7 +5,7 @@ import { supabase } from '../supabase/supabaseClient'
 export default function Habits() {
   const [habits, setHabits] = useState([])
   const [loading, setLoading] = useState(true)
-  
+
   const [newTitle, setNewTitle] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -59,7 +59,7 @@ export default function Habits() {
     // Optimistic delete
     const previous = [...habits]
     setHabits(habits.filter(h => h.id !== id))
-    
+
     try {
       const { error } = await supabase.from('habits').delete().eq('id', id)
       if (error) throw error
@@ -71,19 +71,19 @@ export default function Habits() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
-      
+
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">สร้างนิสัย</h1>
-          <p className="text-gray-500 text-lg mt-1">Habit Builder</p>
+          <p className="text-muted text-lg mt-1">Habit Builder</p>
         </div>
       </header>
 
       {/* Inline Add Form */}
-      <div className="bg-white rounded-xl border border-gray-200 p-2 shadow-sm">
+      <div className="bg-surface rounded-md border border-border p-2 shadow-card">
         <form onSubmit={handleAdd} className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-lg flex items-center justify-center shrink-0 ml-1">
+          <div className="w-10 h-10 bg-accent-soft text-accent rounded-lg flex items-center justify-center shrink-0 ml-1">
             <Activity size={20} />
           </div>
           <input
@@ -97,7 +97,7 @@ export default function Habits() {
           <button
             type="submit"
             disabled={isSubmitting || !newTitle.trim()}
-            className="w-10 h-10 bg-indigo-500 text-white rounded-lg flex items-center justify-center shrink-0 hover:bg-indigo-600 transition-colors disabled:opacity-50 mr-1"
+            className="w-10 h-10 bg-accent text-white rounded-lg flex items-center justify-center shrink-0 hover:bg-accent-hover transition-colors disabled:opacity-50 mr-1"
           >
             <Plus size={20} />
           </button>
@@ -109,28 +109,28 @@ export default function Habits() {
         {loading ? (
           <div className="space-y-2">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />
+              <div key={i} className="h-16 bg-gray-100 rounded-md animate-pulse" />
             ))}
           </div>
         ) : habits.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-xl border border-gray-200">
+          <div className="text-center py-20 bg-surface rounded-md border border-border">
             <CheckSquare size={32} className="mx-auto text-gray-300 mb-4" />
             <h3 className="text-xl font-medium text-gray-900 mb-1">ยังไม่ได้ตั้งเป้าหมาย</h3>
-            <p className="text-gray-500">เริ่มสร้างนิสัยใหม่ของคุณได้ที่นี่</p>
+            <p className="text-muted">เริ่มสร้างนิสัยใหม่ของคุณได้ที่นี่</p>
           </div>
         ) : (
           <div className="space-y-2">
             {habits.map((habit) => (
-              <div 
-                key={habit.id} 
-                className="group flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 shadow-sm transition-all"
+              <div
+                key={habit.id}
+                className="group flex items-center justify-between p-4 bg-surface rounded-md border border-border hover:border-accent shadow-card transition-all"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-6 h-6 rounded-full border-2 border-indigo-200 bg-indigo-50 flex items-center justify-center shrink-0" />
+                  <div className="w-6 h-6 rounded-full border-2 border-accent bg-accent-soft flex items-center justify-center shrink-0" />
                   <p className="font-semibold text-gray-900">{habit.title || habit.name}</p>
                 </div>
-                
-                <button 
+
+                <button
                   onClick={() => handleDelete(habit.id)}
                   className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all rounded-lg hover:bg-red-50"
                   title="หยุดติดตาม"

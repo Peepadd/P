@@ -31,7 +31,7 @@ export default function CsvImport() {
 
   const handleUpload = () => {
     if (!file) return
-    
+
     setUploadStatus('uploading')
     // Simulate upload delay
     setTimeout(() => {
@@ -46,22 +46,22 @@ export default function CsvImport() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
-      
+
       {/* Header */}
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">นำเข้าข้อมูล CSV</h1>
           <p className="text-gray-500 text-lg mt-1">Import Data</p>
         </div>
-        <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center">
-          <FileDown size={24} className="text-indigo-500" />
+        <div className="w-12 h-12 bg-accent-soft rounded-full flex items-center justify-center">
+          <FileDown size={24} className="text-accent" />
         </div>
       </header>
 
       {/* Upload Section */}
       <section>
         {uploadStatus === 'success' ? (
-          <div className="bg-white rounded-xl border border-green-200 p-8 text-center animate-[fadeIn_0.3s_ease-out]">
+          <div className="bg-surface rounded-xl border border-green-200 p-8 text-center animate-[fadeIn_0.3s_ease-out]">
             <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 size={32} />
             </div>
@@ -69,23 +69,23 @@ export default function CsvImport() {
             <p className="text-gray-500 mb-6">ข้อมูลจากไฟล์ <span className="font-medium text-gray-900">{file?.name}</span> ถูกเพิ่มเข้าสู่ระบบเรียบร้อยแล้ว</p>
             <button
               onClick={resetForm}
-              className="px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-6 py-2.5 bg-surface-warm text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
             >
               อัปโหลดไฟล์อื่นเพิ่มเติม
             </button>
           </div>
         ) : (
           <div className="space-y-6">
-            <div 
+            <div
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               className={`relative border-2 border-dashed rounded-2xl p-10 text-center transition-all ${
-                isDragging 
-                  ? 'border-indigo-500 bg-indigo-50' 
-                  : file 
-                    ? 'border-gray-300 bg-gray-50'
-                    : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50 bg-white'
+                isDragging
+                  ? 'border-accent bg-accent-soft'
+                  : file
+                    ? 'border-gray-300 bg-surface-warm'
+                    : 'border-border hover:border-accent hover:bg-surface-warm bg-surface'
               }`}
             >
               <input
@@ -94,14 +94,14 @@ export default function CsvImport() {
                 onChange={handleFileSelect}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
-              
+
               <div className="pointer-events-none flex flex-col items-center justify-center">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${
-                  file ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-400'
+                  file ? 'bg-accent-soft text-accent' : 'bg-surface-warm text-meta'
                 }`}>
                   <Upload size={28} />
                 </div>
-                
+
                 {file ? (
                   <>
                     <p className="text-lg font-medium text-gray-900 mb-1">{file.name}</p>
@@ -111,7 +111,7 @@ export default function CsvImport() {
                   <>
                     <p className="text-lg font-medium text-gray-900 mb-1">ลากไฟล์ CSV มาวางที่นี่</p>
                     <p className="text-sm text-gray-500 mb-4">หรือคลิกเพื่อเลือกไฟล์จากเครื่องของคุณ</p>
-                    <span className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 shadow-sm">
+                    <span className="px-4 py-2 bg-surface border border-border rounded-lg text-sm font-medium text-gray-700 shadow-sm">
                       เลือกไฟล์
                     </span>
                   </>
@@ -125,11 +125,11 @@ export default function CsvImport() {
                 <AlertCircle size={16} />
                 <span>รองรับเฉพาะไฟล์ .csv ขนาดไม่เกิน 5MB</span>
               </div>
-              
+
               <button
                 onClick={handleUpload}
                 disabled={!file || uploadStatus === 'uploading'}
-                className="px-6 py-2.5 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50 shadow-sm flex items-center gap-2"
+                className="px-6 py-2.5 bg-accent text-white font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50 shadow-sm flex items-center gap-2"
               >
                 {uploadStatus === 'uploading' ? (
                   <>

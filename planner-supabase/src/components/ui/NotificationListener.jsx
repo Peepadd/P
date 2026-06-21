@@ -163,14 +163,14 @@ export default function NotificationListener() {
       {/* Permission prompt */}
       {showPrompt && (
         <div className="fixed bottom-4 right-4 z-50 animate-[fadeIn_0.3s_ease-out]">
-          <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-4 max-w-xs">
+          <div className="bg-surface rounded-md shadow-xl border border-border p-4 max-w-xs">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                <Bell size={16} className="text-indigo-600" />
+              <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center shrink-0">
+                <Bell size={16} className="text-accent" />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-gray-900">เปิดการแจ้งเตือน?</h4>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <h4 className="text-sm font-semibold text-fg">เปิดการแจ้งเตือน?</h4>
+                <p className="text-xs text-muted mt-0.5">
                   รับการแจ้งเตือนเมื่อถึงกำหนดส่งงาน ซื้อของ และสอบ
                 </p>
                 <div className="flex items-center gap-2 mt-2.5">
@@ -179,13 +179,13 @@ export default function NotificationListener() {
                       requestPermission()
                       setShowPrompt(false)
                     }}
-                    className="px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors"
                   >
                     เปิดการแจ้งเตือน
                   </button>
                   <button
                     onClick={() => setShowPrompt(false)}
-                    className="px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium text-muted hover:text-fg-2 hover:bg-surface-warm rounded-lg transition-colors"
                   >
                     ไม่ตอนนี้
                   </button>
@@ -193,7 +193,7 @@ export default function NotificationListener() {
               </div>
               <button
                 onClick={() => setShowPrompt(false)}
-                className="p-0.5 text-gray-300 hover:text-gray-500 transition-colors"
+                className="p-0.5 text-meta hover:text-muted transition-colors"
               >
                 <X size={14} />
               </button>
@@ -205,11 +205,11 @@ export default function NotificationListener() {
       {/* Notification bell button */}
       <button
         onClick={handleBellClick}
-        className="relative p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+        className="relative p-2 text-muted hover:text-accent hover:bg-accent-soft rounded-lg transition-colors"
         title={permission ? 'การแจ้งเตือนเปิดอยู่' : 'คลิกเพื่อเปิดการแจ้งเตือน'}
       >
         {notifications.length > 0 ? (
-          <BellRing size={18} className="text-indigo-600 animate-[bellRing_0.5s_ease-in-out]" />
+          <BellRing size={18} className="text-accent animate-[bellRing_0.5s_ease-in-out]" />
         ) : permission ? (
           <Bell size={18} />
         ) : (
@@ -228,15 +228,15 @@ export default function NotificationListener() {
       {showPanel && (
         <div
           ref={panelRef}
-          className="absolute top-full right-0 mt-1 w-80 sm:w-96 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 animate-[fadeIn_0.15s_ease-out]"
+          className="absolute top-full right-0 mt-1 w-80 sm:w-96 bg-surface rounded-md shadow-xl border border-border overflow-hidden z-50 animate-[fadeIn_0.15s_ease-out]"
         >
           {/* Panel header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <div className="flex items-center gap-2">
-              <Bell size={16} className="text-indigo-600" />
-              <h3 className="text-sm font-semibold text-gray-900">การแจ้งเตือน</h3>
+              <Bell size={16} className="text-accent" />
+              <h3 className="text-sm font-semibold text-fg">การแจ้งเตือน</h3>
               {unreadCount > 0 && (
-                <span className="text-xs text-gray-400">({unreadCount})</span>
+                <span className="text-xs text-meta">({unreadCount})</span>
               )}
             </div>
             <div className="flex items-center gap-1">
@@ -245,7 +245,7 @@ export default function NotificationListener() {
                 className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full ${
                   permission
                     ? 'bg-green-50 text-green-600'
-                    : 'bg-gray-100 text-gray-400'
+                    : 'bg-surface-warm text-meta'
                 }`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${permission ? 'bg-green-500' : 'bg-gray-300'}`} />
@@ -254,7 +254,7 @@ export default function NotificationListener() {
               {unreadCount > 0 && (
                 <button
                   onClick={clearAll}
-                  className="p-1 text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                  className="p-1 text-xs text-meta hover:text-red-500 hover:bg-red-50 rounded transition-colors"
                   title="ล้างทั้งหมด"
                 >
                   <X size={14} />
@@ -270,8 +270,8 @@ export default function NotificationListener() {
                 <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-green-50 flex items-center justify-center">
                   <Volume2 size={18} className="text-green-500" />
                 </div>
-                <p className="text-sm text-gray-400 font-medium">ไม่มีการแจ้งเตือน</p>
-                <p className="text-xs text-gray-300 mt-1">
+                <p className="text-sm text-meta font-medium">ไม่มีการแจ้งเตือน</p>
+                <p className="text-xs text-meta mt-1">
                   เราจะแจ้งเตือนคุณเมื่อใกล้ถึงกำหนด
                 </p>
               </div>
@@ -281,7 +281,7 @@ export default function NotificationListener() {
                   <button
                     key={notif.id}
                     onClick={() => handleNotificationClick(notif)}
-                    className="w-full text-left px-4 py-3 hover:bg-indigo-50/50 transition-colors group"
+                    className="w-full text-left px-4 py-3 hover:bg-accent-soft transition-colors group"
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-0.5">
@@ -293,18 +293,18 @@ export default function NotificationListener() {
                               ? 'bg-orange-500'
                               : notif.urgency === 'วันนี้'
                               ? 'bg-emerald-500'
-                              : 'bg-indigo-400'
+                              : 'bg-accent'
                           }`}
                         />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-medium text-gray-900 truncate">
+                          <span className="text-sm font-medium text-fg truncate">
                             {notif.title}
                           </span>
-                          <ExternalLink size={12} className="text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                          <ExternalLink size={12} className="text-meta opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                         </div>
-                        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                        <p className="text-xs text-muted mt-0.5 line-clamp-2">
                           {notif.body}
                         </p>
                         <span
@@ -315,7 +315,7 @@ export default function NotificationListener() {
                               ? 'bg-orange-50 text-orange-600'
                               : notif.urgency === 'วันนี้'
                               ? 'bg-emerald-50 text-emerald-700'
-                              : 'bg-indigo-50 text-indigo-600'
+                              : 'bg-accent-soft text-accent'
                           }`}
                         >
                           {notif.urgency === 'overdue'
@@ -334,12 +334,12 @@ export default function NotificationListener() {
 
           {/* Footer */}
           {!permission && (
-            <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
+            <div className="px-4 py-2 border-t border-border bg-surface-warm">
               <button
                 onClick={() => {
                   requestPermission()
                 }}
-                className="w-full py-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                className="w-full py-1.5 text-xs font-medium text-accent hover:text-accent hover:bg-accent-soft rounded-lg transition-colors"
               >
                 🔔 เปิดการแจ้งเตือนจากบราวเซอร์
               </button>

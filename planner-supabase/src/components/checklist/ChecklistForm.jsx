@@ -92,13 +92,13 @@ export default function ChecklistForm({
       <div className="flex items-center gap-2 mb-1">
         {isEditing ? (
           <>
-            <Pencil size={18} className="text-indigo-600" />
-            <h3 className="font-semibold text-gray-900">แก้ไขรายการ</h3>
+            <Pencil size={18} className="text-accent" />
+            <h3 className="font-semibold text-fg">แก้ไขรายการ</h3>
           </>
         ) : (
           <>
-            <Plus size={18} className="text-indigo-600" />
-            <h3 className="font-semibold text-gray-900">
+            <Plus size={18} className="text-accent" />
+            <h3 className="font-semibold text-fg">
               เพิ่มรายการ{type === 'shopping' ? 'ซื้อของ' : 'ที่ต้องทำ'}
             </h3>
           </>
@@ -108,7 +108,7 @@ export default function ChecklistForm({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* ข้อความ */}
         <div className="lg:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">รายการ</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">รายการ</label>
           <input
             type="text"
             name="text"
@@ -116,13 +116,13 @@ export default function ChecklistForm({
             onChange={handleChange}
             required
             placeholder={type === 'shopping' ? 'เช่น ซื้อนม, ผัก, ข้าวสาร...' : 'เช่น จ่ายค่าไฟ, ไปธนาคาร...'}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow"
           />
         </div>
 
         {/* หมวดหมู่ */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">หมวดหมู่</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">หมวดหมู่</label>
           <input
             type="text"
             name="category"
@@ -130,7 +130,7 @@ export default function ChecklistForm({
             onChange={handleChange}
             list={`checklist-categories-${type}`}
             placeholder="เลือกหรือพิมพ์..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow"
           />
           <datalist id={`checklist-categories-${type}`}>
             {CATEGORY_OPTIONS.map((cat) => (
@@ -139,64 +139,64 @@ export default function ChecklistForm({
           </datalist>
         </div>
 
-        {/* วันที่กำหนด */} 
+        {/* วันที่กำหนด */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">วันที่กำหนด</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">วันที่กำหนด</label>
           <input
             type="date"
             name="due_date"
             value={form.due_date}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow"
           />
         </div>
 
         {/* เวลากำหนด */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">เวลากำหนด</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">เวลากำหนด</label>
           <input
             type="time"
             name="due_time"
             value={form.due_time}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow"
           />
         </div>
 
         {/* วันที่สิ้นสุด */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">วันที่สิ้นสุด</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">วันที่สิ้นสุด</label>
           <input
             type="date"
             name="end_date"
             value={form.end_date}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow"
           />
         </div>
 
         {/* เวลาสิ้นสุด */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">เวลาสิ้นสุด</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">เวลาสิ้นสุด</label>
           <input
             type="time"
             name="end_time"
             value={form.end_time}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow"
           />
         </div>
 
         {/* หมายเหตุ */}
         <div className="lg:col-span-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+          <label className="block text-sm font-medium text-fg-2 mb-1">หมายเหตุ</label>
           <input
             type="text"
             name="note"
             value={form.note}
             onChange={handleChange}
             placeholder="รายละเอียดเพิ่มเติม..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-shadow"
           />
         </div>
       </div>
@@ -206,7 +206,7 @@ export default function ChecklistForm({
         <button
           type="submit"
           disabled={submitting}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {submitting ? 'กำลังบันทึก...' : isEditing ? 'บันทึกการเปลี่ยนแปลง' : 'เพิ่มรายการ'}
         </button>
@@ -214,7 +214,7 @@ export default function ChecklistForm({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-muted hover:text-fg rounded-lg hover:bg-surface-warm transition-colors"
           >
             ยกเลิก
           </button>

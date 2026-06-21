@@ -97,7 +97,7 @@ export default function PomodoroTimer() {
               '🎉 Pomodoro เสร็จแล้ว!',
               `ทำงานครบ ${WORK_MINUTES} นาทีแล้ว — ถึงเวลาพัก ${BREAK_MINUTES} นาที`
             )
-            
+
             gainExp('pomodoro', null, WORK_MINUTES).then(result => {
               if (result) {
                 setExpResult({ ...result, description: `ฝึกสมาธิ Pomodoro ${WORK_MINUTES} นาที ⏱️` })
@@ -160,22 +160,22 @@ export default function PomodoroTimer() {
   // Progress bar color
   const progressColor = mode === 'work'
     ? secondsLeft > workDuration * 0.5
-      ? 'bg-indigo-500'
+      ? 'bg-accent'
       : secondsLeft > workDuration * 0.2
       ? 'bg-amber-500'
       : 'bg-red-500'
     : 'bg-green-500'
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-surface rounded-md border border-border shadow-card overflow-hidden">
       {/* Mode tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-border">
         <button
           onClick={() => switchMode('work')}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
             mode === 'work'
-              ? 'bg-indigo-50 text-indigo-700 border-b-2 border-indigo-600'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              ? 'bg-accent/10 text-accent border-b-2 border-accent'
+              : 'text-muted hover:text-fg-2 hover:bg-muted'
           }`}
         >
           <Brain size={16} />
@@ -186,7 +186,7 @@ export default function PomodoroTimer() {
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
             mode === 'break'
               ? 'bg-green-50 text-green-700 border-b-2 border-green-500'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              : 'text-muted hover:text-fg-2 hover:bg-muted'
           }`}
         >
           <Coffee size={16} />
@@ -196,9 +196,9 @@ export default function PomodoroTimer() {
 
       <div className="p-8 flex flex-col items-center">
         {/* Session count */}
-        <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-4">
+        <div className="flex items-center gap-1.5 text-xs text-meta mb-4">
           <Timer size={14} />
-          <span>Session วันนี้: <strong className="text-indigo-600">{sessions}</strong></span>
+          <span>Session วันนี้: <strong className="text-accent">{sessions}</strong></span>
         </div>
 
         {/* Timer display */}
@@ -208,13 +208,14 @@ export default function PomodoroTimer() {
             <circle
               cx="50" cy="50" r="45"
               fill="none"
-              stroke="#f3f4f6"
+              stroke="var(--border)"
+              strokeOpacity="0.5"
               strokeWidth="6"
             />
             <circle
               cx="50" cy="50" r="45"
               fill="none"
-              stroke={mode === 'work' ? '#6366f1' : '#22c55e'}
+              stroke={mode === 'work' ? '#7c3aed' : '#22c55e'}
               strokeWidth="6"
               strokeLinecap="round"
               strokeDasharray={`${283 * (progress / 100)} 283`}
@@ -223,12 +224,12 @@ export default function PomodoroTimer() {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className={`text-5xl font-bold font-mono tracking-wider ${
-              mode === 'work' ? 'text-indigo-700' : 'text-green-700'
+              mode === 'work' ? 'text-accent' : 'text-green-700'
             }`}>
               {timeDisplay}
             </span>
             <span className={`text-xs mt-1 font-medium ${
-              mode === 'work' ? 'text-indigo-400' : 'text-green-400'
+              mode === 'work' ? 'text-accent' : 'text-green-400'
             }`}>
               {mode === 'work' ? 'กำลังทำงาน' : 'กำลังพัก'}
             </span>
@@ -238,7 +239,7 @@ export default function PomodoroTimer() {
         {/* Controls */}
         {showComplete ? (
           <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+            <div className="flex items-center gap-2 text-sm font-medium text-fg-2">
               <Volume2 size={18} className="text-green-500" />
               {mode === 'work' ? '🎉 หมดเวลาโฟกัส!' : '☕ หมดเวลาพัก!'}
             </div>
@@ -247,13 +248,13 @@ export default function PomodoroTimer() {
                 <>
                   <button
                     onClick={handleStartBreak}
-                    className="flex-1 px-6 py-2.5 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 transition-colors"
+                    className="flex-1 px-6 py-2.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors"
                   >
                     เริ่มพัก {BREAK_MINUTES} นาที
                   </button>
                   <button
                     onClick={handleSkipBreak}
-                    className="flex-1 px-6 py-2.5 bg-indigo-100 text-indigo-700 text-sm font-medium rounded-xl hover:bg-indigo-200 transition-colors"
+                    className="flex-1 px-6 py-2.5 bg-accent/10 text-accent text-sm font-medium rounded-md hover:bg-accent/20 transition-colors"
                   >
                     ข้ามพัก
                   </button>
@@ -261,7 +262,7 @@ export default function PomodoroTimer() {
               ) : (
                 <button
                   onClick={() => switchMode('work')}
-                  className="px-8 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-xl hover:bg-indigo-700 transition-colors"
+                  className="px-8 py-2.5 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent/90 transition-colors"
                 >
                   กลับไปทำงาน
                 </button>
@@ -272,10 +273,10 @@ export default function PomodoroTimer() {
           <div className="flex items-center gap-4">
             <button
               onClick={isRunning ? pauseTimer : startTimer}
-              className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow-md ${
+              className={`flex items-center gap-2 px-8 py-3 rounded-md text-sm font-semibold transition-all shadow-card hover:shadow-card-hover ${
                 isRunning
                   ? 'bg-amber-500 text-white hover:bg-amber-600'
-                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  : 'bg-accent text-white hover:bg-accent/90'
               }`}
             >
               {isRunning ? <Pause size={18} /> : <Play size={18} />}
@@ -283,7 +284,7 @@ export default function PomodoroTimer() {
             </button>
             <button
               onClick={resetTimer}
-              className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              className="p-3 text-meta hover:text-fg-2 hover:bg-muted rounded-md transition-colors"
               title="รีเซ็ต"
             >
               <RotateCcw size={18} />
@@ -292,7 +293,7 @@ export default function PomodoroTimer() {
         )}
 
         {/* Info */}
-        <div className="flex items-center gap-4 mt-5 text-xs text-gray-400">
+        <div className="flex items-center gap-4 mt-5 text-xs text-meta">
           <span>⏱ {WORK_MINUTES} นาที โฟกัส</span>
           <span>☕ {BREAK_MINUTES} นาที พัก</span>
         </div>

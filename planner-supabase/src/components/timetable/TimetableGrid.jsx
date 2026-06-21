@@ -159,23 +159,23 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
 
   if (!config) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-        <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-          <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="bg-surface rounded-md border border-border p-12 text-center">
+        <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
+          <svg className="w-7 h-7 text-meta" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
           </svg>
         </div>
-        <p className="text-gray-400 font-medium">ยังไม่ได้ตั้งค่าตารางเรียน</p>
-        <p className="text-gray-300 text-sm mt-1">กดปุ่มตั้งค่าด้านบนเพื่อกำหนดจำนวนคาบ</p>
+        <p className="text-meta font-medium">ยังไม่ได้ตั้งค่าตารางเรียน</p>
+        <p className="text-meta text-sm mt-1">กดปุ่มตั้งค่าด้านบนเพื่อกำหนดจำนวนคาบ</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" ref={gridRef}>
+    <div className="bg-surface rounded-md border border-border overflow-hidden" ref={gridRef}>
       <style>{`
         @keyframes nowPulse {
-          0%, 100% { box-shadow: inset 0 0 0 2px #6366f1; }
+          0%, 100% { box-shadow: inset 0 0 0 2px #7c3aed; }
           50% { box-shadow: inset 0 0 0 2px #a5b4fc; }
         }
         .tt-now-cell { animation: nowPulse 2s ease-in-out infinite; border-radius: 6px; }
@@ -185,16 +185,16 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
           {/* Header: Periods */}
           <thead>
             <tr>
-              <th className="w-20 px-2 py-3 text-xs font-medium text-gray-400 text-center bg-gray-50 border-b border-r border-gray-200">
+              <th className="w-20 px-2 py-3 text-xs font-medium text-meta text-center bg-muted border-b border-r border-border">
                 วัน / เวลา
               </th>
               {timeSlots.map((slot) => (
                 <th
                   key={slot.period}
-                  className="px-2 py-2 text-center border-b border-r border-gray-200 bg-gray-50 min-w-[120px]"
+                  className="px-2 py-2 text-center border-b border-r border-border bg-muted min-w-[120px]"
                 >
-                  <div className="text-xs font-medium text-gray-700">คาบ {slot.label}</div>
-                  <div className="text-[10px] text-gray-400 font-normal mt-0.5">
+                  <div className="text-xs font-medium text-fg-2">คาบ {slot.label}</div>
+                  <div className="text-[10px] text-meta font-normal mt-0.5">
                     {slot.start} - {slot.end}
                   </div>
                 </th>
@@ -208,18 +208,18 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                 <tr key={dayIdx}>
                   {/* Day Label Header */}
                   <th
-                    className={`px-3 py-4 text-sm font-medium text-center border-b border-r border-gray-200 align-middle ${
+                    className={`px-3 py-4 text-sm font-medium text-center border-b border-r border-border align-middle ${
                       isToday
-                        ? 'text-indigo-700 bg-indigo-50'
+                        ? 'text-accent bg-accent/10'
                         : dayIdx === 4
                         ? 'text-red-500 bg-red-50/50'
-                        : 'text-gray-700 bg-gray-50'
+                        : 'text-fg-2 bg-muted'
                     }`}
                   >
                     {day}
                     {isToday && (
                       <div className="mt-1.5">
-                        <span className="inline-block w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+                        <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full" />
                       </div>
                     )}
                   </th>
@@ -239,21 +239,21 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                       <td
                         key={slot.period}
                         colSpan={span}
-                        className={`relative border-b border-r border-gray-200 h-[110px] align-top transition-colors ${
+                        className={`relative border-b border-r border-border h-[110px] align-top transition-colors ${
                           isEditing
-                            ? 'bg-indigo-50'
+                            ? 'bg-accent/10'
                             : isNow
-                            ? 'bg-indigo-50/60 ring-2 ring-indigo-400 ring-inset z-10 tt-now-cell'
+                            ? 'bg-accent/10 ring-2 ring-accent ring-inset z-10 tt-now-cell'
                             : isToday
-                            ? 'bg-indigo-50/20'
+                            ? 'bg-accent/5'
                             : cell
-                            ? 'hover:bg-gray-50'
-                            : 'hover:bg-indigo-50/30'
+                            ? 'hover:bg-muted'
+                            : 'hover:bg-accent/10'
                         }`}
                         style={{ minWidth: `${120 * span}px` }}
                       >
                         {isNow && (
-                          <span className="absolute top-1.5 left-1.5 text-[9px] font-bold text-indigo-500 bg-indigo-100 px-1.5 py-0.5 rounded z-20 leading-tight shadow-sm">
+                          <span className="absolute top-1.5 left-1.5 text-[9px] font-bold text-accent bg-accent/10 px-1.5 py-0.5 rounded z-20 leading-tight shadow-sm">
                             ▶ NOW
                           </span>
                         )}
@@ -264,7 +264,7 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                               value={form.subject}
                               onChange={(e) => setForm((p) => ({ ...p, subject: e.target.value }))}
                               autoFocus
-                              className="w-full px-2 py-1.5 text-xs border border-indigo-300 rounded focus:ring-1 focus:ring-indigo-500 outline-none bg-white shadow-sm"
+                              className="w-full px-2 py-1.5 text-xs border border-accent/30 rounded focus:ring-1 focus:ring-accent outline-none bg-surface shadow-sm"
                             >
                               <option value="">เลือกวิชา</option>
                               {subjects.map((s) => (
@@ -277,14 +277,14 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                                 value={form.teacher}
                                 onChange={(e) => setForm((p) => ({ ...p, teacher: e.target.value }))}
                                 placeholder="ผู้สอน"
-                                className="w-1/2 px-2 py-1 text-[11px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                                className="w-1/2 px-2 py-1 text-[11px] border border-border rounded focus:ring-1 focus:ring-accent outline-none"
                               />
                               <input
                                 type="text"
                                 value={form.room}
                                 onChange={(e) => setForm((p) => ({ ...p, room: e.target.value }))}
                                 placeholder="ห้อง"
-                                className="w-1/2 px-2 py-1 text-[11px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                                className="w-1/2 px-2 py-1 text-[11px] border border-border rounded focus:ring-1 focus:ring-accent outline-none"
                               />
                             </div>
                             <input
@@ -292,14 +292,14 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                               value={form.note}
                               onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
                               placeholder="หมายเหตุ"
-                              className="w-full px-2 py-1 text-[11px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                              className="w-full px-2 py-1 text-[11px] border border-border rounded focus:ring-1 focus:ring-accent outline-none"
                             />
                             <input
                               type="url"
                               value={form.url}
                               onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
                               placeholder="ลิงก์เรียนออนไลน์"
-                              className="w-full px-2 py-1 text-[11px] border border-gray-200 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                              className="w-full px-2 py-1 text-[11px] border border-border rounded focus:ring-1 focus:ring-accent outline-none"
                             />
                             <div className="flex items-center gap-1 pt-1">
                               <button
@@ -311,7 +311,7 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                               </button>
                               <button
                                 onClick={() => setEditCell(null)}
-                                className="p-1.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                                className="p-1.5 text-meta hover:text-fg-2 rounded transition-colors"
                                 title="ยกเลิก"
                               >
                                 <X size={14} />
@@ -331,7 +331,7 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                           /* Cell with content */
                           <button
                             onClick={() => handleOpenEdit(dayIdx, slot.period)}
-                            className="w-full h-full p-2 text-center group hover:ring-2 hover:ring-indigo-300 rounded transition-all flex flex-col items-center justify-center relative"
+                            className="w-full h-full p-2 text-center group hover:ring-2 hover:ring-accent/30 rounded transition-all flex flex-col items-center justify-center relative"
                           >
                             {/* Top subject color border */}
                             <div
@@ -346,12 +346,12 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                                 {cell.subject}
                               </p>
                               {cell.teacher && (
-                                <p className="text-xs text-gray-600 leading-tight mt-1.5 truncate w-full">
+                                <p className="text-xs text-fg-2 leading-tight mt-1.5 truncate w-full">
                                   👨‍🏫 {cell.teacher}
                                 </p>
                               )}
                               {cell.room && (
-                                <p className="text-xs text-gray-500 leading-tight mt-0.5 truncate w-full">
+                                <p className="text-xs text-muted leading-tight mt-0.5 truncate w-full">
                                   🚪 {cell.room}
                                 </p>
                               )}
@@ -363,7 +363,7 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                               )}
                               <div className="flex flex-wrap gap-1.5 items-center justify-center mt-2.5 w-full">
                                 {academicItems && academicItems.filter(item => item.subject === cell.subject && item.status !== 'เสร็จแล้ว').length > 0 && (
-                                  <span className="text-[10px] font-medium text-white bg-indigo-500 px-2 py-0.5 rounded shadow-sm">
+                                  <span className="text-[10px] font-medium text-white bg-accent px-2 py-0.5 rounded shadow-sm">
                                     📝 {academicItems.filter(item => item.subject === cell.subject && item.status !== 'เสร็จแล้ว').length} งาน
                                   </span>
                                 )}
@@ -388,7 +388,7 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                             onClick={() => handleOpenEdit(dayIdx, slot.period)}
                             className="w-full h-full p-2 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center"
                           >
-                            <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-400 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-accent/10 text-accent flex items-center justify-center">
                               <span className="text-xl font-medium leading-none mb-0.5">+</span>
                             </div>
                           </button>
@@ -407,8 +407,8 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
       {editCell && (
         <div className="sm:hidden fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black/50" onClick={() => setEditCell(null)} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-4">
-            <h4 className="text-sm font-semibold text-gray-900 mb-3">
+          <div className="relative bg-surface rounded-md shadow-xl w-full max-w-sm mx-4 p-4">
+            <h4 className="text-sm font-semibold text-fg mb-3">
               {DAYS[editCell.dayIdx]} — คาบ {editCell.periodIdx + 1}
             </h4>
             <div className="space-y-2" onKeyDown={handleKeyDown}>
@@ -416,7 +416,7 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                 value={form.subject}
                 onChange={(e) => setForm((p) => ({ ...p, subject: e.target.value }))}
                 autoFocus
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"
               >
                 <option value="">เลือกวิชา</option>
                 {subjects.map((s) => (
@@ -424,17 +424,17 @@ export default function TimetableGrid({ config, cells, subjects, onCellChange, o
                 ))}
               </select>
               <div className="grid grid-cols-2 gap-2">
-                <input type="text" value={form.teacher} onChange={(e) => setForm((p) => ({ ...p, teacher: e.target.value }))} placeholder="ผู้สอน" className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-                <input type="text" value={form.room} onChange={(e) => setForm((p) => ({ ...p, room: e.target.value }))} placeholder="ห้อง" className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                <input type="text" value={form.teacher} onChange={(e) => setForm((p) => ({ ...p, teacher: e.target.value }))} placeholder="ผู้สอน" className="px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none" />
+                <input type="text" value={form.room} onChange={(e) => setForm((p) => ({ ...p, room: e.target.value }))} placeholder="ห้อง" className="px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none" />
               </div>
-              <input type="text" value={form.note} onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))} placeholder="หมายเหตุ" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+              <input type="text" value={form.note} onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))} placeholder="หมายเหตุ" className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none" />
               <div className="flex items-center justify-between pt-2">
                 <button onClick={handleDeleteCell} className="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                   <Trash2 size={16} /> ลบ
                 </button>
                 <div className="flex gap-2">
-                  <button onClick={() => setEditCell(null)} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">ยกเลิก</button>
-                  <button onClick={handleSaveCell} className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">บันทึก</button>
+                  <button onClick={() => setEditCell(null)} className="px-4 py-2 text-sm font-medium text-fg-2 hover:bg-muted rounded-lg transition-colors">ยกเลิก</button>
+                  <button onClick={handleSaveCell} className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent/90 transition-colors">บันทึก</button>
                 </div>
               </div>
             </div>

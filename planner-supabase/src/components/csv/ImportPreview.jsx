@@ -29,8 +29,8 @@ export default function ImportPreview({ previewRows, fullRows, mapping, onImport
 
   if (!mapping.date && !mapping.type && !mapping.category && !mapping.amount) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-center">
-        <p className="text-sm text-gray-400">กรุณาจับคู่คอลัมน์ก่อนดูตัวอย่างข้อมูล</p>
+      <div className="bg-surface rounded-md border border-border shadow-card p-6 text-center">
+        <p className="text-sm text-meta">กรุณาจับคู่คอลัมน์ก่อนดูตัวอย่างข้อมูล</p>
       </div>
     )
   }
@@ -39,12 +39,12 @@ export default function ImportPreview({ previewRows, fullRows, mapping, onImport
   const totalRows = fullRows?.length || previewRows.length
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-surface rounded-md border border-border shadow-card overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <div>
-          <h3 className="font-semibold text-gray-900">ตัวอย่างข้อมูล</h3>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h3 className="font-semibold text-fg">ตัวอย่างข้อมูล</h3>
+          <p className="text-xs text-muted mt-0.5">
             แสดง {showAll ? totalRows : Math.min(5, totalRows)} จาก {totalRows} รายการ
             {validCount > 0 && (
               <span className="ml-2 text-green-600 font-medium">
@@ -60,14 +60,14 @@ export default function ImportPreview({ previewRows, fullRows, mapping, onImport
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+              <tr className="border-b border-border bg-surface-warm">
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-muted uppercase tracking-wider">#</th>
                 {PREVIEW_FIELDS.map((f) => (
-                  <th key={f.key} className="text-left px-4 py-2.5 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th key={f.key} className="text-left px-4 py-2.5 text-xs font-medium text-muted uppercase tracking-wider">
                     {f.label}
                   </th>
                 ))}
-                <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                <th className="text-left px-4 py-2.5 text-xs font-medium text-muted uppercase tracking-wider">สถานะ</th>
               </tr>
             </thead>
             <tbody>
@@ -76,11 +76,11 @@ export default function ImportPreview({ previewRows, fullRows, mapping, onImport
                 return (
                   <tr
                     key={i}
-                    className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${
+                    className={`border-b border-gray-50 hover:bg-surface-warm transition-colors ${
                       !isValid ? 'bg-red-50/50' : ''
                     }`}
                   >
-                    <td className="px-4 py-2.5 text-xs text-gray-400">{i + 1}</td>
+                    <td className="px-4 py-2.5 text-xs text-meta">{i + 1}</td>
                     {PREVIEW_FIELDS.map((f) => (
                       <td key={f.key} className="px-4 py-2.5">
                         <span
@@ -89,8 +89,8 @@ export default function ImportPreview({ previewRows, fullRows, mapping, onImport
                               ? row.type === 'Income'
                                 ? 'text-green-600 font-medium'
                                 : 'text-red-600 font-medium'
-                              : 'text-gray-700'
-                          } ${!row[f.key] && f.key !== 'amount' ? 'text-gray-300' : ''}`}
+                              : 'text-fg-2'
+                          } ${!row[f.key] && f.key !== 'amount' ? 'text-meta' : ''}`}
                         >
                           {formatPreviewValue(row, f.key)}
                         </span>
@@ -112,17 +112,17 @@ export default function ImportPreview({ previewRows, fullRows, mapping, onImport
       ) : (
         <div className="p-8 text-center">
           <AlertCircle size={24} className="mx-auto text-amber-400 mb-2" />
-          <p className="text-sm text-gray-500">ไม่พบข้อมูลที่ถูกต้องหลังจากจับคู่คอลัมน์</p>
-          <p className="text-xs text-gray-400 mt-1">กรุณาตรวจสอบการจับคู่คอลัมน์อีกครั้ง</p>
+          <p className="text-sm text-muted">ไม่พบข้อมูลที่ถูกต้องหลังจากจับคู่คอลัมน์</p>
+          <p className="text-xs text-meta mt-1">กรุณาตรวจสอบการจับคู่คอลัมน์อีกครั้ง</p>
         </div>
       )}
 
       {/* Show more toggle */}
       {fullRows && fullRows.length > 5 && (
-        <div className="border-t border-gray-100">
+        <div className="border-t border-border">
           <button
             onClick={() => setShowAll(!showAll)}
-            className="w-full py-2.5 flex items-center justify-center gap-1.5 text-sm text-gray-500 hover:text-indigo-600 hover:bg-gray-50 transition-colors"
+            className="w-full py-2.5 flex items-center justify-center gap-1.5 text-sm text-muted hover:text-accent hover:bg-surface-warm transition-colors"
           >
             {showAll ? (
               <>
@@ -141,11 +141,11 @@ export default function ImportPreview({ previewRows, fullRows, mapping, onImport
 
       {/* Import button */}
       {hasRequiredMapping && validCount > 0 && (
-        <div className="px-5 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-5 py-4 border-t border-border bg-surface-warm">
           <button
             onClick={onImport}
             disabled={importing}
-            className="w-full py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2.5 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
           >
             {importing ? (
               <>

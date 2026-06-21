@@ -101,8 +101,8 @@ export default function ChecklistItem({
     <>
       <div
         ref={itemRef}
-        className={`group relative bg-white rounded-lg border transition-all ${
-          item.checked ? 'border-green-200 bg-green-50/50' : 'border-gray-200 hover:border-indigo-200 hover:shadow-sm'
+        className={`group relative bg-surface rounded-lg border transition-all ${
+          item.checked ? 'border-green-200 bg-green-50/50' : 'border-border hover:border-accent hover:shadow-card'
         } ${isOverdue ? 'border-red-200 bg-red-50/30' : ''}`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -128,7 +128,7 @@ export default function ChecklistItem({
               className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                 item.checked
                   ? 'bg-green-500 border-green-500 scale-110'
-                  : 'border-gray-300 hover:border-indigo-400 hover:scale-110'
+                  : 'border-border hover:border-accent hover:scale-110'
               }`}
             >
               {item.checked && (
@@ -141,7 +141,7 @@ export default function ChecklistItem({
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
-                <p className={`text-sm font-medium ${item.checked ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                <p className={`text-sm font-medium ${item.checked ? 'text-muted line-through' : 'text-fg'}`}>
                   {item.text}
                 </p>
 
@@ -150,7 +150,7 @@ export default function ChecklistItem({
                   {!item.checked && (
                     <button
                       onClick={() => onEdit(item)}
-                      className="p-1.5 text-gray-400 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
+                      className="p-1.5 text-muted hover:text-accent rounded-lg hover:bg-accent-soft transition-colors"
                       title="แก้ไข"
                     >
                       <Pencil size={14} />
@@ -158,7 +158,7 @@ export default function ChecklistItem({
                   )}
                   <button
                     onClick={() => setShowDeleteConfirm(true)}
-                    className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                    className="p-1.5 text-muted hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                     title="ลบ"
                   >
                     <Trash2 size={14} />
@@ -171,7 +171,7 @@ export default function ChecklistItem({
                 {/* Category chip */}
                 {item.category && (
                   <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                    categoryColors[item.category] || 'bg-gray-100 text-gray-600'
+                    categoryColors[item.category] || 'bg-surface-warm text-muted'
                   }`}>
                     {item.category}
                   </span>
@@ -179,7 +179,7 @@ export default function ChecklistItem({
 
                 {/* Due date */}
                 {due && (
-                  <span className={`inline-flex items-center gap-1 text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
+                  <span className={`inline-flex items-center gap-1 text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-muted'}`}>
                     {isOverdue ? <Clock size={12} /> : <Calendar size={12} />}
                     {due.date}{due.time ? ` ${due.time}` : ''}
                     {isOverdue && ' (เลยกำหนด)'}
@@ -188,7 +188,7 @@ export default function ChecklistItem({
 
                 {/* End date */}
                 {end && (
-                  <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                  <span className="inline-flex items-center gap-1 text-xs text-muted">
                     <CheckCircle2 size={12} />
                     ~{end.date}{end.time ? ` ${end.time}` : ''}
                   </span>
@@ -197,7 +197,7 @@ export default function ChecklistItem({
 
               {/* Note */}
               {item.note && (
-                <p className="text-xs text-gray-400 mt-1 truncate">{item.note}</p>
+                <p className="text-xs text-muted mt-1 truncate">{item.note}</p>
               )}
 
               {/* Sub-tasks */}
@@ -218,15 +218,15 @@ export default function ChecklistItem({
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
           <div className="fixed inset-0 bg-black/30" onClick={() => setShowDeleteConfirm(false)} />
-          <div className="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-sm mx-0 sm:mx-4 p-5 animate-[fadeIn_0.2s_ease-out]">
-            <h4 className="font-semibold text-gray-900 text-sm mb-2">ยืนยันการลบ</h4>
-            <p className="text-sm text-gray-500 mb-4">
+          <div className="relative bg-surface rounded-t-lg sm:rounded-lg shadow-xl w-full sm:max-w-sm mx-0 sm:mx-4 p-5 animate-[fadeIn_0.2s_ease-out]">
+            <h4 className="font-semibold text-fg text-sm mb-2">ยืนยันการลบ</h4>
+            <p className="text-sm text-muted mb-4">
               คุณแน่ใจที่จะลบ "{item.text}" หรือไม่?
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex-1 px-4 py-2 text-sm font-medium text-muted rounded-lg hover:bg-surface-warm transition-colors"
               >
                 ยกเลิก
               </button>

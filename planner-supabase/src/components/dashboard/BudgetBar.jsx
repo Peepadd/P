@@ -43,15 +43,15 @@ export default function BudgetBar({ budget, onUpdateBudget }) {
   }
 
   return (
-    <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+    <div className="bg-surface rounded-md p-5 border border-border shadow-card">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-gray-900">งบประมาณประจำเดือน</h3>
+        <h3 className="font-semibold text-fg">งบประมาณประจำเดือน</h3>
         <button
           onClick={() => {
             setEditing(true)
             setInputValue(String(budget.amount || ''))
           }}
-          className="p-1.5 text-gray-400 hover:text-indigo-600 rounded-lg hover:bg-gray-100 transition-colors"
+          className="p-1.5 text-meta hover:text-accent rounded-lg hover:bg-surface-warm transition-colors"
           title="แก้ไขงบประมาณ"
         >
           <Settings2 size={16} />
@@ -61,8 +61,8 @@ export default function BudgetBar({ budget, onUpdateBudget }) {
       <div className="space-y-3">
         {/* Budget Edit / Display */}
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-500">
-            ใช้ไป: <strong className="text-gray-700">{formatCurrency(budget.spent)}</strong>
+          <span className="text-muted">
+            ใช้ไป: <strong className="text-fg-2">{formatCurrency(budget.spent)}</strong>
           </span>
           {editing ? (
             <div className="flex items-center gap-2">
@@ -75,12 +75,12 @@ export default function BudgetBar({ budget, onUpdateBudget }) {
                 step="0.01"
                 min="0"
                 autoFocus
-                className="w-28 px-2 py-1 border border-gray-300 rounded-md text-sm text-right focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className="w-28 px-2 py-1 border border-border rounded-md text-sm text-right focus:ring-2 focus:ring-accent focus:border-accent outline-none"
               />
             </div>
           ) : (
-            <span className="text-gray-500">
-              งบประมาณ: <strong className="text-gray-700">{formatCurrency(budget.amount)}</strong>
+            <span className="text-muted">
+              งบประมาณ: <strong className="text-fg-2">{formatCurrency(budget.amount)}</strong>
             </span>
           )}
         </div>
@@ -88,18 +88,18 @@ export default function BudgetBar({ budget, onUpdateBudget }) {
         {/* Progress Bar */}
         {budget.amount > 0 && (
           <>
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-border rounded-full h-3 overflow-hidden">
               <div
                 className={`h-full rounded-full ${barColor} transition-all duration-500 ease-out`}
                 style={{ width: `${Math.min(percentage, 100)}%` }}
               />
             </div>
             <div className="flex justify-between text-xs">
-              <span className={isOverBudget ? 'text-red-600 font-medium' : 'text-gray-500'}>
+              <span className={isOverBudget ? 'text-red-600 font-medium' : 'text-muted'}>
                 {percentage.toFixed(1)}%
                 {isOverBudget && ' — เกินงบประมาณ!'}
               </span>
-              <span className={isOverBudget ? 'text-red-600 font-medium' : 'text-gray-500'}>
+              <span className={isOverBudget ? 'text-red-600 font-medium' : 'text-muted'}>
                 คงเหลือ: {isOverBudget ? '-' : ''}{formatCurrency(Math.abs(remaining))}
               </span>
             </div>
@@ -107,7 +107,7 @@ export default function BudgetBar({ budget, onUpdateBudget }) {
         )}
 
         {budget.amount === 0 && (
-          <p className="text-xs text-gray-400 italic">
+          <p className="text-xs text-meta italic">
             {editing ? 'กรุณาระบุจำนวนงบประมาณ' : 'คลิกไอคอนรูปเฟืองเพื่อตั้งค่างบประมาณ'}
           </p>
         )}

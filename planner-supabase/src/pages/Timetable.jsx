@@ -247,7 +247,7 @@ export default function Timetable() {
     if (!activeTimetable) return
 
     const newCells = { ...activeTimetable.cells }
-    
+
     generatedCells.forEach(cell => {
       const cellKey = `${cell.dayIdx}_${cell.periodIdx}`
       newCells[cellKey] = {
@@ -300,18 +300,18 @@ export default function Timetable() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">ตารางเรียน</h1>
-          <p className="text-gray-500 text-lg mt-1">Class Schedule</p>
+          <h1 className="text-3xl font-bold text-fg tracking-tight">ตารางเรียน</h1>
+          <p className="text-muted text-lg mt-1">Class Schedule</p>
         </div>
         <div className="flex items-center gap-2">
           {activeTimetable && (
             <>
               {/* View Toggle */}
-              <div className="hidden sm:flex bg-gray-100 p-1 rounded-lg mr-2">
+              <div className="hidden sm:flex bg-surface-warm p-1 rounded-lg mr-2">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-1.5 rounded-md flex items-center transition-all ${
-                    viewMode === 'grid' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-900'
+                    viewMode === 'grid' ? 'bg-surface shadow-card text-accent' : 'text-muted hover:text-fg'
                   }`}
                   title="มุมมองตาราง"
                 >
@@ -320,7 +320,7 @@ export default function Timetable() {
                 <button
                   onClick={() => setViewMode('daily')}
                   className={`p-1.5 rounded-md flex items-center transition-all ${
-                    viewMode === 'daily' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-900'
+                    viewMode === 'daily' ? 'bg-surface shadow-card text-accent' : 'text-muted hover:text-fg'
                   }`}
                   title="มุมมองรายวัน"
                 >
@@ -330,14 +330,14 @@ export default function Timetable() {
 
               <button
                 onClick={() => setShowConfig(true)}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted hover:text-fg hover:bg-surface-warm rounded-lg transition-colors border border-transparent hover:border-border"
               >
                 <Settings2 size={18} />
                 <span className="hidden sm:inline">ตั้งค่า</span>
               </button>
               <button
                 onClick={() => setShowPalette(true)}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted hover:text-fg hover:bg-surface-warm rounded-lg transition-colors border border-transparent hover:border-border"
               >
                 <Palette size={18} />
                 <span className="hidden sm:inline">วิชาและสี</span>
@@ -351,12 +351,12 @@ export default function Timetable() {
       {/* Message Feedback */}
       {message && (
         <div
-          className={`px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2 transition-all ${
+          className={`px-4 py-3 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${
             message.type === 'success'
               ? 'bg-green-50 text-green-700 border border-green-200'
               : message.type === 'error'
               ? 'bg-red-50 text-red-700 border border-red-200'
-              : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+              : 'bg-accent-soft text-accent border border-accent'
           }`}
         >
           {message.text}
@@ -365,14 +365,14 @@ export default function Timetable() {
 
       {/* Conflict Warning */}
       {conflictWarning && (
-        <div className="px-4 py-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-sm font-medium flex items-center gap-2 animate-[fadeIn_0.15s_ease-out]">
+        <div className="px-4 py-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-sm font-medium flex items-center gap-2 animate-[fadeIn_0.15s_ease-out]">
           <AlertTriangle size={18} className="text-amber-500" />
           {conflictWarning}
         </div>
       )}
 
       {/* Select toolbar - Flat layout */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-surface rounded-md border-border p-4">
         <TimetableSelect
           timetables={timetables}
           activeId={activeId}
@@ -387,28 +387,28 @@ export default function Timetable() {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : error ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <p className="text-gray-400 font-medium">เกิดข้อผิดพลาด</p>
-          <p className="text-gray-400 text-sm mt-1">{error}</p>
+        <div className="bg-surface rounded-md border-border p-12 text-center">
+          <p className="text-meta font-medium">เกิดข้อผิดพลาด</p>
+          <p className="text-meta text-sm mt-1">{error}</p>
           <button
             onClick={loadData}
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-accent hover:text-accent hover:bg-accent-soft rounded-lg transition-colors"
           >
             <RefreshCw size={16} />
             ลองอีกครั้ง
           </button>
         </div>
       ) : !activeTimetable ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
-          <p className="text-gray-500 font-medium">ยังไม่มีตารางเรียน</p>
-          <p className="text-gray-400 text-sm mt-1">คลิกสร้างตารางใหม่เพื่อเริ่มต้น</p>
+        <div className="bg-surface rounded-md border-border p-16 text-center">
+          <p className="text-muted font-medium">ยังไม่มีตารางเรียน</p>
+          <p className="text-meta text-sm mt-1">คลิกสร้างตารางใหม่เพื่อเริ่มต้น</p>
         </div>
       ) : (
         <div className="space-y-4">
-          <div ref={gridRef} className={viewMode === 'grid' ? 'overflow-x-auto bg-white rounded-xl border border-gray-200 pb-4' : ''}>
+          <div ref={gridRef} className={viewMode === 'grid' ? 'overflow-x-auto bg-surface rounded-md border-border pb-4' : ''}>
             {viewMode === 'grid' ? (
               <TimetableGrid
                 config={activeTimetable.config}
@@ -430,8 +430,8 @@ export default function Timetable() {
               />
             )}
           </div>
-          
-          <TimetableStats 
+
+          <TimetableStats
             config={activeTimetable.config}
             cells={activeTimetable.cells || {}}
             subjects={activeTimetable.subjects || []}
@@ -443,7 +443,7 @@ export default function Timetable() {
       {showConfig && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm" onClick={() => setShowConfig(false)} />
-          <div className="relative bg-white rounded-2xl border border-gray-200 shadow-xl w-full max-w-xl p-6 animate-[fadeIn_0.15s_ease-out]">
+          <div className="relative bg-surface rounded-lg border-border shadow-xl w-full max-w-xl p-6 animate-[fadeIn_0.15s_ease-out]">
             <TimetableConfig
               config={activeTimetable?.config || DEFAULT_CONFIG}
               onChange={handleConfigChange}
@@ -456,7 +456,7 @@ export default function Timetable() {
       {showPalette && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm" onClick={() => setShowPalette(false)} />
-          <div className="relative bg-white rounded-2xl border border-gray-200 shadow-xl w-full max-w-md animate-[fadeIn_0.15s_ease-out]">
+          <div className="relative bg-surface rounded-lg border-border shadow-xl w-full max-w-md animate-[fadeIn_0.15s_ease-out]">
             <SubjectPalette
               subjects={activeTimetable?.subjects || []}
               onChange={handleSubjectsChange}
@@ -469,7 +469,7 @@ export default function Timetable() {
       {activeTimetable && (
         <button
           onClick={() => setShowAiAssistant(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium rounded-full shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all active:scale-95 group"
+          className="fixed bottom-6 right-6 z-40 flex items-center justify-center gap-2 px-4 py-3 bg-accent hover:bg-accent-hover text-white font-medium rounded-full shadow-raised transition-all active:scale-95 group"
         >
           <Sparkles size={20} className="animate-pulse" />
           <span className="hidden md:inline">AI จัดตาราง</span>

@@ -12,7 +12,7 @@ export default function LineLinkProfile() {
     const initLiff = async () => {
       try {
         await liff.init({ liffId: import.meta.env.VITE_LIFF_ID });
-        
+
         if (liff.isLoggedIn()) {
           const profile = await liff.getProfile();
           setLineProfile(profile);
@@ -46,7 +46,7 @@ export default function LineLinkProfile() {
         }, { onConflict: 'id' });
 
       if (upsertError) throw upsertError;
-      
+
       setLinked(true);
     } catch (err) {
       console.error('Account linking error:', err);
@@ -62,15 +62,15 @@ export default function LineLinkProfile() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="flex items-center justify-center p-6 bg-surface rounded-md shadow-card border border-border">
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#06C755] mr-3"></div>
-        <span className="text-gray-600 font-medium">กำลังเตรียมระบบเชื่อมต่อ...</span>
+        <span className="text-muted font-medium">กำลังเตรียมระบบเชื่อมต่อ...</span>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-sm border border-gray-100 transition-all">
+    <div className="max-w-md mx-auto p-6 bg-surface rounded-2xl shadow-card border border-border transition-all">
       <div className="flex items-center space-x-4 mb-6">
         <div className="w-12 h-12 rounded-full bg-[#06C755]/10 flex items-center justify-center">
           <svg className="w-7 h-7 text-[#06C755]" fill="currentColor" viewBox="0 0 24 24">
@@ -78,24 +78,24 @@ export default function LineLinkProfile() {
           </svg>
         </div>
         <div>
-          <h2 className="text-xl font-bold text-gray-800">การเชื่อมต่อ LINE</h2>
-          <p className="text-sm text-gray-500">เพื่อรับการแจ้งเตือนและบันทึกบัญชี</p>
+          <h2 className="text-xl font-bold text-fg">การเชื่อมต่อ LINE</h2>
+          <p className="text-sm text-muted">เพื่อรับการแจ้งเตือนและบันทึกบัญชี</p>
         </div>
       </div>
 
       {error && (
-        <div className="mb-5 p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl">
+        <div className="mb-5 p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-md">
           {error}
         </div>
       )}
 
       {linked && lineProfile ? (
-        <div className="p-4 bg-green-50 rounded-xl border border-green-100 flex items-center justify-between">
+        <div className="p-4 bg-green-50 rounded-md border border-green-100 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <img 
-              src={lineProfile.pictureUrl} 
-              alt="Profile" 
-              className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
+            <img
+              src={lineProfile.pictureUrl}
+              alt="Profile"
+              className="w-12 h-12 rounded-full border-2 border-white shadow-card"
             />
             <div>
               <p className="text-sm font-semibold text-green-800">เชื่อมต่อสำเร็จแล้ว</p>
@@ -107,7 +107,7 @@ export default function LineLinkProfile() {
       ) : (
         <button
           onClick={handleLineLogin}
-          className="w-full flex items-center justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-[#06C755] hover:bg-[#05b34c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#06C755] transition-all active:scale-95"
+          className="w-full flex items-center justify-center py-3.5 px-4 border border-transparent rounded-md shadow-card text-sm font-semibold text-white bg-[#06C755] hover:bg-[#05b34c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#06C755] transition-all active:scale-95"
         >
           เชื่อมต่อบัญชี LINE ตอนนี้
         </button>

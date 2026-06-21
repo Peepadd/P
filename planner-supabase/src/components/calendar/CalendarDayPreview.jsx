@@ -44,9 +44,9 @@ export default function CalendarDayPreview({ selectedDate, eventsByDate, onClose
 
   if (!selectedDate) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
-        <Calendar size={40} className="mx-auto mb-3 text-gray-300" />
-        <p className="text-sm text-gray-400">คลิกที่วันที่เพื่อดูรายละเอียด</p>
+      <div className="bg-surface rounded-md border border-border p-6 text-center">
+        <Calendar size={40} className="mx-auto mb-3 text-meta" />
+        <p className="text-sm text-muted">คลิกที่วันที่เพื่อดูรายละเอียด</p>
       </div>
     )
   }
@@ -65,16 +65,16 @@ export default function CalendarDayPreview({ selectedDate, eventsByDate, onClose
   const sourceOrder = ['transaction', 'academic', 'checklist', 'google']
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-surface rounded-md border border-border overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-white">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface">
         <div>
-          <p className="text-xs text-indigo-500 font-medium">{dateStr}</p>
-          <p className="text-sm text-gray-400 mt-0.5">{dayEvents.length} รายการ</p>
+          <p className="text-xs text-accent font-medium">{dateStr}</p>
+          <p className="text-sm text-muted mt-0.5">{dayEvents.length} รายการ</p>
         </div>
         <button
           onClick={onClose}
-          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-1 text-muted hover:text-muted hover:bg-surface-warm rounded-lg transition-colors"
         >
           <X size={18} />
         </button>
@@ -84,12 +84,12 @@ export default function CalendarDayPreview({ selectedDate, eventsByDate, onClose
       <div className="p-3 space-y-3 max-h-[400px] overflow-y-auto">
         {dayEvents.length === 0 ? (
           <div className="text-center py-8">
-            <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-100 flex items-center justify-center">
-              <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-surface-warm flex items-center justify-center">
+              <svg className="w-6 h-6 text-meta" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <p className="text-sm text-gray-400">ไม่มีกิจกรรมในวันนี้</p>
+            <p className="text-sm text-muted">ไม่มีกิจกรรมในวันนี้</p>
           </div>
         ) : (
           sourceOrder.map((source) => {
@@ -98,29 +98,29 @@ export default function CalendarDayPreview({ selectedDate, eventsByDate, onClose
               <div key={source}>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <span className="text-xs">{getSourceIcon(source)}</span>
-                  <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+                  <span className="text-[11px] font-medium text-muted uppercase tracking-wider">
                     {getSourceLabel(source)}
                   </span>
-                  <span className="text-[10px] text-gray-300">({grouped[source].length})</span>
+                  <span className="text-[10px] text-meta">({grouped[source].length})</span>
                 </div>
                 <div className="space-y-1">
                   {grouped[source].map((event) => (
                     <div
                       key={event.id}
-                      className="flex items-start gap-2.5 p-2 rounded-lg border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors"
+                      className="flex items-start gap-2.5 p-2 rounded-lg border border-gray-100 hover:border-border hover:bg-surface-warm transition-colors"
                     >
                       <div className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${event.color.dot}`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs font-semibold text-gray-900">{event.title}</span>
+                          <span className="text-xs font-semibold text-fg">{event.title}</span>
                           <span className={`text-[10px] px-1 py-0.5 rounded font-medium ${event.color.bg} ${event.color.text}`}>
                             {event.color.label}
                           </span>
                         </div>
                         {event.subtitle && (
-                          <p className="text-[11px] text-gray-500 mt-0.5">{event.subtitle}</p>
+                          <p className="text-[11px] text-muted mt-0.5">{event.subtitle}</p>
                         )}
-                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-gray-400">
+                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted">
                           {event.time && <span>⏰ {formatTimeDisplay(event.time)}</span>}
                           {event.note && <span className="truncate">📝 {event.note}</span>}
                         </div>
@@ -133,19 +133,19 @@ export default function CalendarDayPreview({ selectedDate, eventsByDate, onClose
           })
         )}
       </div>
-      
+
       {/* Quick Add Actions */}
       {selectedDate && (
-        <div className="p-3 border-t border-gray-100 bg-gray-50/50 flex gap-2 justify-end">
+        <div className="p-3 border-t border-gray-100 bg-surface-warm/50 flex gap-2 justify-end">
           <button
             onClick={() => navigate(`/academic?date=${dateKey}`)}
-            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-fg-2 bg-surface border border-border rounded-lg hover:bg-surface-warm transition-colors"
           >
             เพิ่มงาน/สอบ
           </button>
           <button
             onClick={() => navigate(`/checklist?date=${dateKey}`)}
-            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-fg-2 bg-surface border border-border rounded-lg hover:bg-surface-warm transition-colors"
           >
             เพิ่ม Checklist
           </button>

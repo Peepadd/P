@@ -19,9 +19,9 @@ function getStreakColor(current, best) {
 export default function HabitStreakCards({ habits, getStreaks }) {
   if (!habits || habits.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
-        <Flame size={32} className="mx-auto mb-2 text-gray-300" />
-        <p className="text-sm text-gray-400">เพิ่มนิสัยเพื่อดู Streak</p>
+      <div className="bg-surface rounded-md border border-border p-6 text-center">
+        <Flame size={32} className="mx-auto mb-2 text-meta" />
+        <p className="text-sm text-meta">เพิ่มนิสัยเพื่อดู Streak</p>
       </div>
     )
   }
@@ -43,12 +43,12 @@ export default function HabitStreakCards({ habits, getStreaks }) {
         return (
           <div
             key={habit.id}
-            className="bg-white rounded-xl border border-gray-200 p-3.5 hover:border-gray-300 hover:shadow-sm transition-all"
+            className="bg-surface rounded-md border border-border p-3.5 hover:border-border hover:shadow-card transition-all"
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: habit.color }} />
-                <span className="text-sm font-semibold text-gray-900 truncate">{habit.name}</span>
+                <span className="text-sm font-semibold text-fg truncate">{habit.name}</span>
                 <span className="text-lg">{emoji}</span>
               </div>
               <div className="flex items-center gap-2 text-xs">
@@ -63,21 +63,21 @@ export default function HabitStreakCards({ habits, getStreaks }) {
 
             {/* Current streak bar */}
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div className="flex-1 h-3 bg-surface-warm rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full bg-gradient-to-r ${getStreakColor(current, best)} transition-all duration-500 ease-out`}
                   style={{ width: `${barWidth}%` }}
                 />
               </div>
-              <span className="text-sm font-bold font-mono text-gray-700 min-w-[40px] text-right">
+              <span className="text-sm font-bold font-mono text-fg-2 min-w-[40px] text-right">
                 {current}
-                <span className="text-xs text-gray-400 font-normal ml-0.5">วัน</span>
+                <span className="text-xs text-meta font-normal ml-0.5">วัน</span>
               </span>
             </div>
 
             {/* Streak milestones */}
             {current > 0 && (
-              <div className="flex items-center gap-3 mt-1.5 text-[10px] text-gray-400">
+              <div className="flex items-center gap-3 mt-1.5 text-[10px] text-meta">
                 <TrendingUp size={10} />
                 <span>
                   {current >= 30

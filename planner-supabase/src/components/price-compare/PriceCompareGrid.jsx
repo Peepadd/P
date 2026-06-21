@@ -77,17 +77,17 @@ export default function PriceCompareGrid() {
   }, [rows])
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-surface rounded-md border border-border overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-white">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface">
         <div className="flex items-center gap-2">
           <Scale size={18} className="text-emerald-600" />
-          <h3 className="font-semibold text-gray-900">เปรียบเทียบราคา</h3>
+          <h3 className="font-semibold text-fg">เปรียบเทียบราคา</h3>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={handleClear}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-muted hover:text-fg-2 hover:bg-surface-warm rounded-lg transition-colors"
           >
             <RefreshCw size={14} />
             ล้าง
@@ -99,16 +99,16 @@ export default function PriceCompareGrid() {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50/50">
-              <th className="px-3 py-2.5 text-xs font-medium text-gray-500 text-left w-2/12">แบรนด์/ร้าน</th>
-              <th className="px-3 py-2.5 text-xs font-medium text-gray-500 text-right w-2/12">
+            <tr className="border-b border-border bg-surface-warm">
+              <th className="px-3 py-2.5 text-xs font-medium text-muted text-left w-2/12">แบรนด์/ร้าน</th>
+              <th className="px-3 py-2.5 text-xs font-medium text-muted text-right w-2/12">
                 <span className="flex items-center justify-end gap-1">
                   <DollarSign size={12} /> ราคา (บาท)
                 </span>
               </th>
-              <th className="px-3 py-2.5 text-xs font-medium text-gray-500 text-right w-2/12">ปริมาณ</th>
-              <th className="px-3 py-2.5 text-xs font-medium text-gray-500 text-center w-1/12">หน่วย</th>
-              <th className="px-3 py-2.5 text-xs font-medium text-gray-500 text-right w-2/12">ราคา/หน่วย</th>
+              <th className="px-3 py-2.5 text-xs font-medium text-muted text-right w-2/12">ปริมาณ</th>
+              <th className="px-3 py-2.5 text-xs font-medium text-muted text-center w-1/12">หน่วย</th>
+              <th className="px-3 py-2.5 text-xs font-medium text-muted text-right w-2/12">ราคา/หน่วย</th>
               <th className="px-3 py-2.5 w-1/12"></th>
             </tr>
           </thead>
@@ -120,7 +120,7 @@ export default function PriceCompareGrid() {
                 <tr
                   key={row.id}
                   className={`transition-colors ${
-                    isBest ? 'bg-emerald-50/70 border-emerald-200' : 'hover:bg-gray-50'
+                    isBest ? 'bg-emerald-50/70 border-emerald-200' : 'hover:bg-surface-warm'
                   }`}
                 >
                   {/* Brand */}
@@ -139,7 +139,7 @@ export default function PriceCompareGrid() {
                         className={`w-full px-2 py-1.5 text-sm border rounded-lg outline-none transition-shadow focus:ring-2 ${
                           isBest
                             ? 'border-emerald-300 focus:ring-emerald-400'
-                            : 'border-gray-200 focus:ring-indigo-400'
+                            : 'border-border focus:ring-accent'
                         }`}
                       />
                     </div>
@@ -157,7 +157,7 @@ export default function PriceCompareGrid() {
                       className={`w-full px-2 py-1.5 text-sm text-right border rounded-lg outline-none transition-shadow focus:ring-2 ${
                         isBest
                           ? 'border-emerald-300 focus:ring-emerald-400'
-                          : 'border-gray-200 focus:ring-indigo-400'
+                          : 'border-border focus:ring-accent'
                       }`}
                     />
                   </td>
@@ -174,7 +174,7 @@ export default function PriceCompareGrid() {
                       className={`w-full px-2 py-1.5 text-sm text-right border rounded-lg outline-none transition-shadow focus:ring-2 ${
                         isBest
                           ? 'border-emerald-300 focus:ring-emerald-400'
-                          : 'border-gray-200 focus:ring-indigo-400'
+                          : 'border-border focus:ring-accent'
                       }`}
                     />
                   </td>
@@ -184,7 +184,7 @@ export default function PriceCompareGrid() {
                     <select
                       value={row.unit}
                       onChange={(e) => handleChange(row.id, 'unit', e.target.value)}
-                      className="w-full px-1 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+                      className="w-full px-1 py-1.5 text-xs border border-border rounded-lg outline-none focus:ring-2 focus:ring-accent bg-surface"
                     >
                       {UNIT_OPTIONS.map((u) => (
                         <option key={u.value} value={u.value}>{u.value}</option>
@@ -196,13 +196,13 @@ export default function PriceCompareGrid() {
                   <td className="px-3 py-2 text-right">
                     {row.unitPrice !== null ? (
                       <span className={`text-sm font-semibold font-mono ${
-                        isBest ? 'text-emerald-700' : 'text-gray-700'
+                        isBest ? 'text-emerald-700' : 'text-fg-2'
                       }`}>
                         {formatCurrency(row.unitPrice)}
-                        <span className="text-xs text-gray-400 ml-0.5">/{row.unit}</span>
+                        <span className="text-xs text-meta ml-0.5">/{row.unit}</span>
                       </span>
                     ) : (
-                      <span className="text-xs text-gray-300">-</span>
+                      <span className="text-xs text-meta">-</span>
                     )}
                   </td>
 
@@ -211,7 +211,7 @@ export default function PriceCompareGrid() {
                     <button
                       onClick={() => handleDeleteRow(row.id)}
                       disabled={rows.length <= 2}
-                      className="p-1 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="p-1 text-meta hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                       title="ลบแถว"
                     >
                       <Trash2 size={14} />
@@ -225,10 +225,10 @@ export default function PriceCompareGrid() {
       </div>
 
       {/* Add row button */}
-      <div className="px-4 py-3 border-t border-gray-100">
+      <div className="px-4 py-3 border-t border-border">
         <button
           onClick={handleAddRow}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-accent hover:text-accent hover:bg-accent-soft rounded-lg transition-colors"
         >
           <Plus size={14} />
           เพิ่มแถวเปรียบเทียบ
@@ -240,7 +240,7 @@ export default function PriceCompareGrid() {
         const best = results.calculated.find((r) => r.id === results.bestId)
         if (!best) return null
         return (
-          <div className="px-4 py-3 border-t border-gray-100 bg-gradient-to-r from-emerald-50 to-green-50">
+          <div className="px-4 py-3 border-t border-border bg-surface">
             <p className="text-xs text-emerald-700 font-medium flex items-center gap-1.5">
               <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[10px] font-bold">✓</span>
               <strong className="text-sm">{best.brand}</strong> คุ้มค่าที่สุด!

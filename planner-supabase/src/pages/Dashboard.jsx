@@ -14,7 +14,7 @@ export default function Dashboard() {
   const [incomeVsExpense, setIncomeVsExpense] = useState([])
   const [todayClasses, setTodayClasses] = useState([])
   const [upcomingAcademic, setUpcomingAcademic] = useState([])
-  
+
   const [greeting, setGreeting] = useState('สวัสดี')
   const [currentDate, setCurrentDate] = useState('')
   const [loading, setLoading] = useState(true)
@@ -24,12 +24,12 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setLoading(true)
-      
+
       // 1. Fetch all items and filter in JS to avoid Postgres LIKE operator errors on timestamps
       const { data: allScheduleData, error: err1 } = await supabase.from('academic_items').select('*').neq('status', 'เสร็จแล้ว')
       if (err1) console.error('Schedule fetch error:', err1)
       const scheduleData = (allScheduleData || []).filter(item => item.deadline && item.deadline.startsWith(todayDateStr))
-      
+
       const sevenDaysFromNow = new Date()
       sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
       const nextWeekStr = sevenDaysFromNow.toISOString().split('T')[0]
@@ -51,7 +51,7 @@ export default function Dashboard() {
       // 4. Fetch Transactions for Financial Overview
       const { data: transactionsData } = await supabase.from('transactions').select('*')
       const currentMonth = todayDateStr.substring(0, 7) // YYYY-MM
-      
+
       let balance = 0
       let income = 0
       let expense = 0
@@ -78,7 +78,7 @@ export default function Dashboard() {
           else monthlyData[month].Expense += t.amount
         }
       })
-      
+
       setFinance({ balance, income, expense })
       setExpenseByCategory(Object.keys(expensesByCategoryMap).map(key => ({
         name: key,
@@ -164,7 +164,7 @@ export default function Dashboard() {
                   teacher: cell.teacher || '',
                   room: cell.room || '',
                   note: cell.note || '',
-                  color: subj?.color || '#6366f1',
+                  color: subj?.color || '#7c3aed',
                   isNow,
                 })
               }
@@ -206,7 +206,7 @@ export default function Dashboard() {
 
     // Optimistic UI update
     setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t))
-    
+
     try {
       await supabase
         .from('checklist_items')
@@ -222,11 +222,11 @@ export default function Dashboard() {
   const toggleHabit = async (id) => {
     const habit = habits.find(h => h.id === id)
     if (!habit) return
-    
+
     const isNowCompleted = !habit.completed
     // Optimistic UI update
     setHabits(habits.map(h => h.id === id ? { ...h, completed: isNowCompleted } : h))
-    
+
     try {
       if (isNowCompleted) {
         await supabase.from('habit_logs').insert([{ habit_id: id, log_date: todayDateStr }])
@@ -247,12 +247,12 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
-      
+
       {/* Header */}
       <header className="space-y-1">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{greeting}</h1>
-        <p className="text-gray-500 text-lg flex items-center gap-2">
-          <CalendarIcon className="w-5 h-5 text-indigo-500" />
+        <h1 className="text-3xl font-bold text-fg tracking-tight">{greeting}</h1>
+        <p className="text-muted text-lg flex items-center gap-2">
+          <CalendarIcon className="w-5 h-5 text-accent" />
           {currentDate}
         </p>
       </header>
@@ -260,38 +260,38 @@ export default function Dashboard() {
       {loading ? (
         // Soft Skeleton Loader
         <div className="space-y-6">
-          <div className="h-24 bg-gray-100 rounded-xl animate-pulse" />
-          <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
-          <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-24 bg-muted rounded-md animate-pulse" />
+          <div className="h-32 bg-muted rounded-md animate-pulse" />
+          <div className="h-40 bg-muted rounded-md animate-pulse" />
         </div>
       ) : (
         <>
           {/* Financial Overview Section */}
           <section className="grid grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
-            <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
-              <div className="flex items-center gap-1.5 text-gray-500 mb-1.5">
+            <div className="bg-surface rounded-md border border-border p-3 sm:p-4">
+              <div className="flex items-center gap-1.5 text-muted mb-1.5">
                 <Wallet size={16} />
                 <span className="text-xs sm:text-sm font-medium">ยอดคงเหลือ</span>
               </div>
-              <p className={`text-lg sm:text-xl md:text-2xl font-bold tracking-tight ${finance.balance < 0 ? 'text-red-500' : 'text-gray-900'}`}>
+              <p className={`text-lg sm:text-xl md:text-2xl font-bold tracking-tight ${finance.balance < 0 ? 'text-red-500' : 'text-fg'}`}>
                 ฿{finance.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
-            <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+            <div className="bg-surface rounded-md border border-border p-3 sm:p-4">
               <div className="flex items-center gap-1.5 text-green-600 mb-1.5">
                 <ArrowDownRight size={16} />
                 <span className="text-xs sm:text-sm font-medium">รายรับเดือนนี้</span>
               </div>
-              <p className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-gray-900">
+              <p className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-fg">
                 ฿{finance.income.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
-            <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+            <div className="bg-surface rounded-md border border-border p-3 sm:p-4">
               <div className="flex items-center gap-1.5 text-red-500 mb-1.5">
                 <ArrowUpRight size={16} />
                 <span className="text-xs sm:text-sm font-medium">รายจ่ายเดือนนี้</span>
               </div>
-              <p className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-gray-900">
+              <p className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-fg">
                 ฿{finance.expense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
@@ -299,8 +299,8 @@ export default function Dashboard() {
 
           {/* Analytics Charts Section */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
-              <h2 className="text-sm font-semibold text-gray-900 mb-4">รายจ่ายตามหมวดหมู่ (เดือนนี้)</h2>
+            <div className="bg-surface rounded-md border border-border p-4 md:p-5">
+              <h2 className="text-sm font-semibold text-fg mb-4">รายจ่ายตามหมวดหมู่ (เดือนนี้)</h2>
               <div className="h-64">
                 {expenseByCategory.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
@@ -317,7 +317,7 @@ export default function Dashboard() {
                           <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                         ))}
                       </Pie>
-                      <RechartsTooltip 
+                      <RechartsTooltip
                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                         itemStyle={{ color: '#374151', fontSize: '14px' }}
                       />
@@ -325,13 +325,13 @@ export default function Dashboard() {
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-full flex items-center justify-center text-sm text-gray-500">ไม่มีข้อมูลรายจ่าย</div>
+                  <div className="h-full flex items-center justify-center text-sm text-muted">ไม่มีข้อมูลรายจ่าย</div>
                 )}
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
-              <h2 className="text-sm font-semibold text-gray-900 mb-4">รายรับ - รายจ่าย (6 เดือนล่าสุด)</h2>
+            <div className="bg-surface rounded-md border border-border p-4 md:p-5">
+              <h2 className="text-sm font-semibold text-fg mb-4">รายรับ - รายจ่าย (6 เดือนล่าสุด)</h2>
               <div className="h-64">
                 {incomeVsExpense.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
@@ -348,67 +348,67 @@ export default function Dashboard() {
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-full flex items-center justify-center text-sm text-gray-500">ไม่มีข้อมูล</div>
+                  <div className="h-full flex items-center justify-center text-sm text-muted">ไม่มีข้อมูล</div>
                 )}
               </div>
             </div>
           </section>
 
           {isAllClear ? (
-            <div className="text-center py-20 bg-white rounded-xl border border-gray-200">
-              <div className="w-16 h-16 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center py-20 bg-surface rounded-md border border-border">
+              <div className="w-16 h-16 bg-accent/10 text-accent rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-1">วันนี้ว่างเปล่า</h3>
-              <p className="text-gray-500">คุณไม่มีตารางงานหรือสิ่งที่ต้องทำในวันนี้ พักผ่อนให้เต็มที่!</p>
+              <h3 className="text-xl font-medium text-fg mb-1">วันนี้ว่างเปล่า</h3>
+              <p className="text-muted">คุณไม่มีตารางงานหรือสิ่งที่ต้องทำในวันนี้ พักผ่อนให้เต็มที่!</p>
             </div>
           ) : (
             <div className="space-y-6 md:space-y-8">
-              
+
               {/* Today's Classes Section */}
               <section>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-indigo-500" />
+                  <h2 className="text-lg font-semibold text-fg flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-accent" />
                     ตารางเรียนวันนี้
                   </h2>
                   {todayClasses.length > 0 && (
-                    <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
+                    <span className="text-xs font-medium text-accent bg-accent/10 px-2.5 py-1 rounded-full">
                       {todayClasses.length} คาบ
                     </span>
                   )}
                 </div>
 
                 {new Date().getDay() === 0 || new Date().getDay() === 6 ? (
-                  <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
-                    <p className="text-gray-400 text-sm">🎉 วันหยุด — ไม่มีคาบเรียน</p>
+                  <div className="bg-surface rounded-md border border-border p-6 text-center">
+                    <p className="text-meta text-sm">🎉 วันหยุด — ไม่มีคาบเรียน</p>
                   </div>
                 ) : todayClasses.length > 0 ? (
-                  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                    <div className="divide-y divide-gray-100">
+                  <div className="bg-surface rounded-md border border-border overflow-hidden shadow-sm">
+                    <div className="divide-y divide-border">
                       {todayClasses.map((cls) => (
                         <div
                           key={cls.period}
                           className={`flex items-start p-3 sm:p-4 transition-colors ${
                             cls.isNow
-                              ? 'bg-indigo-50/70 border-l-4 border-l-indigo-500'
-                              : 'hover:bg-gray-50 border-l-4'
+                              ? 'bg-accent/10 border-l-4 border-l-accent'
+                              : 'hover:bg-muted border-l-4'
                           }`}
                           style={!cls.isNow ? { borderLeftColor: cls.color } : undefined}
                         >
-                          <div className="w-20 shrink-0 text-sm font-medium text-gray-500 pt-0.5">
+                          <div className="w-20 shrink-0 text-sm font-medium text-muted pt-0.5">
                             {cls.time.split(' - ')[0]}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="font-medium text-gray-900 truncate">{cls.subject}</p>
+                              <p className="font-medium text-fg truncate">{cls.subject}</p>
                               {cls.isNow && (
-                                <span className="shrink-0 text-[10px] font-bold text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded animate-pulse">
+                                <span className="shrink-0 text-[10px] font-bold text-accent bg-accent/10 px-1.5 py-0.5 rounded animate-pulse">
                                   ▶ NOW
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-400">
+                            <div className="flex items-center gap-3 mt-0.5 text-xs text-meta">
                               {cls.teacher && <span>👨‍🏫 {cls.teacher}</span>}
                               {cls.room && <span>🚪 {cls.room}</span>}
                             </div>
@@ -427,43 +427,43 @@ export default function Dashboard() {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-sm">ยังไม่มีตารางเรียน</p>
+                  <p className="text-muted text-sm">ยังไม่มีตารางเรียน</p>
                 )}
               </section>
-              
+
               {/* Schedule Section */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-gray-400" />
+              <h2 className="text-lg font-semibold text-fg flex items-center gap-2">
+                <Clock className="w-5 h-5 text-meta" />
                 ตารางเวลา
               </h2>
             </div>
-            
+
             {schedule.length > 0 ? (
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                <div className="divide-y divide-gray-100">
+              <div className="bg-surface rounded-md border border-border overflow-hidden shadow-sm">
+                <div className="divide-y divide-border">
                   {schedule.map((item) => (
-                    <div key={item.id} className="flex p-3 sm:p-4 hover:bg-gray-50 transition-colors">
-                      <div className="w-20 shrink-0 text-sm font-medium text-gray-500 pt-0.5">
+                    <div key={item.id} className="flex p-3 sm:p-4 hover:bg-muted transition-colors">
+                      <div className="w-20 shrink-0 text-sm font-medium text-muted pt-0.5">
                         {item.time}
                       </div>
                       <div className="flex-1">
-                        <p className="text-gray-900 font-medium">{item.title}</p>
+                        <p className="text-fg font-medium">{item.title}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">ไม่มีตารางในวันนี้</p>
+              <p className="text-muted text-sm">ไม่มีตารางในวันนี้</p>
             )}
           </section>
 
           {/* Upcoming Academic Items */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-fg flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-amber-500" />
                 งาน/สอบที่กำลังจะมาถึง (7 วัน)
               </h2>
@@ -473,22 +473,22 @@ export default function Dashboard() {
                 </span>
               )}
             </div>
-            
+
             {upcomingAcademic.length > 0 ? (
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                <div className="divide-y divide-gray-100">
+              <div className="bg-surface rounded-md border border-border overflow-hidden shadow-sm">
+                <div className="divide-y divide-border">
                   {upcomingAcademic.map((item) => {
                     const dateObj = new Date(item.deadline)
                     const dateStr = dateObj.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })
                     return (
-                      <div key={item.id} className="flex p-3 sm:p-4 hover:bg-gray-50 transition-colors">
+                      <div key={item.id} className="flex p-3 sm:p-4 hover:bg-muted transition-colors">
                         <div className="w-16 shrink-0 text-xs font-medium text-amber-600 bg-amber-50 rounded-lg flex items-center justify-center p-2 mr-3">
                           {dateStr}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-gray-900 font-medium text-sm truncate">{item.subject} - {item.topic}</p>
+                          <p className="text-fg font-medium text-sm truncate">{item.subject} - {item.topic}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                            <span className="text-[10px] text-muted bg-muted px-1.5 py-0.5 rounded">
                               {item.type}
                             </span>
                             {item.priority === 'สูง' && (
@@ -504,8 +504,8 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 p-6 text-center shadow-sm">
-                <p className="text-gray-400 text-sm">ไม่มีงานหรือสอบใน 7 วันข้างหน้า</p>
+              <div className="bg-surface rounded-md border border-border p-6 text-center shadow-sm">
+                <p className="text-meta text-sm">ไม่มีงานหรือสอบใน 7 วันข้างหน้า</p>
               </div>
             )}
           </section>
@@ -513,8 +513,8 @@ export default function Dashboard() {
           {/* Urgent Tasks Section */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-gray-400" />
+              <h2 className="text-lg font-semibold text-fg flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-meta" />
                 สิ่งที่ต้องทำ
               </h2>
               {allTasksCompleted && (
@@ -524,24 +524,24 @@ export default function Dashboard() {
 
             <div className="space-y-1.5">
               {tasks.length > 0 ? tasks.map((task) => (
-                <label 
+                <label
                   key={task.id}
                   onClick={(e) => {
                     // Prevent default to handle custom optimistic toggle
                     e.preventDefault()
                     toggleTask(task.id)
                   }}
-                  className={`flex items-start gap-3 p-3 sm:p-4 bg-white rounded-xl border transition-all cursor-pointer select-none
-                    ${task.completed ? 'border-gray-100 opacity-60 bg-gray-50' : 'border-gray-200 hover:border-indigo-300 shadow-sm'}
+                  className={`flex items-start gap-3 p-3 sm:p-4 bg-surface rounded-md border transition-all cursor-pointer select-none
+                    ${task.completed ? 'border-border opacity-60 bg-muted' : 'border-border hover:border-accent/30 shadow-sm'}
                   `}
                 >
                   <div className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors
-                    ${task.completed ? 'bg-indigo-500 border-indigo-500' : 'border-gray-300 bg-white'}
+                    ${task.completed ? 'bg-accent border-accent' : 'border-border bg-surface'}
                   `}>
                     {task.completed && <Check className="w-3.5 h-3.5 text-white" />}
                   </div>
                   <div className="flex-1">
-                    <p className={`font-medium transition-colors ${task.completed ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                    <p className={`font-medium transition-colors ${task.completed ? 'text-meta line-through' : 'text-fg'}`}>
                       {task.title}
                     </p>
                     {task.urgent && !task.completed && (
@@ -550,7 +550,7 @@ export default function Dashboard() {
                   </div>
                 </label>
               )) : (
-                <p className="text-gray-500 text-sm">ไม่มีสิ่งที่ต้องทำในวันนี้</p>
+                <p className="text-muted text-sm">ไม่มีสิ่งที่ต้องทำในวันนี้</p>
               )}
             </div>
           </section>
@@ -558,8 +558,8 @@ export default function Dashboard() {
           {/* Daily Habits Section */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-gray-400" />
+              <h2 className="text-lg font-semibold text-fg flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-meta" />
                 นิสัยประจำวัน
               </h2>
               {allHabitsCompleted && (
@@ -569,27 +569,27 @@ export default function Dashboard() {
 
             <div className="space-y-1.5">
               {habits.length > 0 ? habits.map((habit) => (
-                <label 
+                <label
                   key={habit.id}
                   onClick={(e) => {
                     e.preventDefault()
                     toggleHabit(habit.id)
                   }}
-                  className={`flex items-center gap-3 p-3 sm:p-4 bg-white rounded-xl border transition-all cursor-pointer select-none
-                    ${habit.completed ? 'border-gray-100 opacity-60 bg-gray-50' : 'border-gray-200 hover:border-indigo-300 shadow-sm'}
+                  className={`flex items-center gap-3 p-3 sm:p-4 bg-surface rounded-md border transition-all cursor-pointer select-none
+                    ${habit.completed ? 'border-border opacity-60 bg-muted' : 'border-border hover:border-accent/30 shadow-sm'}
                   `}
                 >
                   <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors
-                    ${habit.completed ? 'bg-indigo-500 border-indigo-500' : 'border-gray-300 bg-white'}
+                    ${habit.completed ? 'bg-accent border-accent' : 'border-border bg-surface'}
                   `}>
                     {habit.completed && <Check className="w-3.5 h-3.5 text-white" />}
                   </div>
-                  <p className={`font-medium transition-colors ${habit.completed ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                  <p className={`font-medium transition-colors ${habit.completed ? 'text-meta line-through' : 'text-fg'}`}>
                     {habit.title}
                   </p>
                 </label>
               )) : (
-                <p className="text-gray-500 text-sm">ยังไม่ได้ตั้งค่านิสัยประจำวัน</p>
+                <p className="text-muted text-sm">ยังไม่ได้ตั้งค่านิสัยประจำวัน</p>
               )}
             </div>
           </section>

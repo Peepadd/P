@@ -9,7 +9,7 @@ export default function Academic() {
 
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
-  
+
   // Inline Form State
   const [isAdding, setIsAdding] = useState(!!dateParam)
   const [formData, setFormData] = useState({
@@ -74,16 +74,16 @@ export default function Academic() {
 
   const toggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'Pending' ? 'Completed' : 'Pending'
-    
+
     // Optimistic UI
     setItems(items.map(item => item.id === id ? { ...item, status: newStatus } : item))
-    
+
     try {
       const { error } = await supabase
         .from('academic_items')
         .update({ status: newStatus })
         .eq('id', id)
-      
+
       if (error) throw error
     } catch (err) {
       console.error('Error toggling status:', err)
@@ -96,7 +96,7 @@ export default function Academic() {
     // Optimistic UI for delete
     const previousItems = [...items]
     setItems(items.filter(item => item.id !== id))
-    
+
     try {
       const { error } = await supabase.from('academic_items').delete().eq('id', id)
       if (error) throw error
@@ -108,19 +108,19 @@ export default function Academic() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
-      
+
       {/* Header */}
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">งาน/สอบ</h1>
-          <p className="text-gray-500 text-lg mt-1">Tasks & Exams</p>
+          <h1 className="text-3xl font-bold text-fg tracking-tight">งาน/สอบ</h1>
+          <p className="text-muted text-lg mt-1">Tasks & Exams</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsAdding(!isAdding)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-            isAdding 
-              ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
-              : 'bg-indigo-500 text-white hover:bg-indigo-600'
+            isAdding
+              ? 'bg-gray-100 text-fg-2 hover:bg-gray-200'
+              : 'bg-accent text-white hover:bg-accent-hover'
           }`}
         >
           <Plus size={18} className={`transform transition-transform ${isAdding ? 'rotate-45' : ''}`} />
@@ -130,37 +130,37 @@ export default function Academic() {
 
       {/* Inline Add Form */}
       {isAdding && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-4 space-y-4 animate-[fadeIn_0.15s_ease-out]">
+        <form onSubmit={handleSubmit} className="bg-surface rounded-md border border-border p-4 space-y-4 animate-[fadeIn_0.15s_ease-out]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">วิชา (Subject)</label>
+              <label className="block text-sm font-medium text-fg-2 mb-1">วิชา (Subject)</label>
               <input
                 required
                 value={formData.subject}
                 onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
                 placeholder="e.g., Math 101"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">หัวข้อ (Topic)</label>
+              <label className="block text-sm font-medium text-fg-2 mb-1">หัวข้อ (Topic)</label>
               <input
                 required
                 value={formData.topic}
                 onChange={(e) => setFormData({...formData, topic: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
                 placeholder="e.g., Midterm Exam"
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">ประเภท</label>
+              <label className="block text-sm font-medium text-fg-2 mb-1">ประเภท</label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({...formData, type: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
               >
                 <option value="การบ้าน">งาน / การบ้าน (Task)</option>
                 <option value="สอบ">สอบ (Exam)</option>
@@ -171,11 +171,11 @@ export default function Academic() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">ความสำคัญ</label>
+              <label className="block text-sm font-medium text-fg-2 mb-1">ความสำคัญ</label>
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData({...formData, priority: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
               >
                 <option value="ต่ำ">ต่ำ (Low)</option>
                 <option value="กลาง">ปานกลาง (Normal)</option>
@@ -183,12 +183,12 @@ export default function Academic() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">กำหนดส่ง / วันสอบ</label>
+              <label className="block text-sm font-medium text-fg-2 mb-1">กำหนดส่ง / วันสอบ</label>
               <input
                 type="date"
                 value={formData.deadline}
                 onChange={(e) => setFormData({...formData, deadline: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
               />
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function Academic() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50"
+              className="px-6 py-2 bg-accent text-white font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
             >
               {isSubmitting ? 'กำลังบันทึก...' : 'บันทึกรายการ'}
             </button>
@@ -210,37 +210,37 @@ export default function Academic() {
         {loading ? (
           <div className="space-y-2">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
+              <div key={i} className="h-20 bg-gray-100 rounded-md animate-pulse" />
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-xl border border-gray-200">
-            <div className="w-16 h-16 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-20 bg-surface rounded-md border border-border">
+            <div className="w-16 h-16 bg-accent-soft text-accent rounded-full flex items-center justify-center mx-auto mb-4">
               <BookOpen size={32} />
             </div>
-            <h3 className="text-xl font-medium text-gray-900 mb-1">ยังไม่มีกำหนดการ</h3>
-            <p className="text-gray-500">เพิ่มงานหรือสอบเพื่อเริ่มต้นจัดการเวลา</p>
+            <h3 className="text-xl font-medium text-fg mb-1">ยังไม่มีกำหนดการ</h3>
+            <p className="text-muted">เพิ่มงานหรือสอบเพื่อเริ่มต้นจัดการเวลา</p>
           </div>
         ) : (
           <div className="space-y-2">
             {items.map((item) => {
               const isCompleted = item.status === 'Completed'
               return (
-                <div 
-                  key={item.id} 
-                  className={`group flex items-start gap-3 p-4 bg-white rounded-xl border transition-all
-                    ${isCompleted ? 'border-gray-100 opacity-60 bg-gray-50' : 'border-gray-200 hover:border-indigo-300 shadow-sm'}
+                <div
+                  key={item.id}
+                  className={`group flex items-start gap-3 p-4 bg-surface rounded-md border transition-all
+                    ${isCompleted ? 'border-border opacity-60 bg-surface-warm' : 'border-border hover:border-accent shadow-card'}
                   `}
                 >
-                  <button 
+                  <button
                     onClick={() => toggleStatus(item.id, item.status)}
                     className={`mt-1 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors
-                      ${isCompleted ? 'bg-indigo-500 border-indigo-500' : 'border-gray-300 bg-white hover:border-indigo-400'}
+                      ${isCompleted ? 'bg-accent border-accent' : 'border-border bg-surface hover:border-accent'}
                     `}
                   >
                     {isCompleted && <Check className="w-3.5 h-3.5 text-white" />}
                   </button>
-                  
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase
@@ -252,20 +252,20 @@ export default function Academic() {
                         <span className="text-[10px] font-bold text-red-500 uppercase">ด่วน</span>
                       )}
                     </div>
-                    <p className={`font-semibold transition-colors ${isCompleted ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                    <p className={`font-semibold transition-colors ${isCompleted ? 'text-meta line-through' : 'text-fg'}`}>
                       {item.subject}
                     </p>
-                    <p className={`text-sm ${isCompleted ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <p className={`text-sm ${isCompleted ? 'text-meta' : 'text-muted'}`}>
                       {item.topic}
                     </p>
                     {item.deadline && (
-                      <p className={`text-xs mt-1.5 font-medium ${isCompleted ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <p className={`text-xs mt-1.5 font-medium ${isCompleted ? 'text-meta' : 'text-muted'}`}>
                         📅 {new Date(item.deadline).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </p>
                     )}
                   </div>
-                  
-                  <button 
+
+                  <button
                     onClick={() => handleDelete(item.id)}
                     className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all rounded-lg hover:bg-red-50"
                   >

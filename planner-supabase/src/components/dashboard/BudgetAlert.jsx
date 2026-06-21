@@ -53,7 +53,7 @@ export default function BudgetAlert({ budget }) {
 
   return (
     <div
-      className={`rounded-xl border ${alertConfig.bg} p-4 transition-all duration-300 animate-[fadeIn_0.3s_ease-out]`}
+      className={`rounded-md border ${alertConfig.bg} p-4 transition-all duration-300 animate-[fadeIn_0.3s_ease-out]`}
       role="alert"
     >
       <div className="flex items-start gap-3">
@@ -106,7 +106,7 @@ export default function BudgetAlert({ budget }) {
           </p>
 
           {/* Mini progress bar */}
-          <div className="mt-2 w-full bg-white/60 rounded-full h-1.5 overflow-hidden">
+          <div className="mt-2 w-full bg-surface/60 rounded-full h-1.5 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-700 ease-out ${
                 isCritical ? 'bg-red-500' : 'bg-amber-500'

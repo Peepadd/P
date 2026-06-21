@@ -16,7 +16,7 @@ export default function TimetableStats({ config, cells, subjects }) {
 
       if (!subjectMap[cell.subject]) {
         const subj = (subjects || []).find((s) => s.name === cell.subject)
-        subjectMap[cell.subject] = { count: 0, color: subj?.color || '#6366f1' }
+        subjectMap[cell.subject] = { count: 0, color: subj?.color || '#7c3aed' }
       }
       subjectMap[cell.subject].count++
       if (dayIdx >= 0 && dayIdx < 5) dayCount[dayIdx]++
@@ -43,31 +43,31 @@ export default function TimetableStats({ config, cells, subjects }) {
   if (!stats || stats.totalPeriods === 0) return null
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5 space-y-4">
+    <div className="bg-surface rounded-md border border-border p-4 md:p-5 space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <BarChart3 size={18} className="text-indigo-600" />
-        <h3 className="font-semibold text-gray-900 text-sm">สรุปชั่วโมงเรียน</h3>
+        <BarChart3 size={18} className="text-accent" />
+        <h3 className="font-semibold text-fg text-sm">สรุปชั่วโมงเรียน</h3>
       </div>
 
       {/* Total summary */}
       <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold text-gray-900 tracking-tight">
+        <span className="text-2xl font-bold text-fg tracking-tight">
           {stats.totalHours}
-          <span className="text-base font-medium text-gray-400"> ชม.</span>
+          <span className="text-base font-medium text-meta"> ชม.</span>
           {stats.remainingMinutes > 0 && (
             <>
               {' '}{stats.remainingMinutes}
-              <span className="text-base font-medium text-gray-400"> น.</span>
+              <span className="text-base font-medium text-meta"> น.</span>
             </>
           )}
         </span>
-        <span className="text-sm text-gray-400">/ สัปดาห์</span>
-        <span className="text-xs text-gray-300 ml-auto">{stats.totalPeriods} คาบ</span>
+        <span className="text-sm text-meta">/ สัปดาห์</span>
+        <span className="text-xs text-meta ml-auto">{stats.totalPeriods} คาบ</span>
       </div>
 
       {/* Stacked progress bar */}
-      <div className="h-3 rounded-full overflow-hidden flex bg-gray-100">
+      <div className="h-3 rounded-full overflow-hidden flex bg-muted">
         {stats.subjectList.map((subj) => (
           <div
             key={subj.name}
@@ -90,20 +90,20 @@ export default function TimetableStats({ config, cells, subjects }) {
               className="w-3 h-3 rounded-sm shrink-0"
               style={{ backgroundColor: subj.color }}
             />
-            <span className="flex-1 text-gray-700 truncate">{subj.name}</span>
-            <span className="text-gray-400 text-xs tabular-nums">{subj.count} คาบ</span>
-            <span className="text-gray-300 text-xs tabular-nums w-12 text-right">
+            <span className="flex-1 text-fg-2 truncate">{subj.name}</span>
+            <span className="text-meta text-xs tabular-nums">{subj.count} คาบ</span>
+            <span className="text-meta text-xs tabular-nums w-12 text-right">
               {Math.floor(subj.minutes / 60) > 0 && `${Math.floor(subj.minutes / 60)}ชม.`}
               {subj.minutes % 60 > 0 && `${subj.minutes % 60}น.`}
             </span>
-            <span className="text-gray-300 text-xs tabular-nums w-10 text-right">{subj.percent}%</span>
+            <span className="text-meta text-xs tabular-nums w-10 text-right">{subj.percent}%</span>
           </div>
         ))}
       </div>
 
       {/* Per-day summary */}
-      <div className="pt-3 border-t border-gray-100">
-        <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
+      <div className="pt-3 border-t border-border">
+        <p className="text-xs text-meta mb-2 flex items-center gap-1">
           <Clock size={12} />
           คาบต่อวัน
         </p>
@@ -117,8 +117,8 @@ export default function TimetableStats({ config, cells, subjects }) {
                   backgroundColor: stats.dayCount[i] > 0 ? '#818cf8' : '#e5e7eb',
                 }}
               />
-              <p className="text-[10px] text-gray-500 mt-1">{day.slice(0, 2)}</p>
-              <p className="text-[10px] font-medium text-gray-700">{stats.dayCount[i]}</p>
+              <p className="text-[10px] text-muted mt-1">{day.slice(0, 2)}</p>
+              <p className="text-[10px] font-medium text-fg-2">{stats.dayCount[i]}</p>
             </div>
           ))}
         </div>

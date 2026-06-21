@@ -137,7 +137,7 @@ export default function TimetableDailyView({
 
   const getSubjectColor = (subjectName) => {
     const subj = subjects.find((s) => s.name === subjectName)
-    return subj ? subj.color : '#6366f1'
+    return subj ? subj.color : '#7c3aed'
   }
 
   const getRelatedAcademicItems = (subjectName) => {
@@ -185,7 +185,7 @@ export default function TimetableDailyView({
   return (
     <div className="space-y-4">
       {/* Day Selector */}
-      <div className="flex gap-1.5 bg-white rounded-xl border border-gray-200 p-1.5">
+      <div className="flex gap-1.5 bg-surface rounded-md border border-border p-1.5">
         {DAYS.map((day, i) => {
           const isToday = (() => {
             const jsDay = new Date().getDay()
@@ -197,16 +197,16 @@ export default function TimetableDailyView({
               onClick={() => setSelectedDay(i)}
               className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all relative ${
                 selectedDay === i
-                  ? 'bg-indigo-500 text-white shadow-sm'
+                  ? 'bg-accent text-white shadow-sm'
                   : isToday
-                  ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'text-accent bg-accent/10 hover:bg-accent/20'
+                  : 'text-muted hover:text-fg-2 hover:bg-muted'
               }`}
             >
               <span className="hidden sm:inline">{day}</span>
               <span className="sm:hidden">{DAYS_SHORT[i]}</span>
               {isToday && selectedDay !== i && (
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-accent rounded-full" />
               )}
             </button>
           )
@@ -226,10 +226,10 @@ export default function TimetableDailyView({
             <div key={slot.period} className="flex gap-3">
               {/* Time marker */}
               <div className="w-14 shrink-0 pt-3 text-right">
-                <p className={`text-xs font-medium ${isNow ? 'text-indigo-600' : 'text-gray-400'}`}>
+                <p className={`text-xs font-medium ${isNow ? 'text-accent' : 'text-meta'}`}>
                   {slot.start}
                 </p>
-                <p className="text-[10px] text-gray-300">{slot.end}</p>
+                <p className="text-[10px] text-meta">{slot.end}</p>
               </div>
 
               {/* Timeline line + dot */}
@@ -237,13 +237,13 @@ export default function TimetableDailyView({
                 <div
                   className={`w-3 h-3 rounded-full border-2 shrink-0 ${
                     isNow
-                      ? 'bg-indigo-500 border-indigo-500 animate-pulse'
+                      ? 'bg-accent border-accent animate-pulse'
                       : cell
-                      ? 'bg-white border-indigo-300'
-                      : 'bg-white border-gray-200'
+                      ? 'bg-surface border-accent/30'
+                      : 'bg-surface border-border'
                   }`}
                 />
-                <div className="w-px flex-1 bg-gray-200 -mt-0.5" />
+                <div className="w-px flex-1 bg-border -mt-0.5" />
               </div>
 
               {/* Card */}
@@ -251,14 +251,14 @@ export default function TimetableDailyView({
                 {isEditing ? (
                   /* Edit form */
                   <div
-                    className="bg-indigo-50 rounded-xl border border-indigo-200 p-3 space-y-2"
+                    className="bg-accent/10 rounded-md border border-accent/20 p-3 space-y-2"
                     onKeyDown={handleKeyDown}
                   >
                     <select
                       value={form.subject}
                       onChange={(e) => setForm((p) => ({ ...p, subject: e.target.value }))}
                       autoFocus
-                      className="w-full px-3 py-2 text-sm border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                      className="w-full px-3 py-2 text-sm border border-accent/30 rounded-lg focus:ring-2 focus:ring-accent outline-none bg-surface"
                     >
                       <option value="">เลือกวิชา</option>
                       {subjects.map((s) => (
@@ -273,14 +273,14 @@ export default function TimetableDailyView({
                         value={form.teacher}
                         onChange={(e) => setForm((p) => ({ ...p, teacher: e.target.value }))}
                         placeholder="ผู้สอน"
-                        className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                        className="px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"
                       />
                       <input
                         type="text"
                         value={form.room}
                         onChange={(e) => setForm((p) => ({ ...p, room: e.target.value }))}
                         placeholder="ห้อง"
-                        className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                        className="px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"
                       />
                     </div>
                     <input
@@ -288,14 +288,14 @@ export default function TimetableDailyView({
                       value={form.note}
                       onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
                       placeholder="หมายเหตุ"
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                      className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"
                     />
                     <input
                       type="url"
                       value={form.url}
                       onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
                       placeholder="ลิงก์เรียนออนไลน์ (Zoom/Meet)"
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                      className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"
                     />
                     <div className="flex items-center justify-between pt-1">
                       <button
@@ -307,13 +307,13 @@ export default function TimetableDailyView({
                       <div className="flex gap-2">
                         <button
                           onClick={() => setEditPeriod(null)}
-                          className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="px-3 py-1.5 text-sm text-fg-2 hover:bg-muted rounded-lg transition-colors"
                         >
                           ยกเลิก
                         </button>
                         <button
                           onClick={handleSaveCell}
-                          className="px-4 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                          className="px-4 py-1.5 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent/90 transition-colors"
                         >
                           บันทึก
                         </button>
@@ -324,10 +324,10 @@ export default function TimetableDailyView({
                   /* Filled card */
                   <button
                     onClick={() => handleOpenEdit(slot.period)}
-                    className={`w-full text-left rounded-xl border p-3 transition-all group ${
+                    className={`w-full text-left rounded-md border p-3 transition-all group ${
                       isNow
-                        ? 'bg-indigo-50 border-indigo-300 shadow-sm ring-2 ring-indigo-200'
-                        : 'bg-white border-gray-200 hover:border-indigo-300 hover:shadow-sm'
+                        ? 'bg-accent/10 border-accent/30 shadow-sm ring-2 ring-accent/20'
+                        : 'bg-surface border-border hover:border-accent/30 hover:shadow-sm'
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -337,17 +337,17 @@ export default function TimetableDailyView({
                             className="w-2.5 h-2.5 rounded-full shrink-0"
                             style={{ backgroundColor: getSubjectColor(cell.subject) }}
                           />
-                          <h4 className="font-semibold text-gray-900 text-sm truncate">
+                          <h4 className="font-semibold text-fg text-sm truncate">
                             {cell.subject}
                           </h4>
                           {isNow && (
-                            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded animate-pulse shrink-0">
+                            <span className="text-[10px] font-bold text-accent bg-accent/10 px-1.5 py-0.5 rounded animate-pulse shrink-0">
                               กำลังเรียน
                             </span>
                           )}
                         </div>
                         <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-3 text-xs text-gray-400">
+                          <div className="flex items-center gap-3 text-xs text-meta">
                           {cell.teacher && (
                             <span className="flex items-center gap-1">
                               <User size={11} /> {cell.teacher}
@@ -367,7 +367,7 @@ export default function TimetableDailyView({
                           className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full transition-colors shrink-0 ${
                             attendances[slot.period] === 'present'
                               ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                              : 'bg-muted text-muted hover:bg-muted'
                           }`}
                         >
                           {attendances[slot.period] === 'present' ? <CheckCircle size={14} /> : <Circle size={14} />}
@@ -384,11 +384,11 @@ export default function TimetableDailyView({
 
                     {/* Related academic items */}
                     {relatedItems.length > 0 && (
-                      <div className="mt-2 pt-2 border-t border-gray-100 space-y-1">
+                      <div className="mt-2 pt-2 border-t border-border space-y-1">
                         {relatedItems.slice(0, 2).map((item) => (
                           <div
                             key={item.id}
-                            className="flex items-center gap-1.5 text-[11px] text-gray-500"
+                            className="flex items-center gap-1.5 text-[11px] text-muted"
                           >
                             <span className="text-xs">
                               {item.type === 'สอบ' ? '📝' : '📚'}
@@ -404,7 +404,7 @@ export default function TimetableDailyView({
                           </div>
                         ))}
                         {relatedItems.length > 2 && (
-                          <p className="text-[10px] text-gray-400">
+                          <p className="text-[10px] text-meta">
                             +{relatedItems.length - 2} รายการ
                           </p>
                         )}
@@ -412,7 +412,7 @@ export default function TimetableDailyView({
                     )}
 
                     {/* Action buttons (visible on hover) */}
-                    <div className="mt-2 pt-2 border-t border-gray-100 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="mt-2 pt-2 border-t border-border flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       {cell.url && (
                         <a
                           href={cell.url.startsWith('http') ? cell.url : `https://${cell.url}`}
@@ -438,7 +438,7 @@ export default function TimetableDailyView({
                           e.stopPropagation()
                           navigate('/academic')
                         }}
-                        className="text-[11px] text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+                        className="text-[11px] text-accent bg-accent/10 hover:bg-accent/20 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
                       >
                         <ExternalLink size={11} /> เพิ่มงาน
                       </button>
@@ -448,9 +448,9 @@ export default function TimetableDailyView({
                   /* Empty slot */
                   <button
                     onClick={() => handleOpenEdit(slot.period)}
-                    className="w-full text-left rounded-xl border border-dashed border-gray-200 p-3 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all group"
+                    className="w-full text-left rounded-md border border-dashed border-border p-3 hover:border-accent/30 hover:bg-accent/10 transition-all group"
                   >
-                    <p className="text-xs text-gray-300 group-hover:text-indigo-400 transition-colors">
+                    <p className="text-xs text-meta group-hover:text-accent transition-colors">
                       คาบ {slot.period + 1} — คลิกเพื่อเพิ่มวิชา
                     </p>
                   </button>

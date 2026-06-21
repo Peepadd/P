@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import Layout from './components/layout/Layout'
 import Dashboard from './pages/Dashboard'
 import Accounting from './pages/Accounting'
@@ -17,6 +18,7 @@ import PriceCompare from './pages/PriceCompare'
 import Settings from './pages/Settings'
 import MediaTracker from './pages/MediaTracker'
 import AgentHub from './pages/AgentHub'
+
 function LoginPage() {
   const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth()
   const [isLoginMode, setIsLoginMode] = useState(true)
@@ -55,52 +57,52 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-bg flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-500 flex items-center justify-center shadow-sm">
-          <span className="text-white font-bold text-3xl tracking-tighter">P</span>
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-accent flex items-center justify-center shadow-card">
+          <span className="text-accent-on font-bold text-3xl tracking-tighter">P</span>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
+        <h2 className="mt-6 text-center text-2xl font-semibold text-fg tracking-heading">
           {isLoginMode ? 'เข้าสู่ระบบ' : 'สร้างบัญชีใหม่'}
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Planner Supabase - จัดการชีวิตและเวลาของคุณ
+        <p className="mt-2 text-center text-sm text-muted">
+          Planner Supabase — จัดการชีวิตและเวลาของคุณ
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 sm:rounded-2xl sm:px-10 border border-gray-200">
-          
+        <div className="bg-surface py-8 px-4 sm:rounded-2xl sm:px-10 border border-border">
+
           {error && (
-            <div className="mb-6 p-3 bg-red-50 text-red-600 text-sm font-medium rounded-lg border border-red-100">
+            <div className="mb-6 p-3 bg-danger-soft text-danger text-sm font-medium rounded-lg border border-danger/20">
               {error}
             </div>
           )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email address</label>
+              <label className="block text-sm font-medium text-fg-2">Email address</label>
               <div className="mt-1">
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2.5 border border-border rounded-lg shadow-sm placeholder-meta focus:outline-none focus:ring-accent focus:border-accent sm:text-sm bg-surface"
                   placeholder="you@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <label className="block text-sm font-medium text-fg-2">Password</label>
               <div className="mt-1">
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2.5 border border-border rounded-lg shadow-sm placeholder-meta focus:outline-none focus:ring-accent focus:border-accent sm:text-sm bg-surface"
                   placeholder="••••••••"
                   minLength={6}
                 />
@@ -111,7 +113,7 @@ function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-accent-on bg-accent hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 transition-colors duration-fast ease-standard"
               >
                 {isLoading ? 'กำลังดำเนินการ...' : (isLoginMode ? 'ลงชื่อเข้าใช้' : 'สมัครสมาชิก')}
               </button>
@@ -121,17 +123,17 @@ function LoginPage() {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">หรือ</span>
+                <span className="px-2 bg-surface text-muted">หรือ</span>
               </div>
             </div>
 
             <div className="mt-6">
               <button
                 onClick={handleGoogleAuth}
-                className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="w-full inline-flex justify-center py-2.5 px-4 border border-border rounded-lg shadow-sm bg-surface text-sm font-medium text-fg-2 hover:bg-surface-warm transition-colors duration-fast ease-standard"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -143,9 +145,9 @@ function LoginPage() {
               </button>
             </div>
           </div>
-          
+
           <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted">
               {isLoginMode ? 'ยังไม่มีบัญชีใช่ไหม?' : 'มีบัญชีอยู่แล้ว?'}
               {' '}
               <button
@@ -153,7 +155,7 @@ function LoginPage() {
                   setIsLoginMode(!isLoginMode)
                   setError('')
                 }}
-                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+                className="font-medium text-accent hover:text-accent-hover transition-colors duration-fast"
               >
                 {isLoginMode ? 'สร้างบัญชีใหม่' : 'ลงชื่อเข้าใช้'}
               </button>
@@ -168,9 +170,9 @@ function LoginPage() {
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-bg">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     </div>
   )
@@ -216,9 +218,11 @@ function AppContent() {
 export default function App() {
   return (
     <HashRouter>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ThemeProvider>
     </HashRouter>
   )
 }
